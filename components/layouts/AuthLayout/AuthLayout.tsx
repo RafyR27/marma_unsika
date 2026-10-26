@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 
 export default function AuthLayout({
   children,
@@ -16,6 +15,7 @@ export default function AuthLayout({
           alt=""
           fill
           priority
+          sizes="50vw"
           className="object-cover"
         />
 
