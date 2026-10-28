@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Controller } from "react-hook-form";
 import {
@@ -57,6 +58,22 @@ export default function ProfileSection() {
     setShowConfirmPassword,
   } = useProfile();
 
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || isProfileLoading) {
+    return (
+      <div className="max-w-3xl mx-auto py-8 px-4 space-y-6">
+        <Skeleton className="h-24 w-full rounded-xl" />
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-96 w-full rounded-xl" />
+      </div>
+    );
+  }
+
   const hasToken =
     typeof window !== "undefined" ? !!localStorage.getItem("token") : false;
 
@@ -71,16 +88,6 @@ export default function ProfileSection() {
         <Button nativeButton={false} render={<Link href="/auth/login" className="px-6" />}>
           Masuk Sekarang
         </Button>
-      </div>
-    );
-  }
-
-  if (isProfileLoading) {
-    return (
-      <div className="max-w-3xl mx-auto py-8 px-4 space-y-6">
-        <Skeleton className="h-24 w-full rounded-xl" />
-        <Skeleton className="h-10 w-64" />
-        <Skeleton className="h-96 w-full rounded-xl" />
       </div>
     );
   }

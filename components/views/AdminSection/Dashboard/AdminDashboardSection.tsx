@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -36,7 +37,13 @@ export default function AdminDashboardSection() {
     totalUsersCount,
   } = useAdminDashboard();
 
-  if (isUserLoading) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || isUserLoading) {
     return (
       <div className="p-6 space-y-6">
         <Skeleton className="h-20 w-full rounded-xl" />
