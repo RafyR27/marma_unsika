@@ -45,7 +45,10 @@ export const useSellerInventory = () => {
     },
   });
 
-  const rawProducts: IProduct[] = productsResponse?.data || [];
+  const rawProducts: IProduct[] = useMemo(
+    () => productsResponse?.data ?? [],
+    [productsResponse?.data]
+  );
 
   // 3. Ringkasan Statistik Inventaris (Inventory Summary)
   const stats = useMemo(() => {
@@ -98,7 +101,7 @@ export const useSellerInventory = () => {
       slug: string;
       payload: IUpdateProductRequest;
     }) => product.updateProduct(slug, payload),
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       toast.success("Inventaris komoditas berhasil diperbarui!", {
         position: "top-right",
       });
