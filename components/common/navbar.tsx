@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "../ui/button";
-import { Search, ShoppingCart, LogOut, LayoutDashboard } from "lucide-react";
+import { Search, ShoppingCart, LogOut, LayoutDashboard, ClipboardList } from "lucide-react";
 import {
   InputGroup,
   InputGroupAddon,
@@ -77,14 +77,24 @@ const MainNavbar = () => {
 
           {user ? (
             <div className="flex items-center gap-2">
-              <Link href={dashboardUrl}>
+              <Link href="/user/orders">
                 <Button variant="outline" size="sm" className="flex items-center gap-1.5">
-                  <LayoutDashboard className="w-4 h-4" />
+                  <ClipboardList className="w-4 h-4" />
                   <span className="hidden md:inline text-xs font-medium">
-                    {user.role === "seller" ? "Kios Saya" : "Dashboard"}
+                    Pesanan
                   </span>
                 </Button>
               </Link>
+              {dashboardUrl !== "/" && (
+                <Link href={dashboardUrl}>
+                  <Button variant="outline" size="sm" className="flex items-center gap-1.5">
+                    <LayoutDashboard className="w-4 h-4" />
+                    <span className="hidden md:inline text-xs font-medium">
+                      {user.role === "seller" ? "Kios Saya" : "Dashboard"}
+                    </span>
+                  </Button>
+                </Link>
+              )}
               <Button
                 variant="ghost"
                 size="sm"
