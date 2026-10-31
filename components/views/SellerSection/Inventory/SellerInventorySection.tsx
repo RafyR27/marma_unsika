@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMe } from "@/hooks/useMe";
 import { useSellerInventory, StockFilterType } from "./useSellerInventory";
+import { IProduct } from "@/types/product";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -28,22 +29,17 @@ import {
   RefreshCw,
   SlidersHorizontal,
   Plus,
-  Minus,
-  Sparkles,
   ExternalLink,
   ShieldAlert,
   Archive,
 } from "lucide-react";
 
+const emptySubscribe = () => () => {};
+
 export default function SellerInventorySection() {
   const router = useRouter();
   const { data: user, isLoading: isCheckingAuth } = useMe();
-
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
 
   const {
     filteredProducts,
@@ -64,21 +60,6 @@ export default function SellerInventorySection() {
     isUpdating,
     toggleAvailability,
   } = useSellerInventory();
-
-  // State untuk modal adjust stok
-  const [adjustmentMode, setAdjustmentMode] = useState<"add" | "set">("add");
-  const [addQty, setAddQty] = useState<number>(10);
-  const [newStock, setNewStock] = useState<number>(0);
-  const [isAvailableInModal, setIsAvailableInModal] = useState<boolean>(true);
-
-  useEffect(() => {
-    if (adjustingProduct) {
-      setNewStock(adjustingProduct.stock);
-      setIsAvailableInModal(adjustingProduct.is_available);
-      setAddQty(10);
-      setAdjustmentMode("add");
-    }
-  }, [adjustingProduct]);
 
   if (!mounted || isCheckingAuth) {
     return (
@@ -110,25 +91,6 @@ export default function SellerInventorySection() {
       </div>
     );
   }
-
-  const handleSaveAdjustment = () => {
-    if (!adjustingProduct) return;
-
-    let finalStock = newStock;
-    if (adjustmentMode === "add") {
-      finalStock = Math.max(0, adjustingProduct.stock + addQty);
-    } else {
-      finalStock = Math.max(0, newStock);
-    }
-
-    updateInventory({
-      slug: adjustingProduct.slug,
-      payload: {
-        stock: finalStock,
-        is_available: isAvailableInModal,
-      },
-    });
-  };
 
   return (
     <div className="p-4 lg:p-8 space-y-6">
@@ -340,7 +302,6 @@ export default function SellerInventorySection() {
               <tbody className="divide-y divide-border">
                 {filteredProducts.map((p) => {
                   const isLow = p.is_available && p.stock > 0 && p.stock <= Math.max(20, (p.min_order || 1) * 2);
-                  const isOut = p.stock === 0 || !p.is_available;
 
                   return (
                     <tr key={p.id} className="hover:bg-muted/30 transition-colors">
@@ -452,161 +413,210 @@ export default function SellerInventorySection() {
       )}
 
       {/* MODAL DIALOG: PENYESUAIAN STOK CEPAT */}
-      <Dialog
-        open={!!adjustingProduct}
-        onOpenChange={(open) => !open && setAdjustingProduct(null)}
-      >
-        <DialogContent className="max-w-md">
-          <DialogHeader className="pr-8">
-            <DialogTitle className="flex items-center gap-2 text-base leading-snug">
-              <Edit2 className="w-5 h-5 text-primary" />
-              Kelola Stok: {adjustingProduct?.name}
-            </DialogTitle>
-            <DialogDescription>
-              Perbarui jumlah stok fisik yang tersedia di lapak atau sembunyikan sementara dari pembeli.
-            </DialogDescription>
-          </DialogHeader>
+      {adjustingProduct && (
+        <StockAdjustmentDialog
+          key={adjustingProduct.id}
+          product={adjustingProduct}
+          onClose={() => setAdjustingProduct(null)}
+          onSave={(payload) => {
+            updateInventory({
+              slug: adjustingProduct.slug,
+              payload,
+            });
+          }}
+          isUpdating={isUpdating}
+        />
+      )}
+    </div>
+  );
+}
 
-          <div className="space-y-4 py-2">
-            {/* Info Singkat Komoditas */}
-            <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/40 text-sm">
-              <div>
-                <span className="text-xs text-muted-foreground block">Stok Saat Ini:</span>
-                <span className="font-bold text-lg text-primary">
-                  {adjustingProduct?.stock} {adjustingProduct?.unit}
-                </span>
-              </div>
-              <div className="text-right">
-                <span className="text-xs text-muted-foreground block">Harga Grosir:</span>
-                <span className="font-semibold">{adjustingProduct?.formatted_price}</span>
-              </div>
+interface StockAdjustmentDialogProps {
+  product: IProduct;
+  onClose: () => void;
+  onSave: (payload: { stock: number; is_available: boolean }) => void;
+  isUpdating: boolean;
+}
+
+function StockAdjustmentDialog({
+  product,
+  onClose,
+  onSave,
+  isUpdating,
+}: StockAdjustmentDialogProps) {
+  const [adjustmentMode, setAdjustmentMode] = useState<"add" | "set">("add");
+  const [addQty, setAddQty] = useState<number>(10);
+  const [newStock, setNewStock] = useState<number>(product.stock);
+  const [isAvailableInModal, setIsAvailableInModal] = useState<boolean>(
+    product.is_available
+  );
+
+  const handleSave = () => {
+    let finalStock = newStock;
+    if (adjustmentMode === "add") {
+      finalStock = Math.max(0, product.stock + addQty);
+    } else {
+      finalStock = Math.max(0, newStock);
+    }
+
+    onSave({
+      stock: finalStock,
+      is_available: isAvailableInModal,
+    });
+  };
+
+  return (
+    <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader className="pr-8">
+          <DialogTitle className="flex items-center gap-2 text-base leading-snug">
+            <Edit2 className="w-5 h-5 text-primary" />
+            Kelola Stok: {product.name}
+          </DialogTitle>
+          <DialogDescription>
+            Perbarui jumlah stok fisik yang tersedia di lapak atau sembunyikan sementara dari pembeli.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-2">
+          {/* Info Singkat Komoditas */}
+          <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/40 text-sm">
+            <div>
+              <span className="text-xs text-muted-foreground block">Stok Saat Ini:</span>
+              <span className="font-bold text-lg text-primary">
+                {product.stock} {product.unit}
+              </span>
             </div>
-
-            {/* Pilihan Mode Penyesuaian */}
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">
-                Metode Penyesuaian
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setAdjustmentMode("add")}
-                  className={`p-2.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                    adjustmentMode === "add"
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-background text-muted-foreground hover:bg-muted"
-                  }`}
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  Tambah Pasokan Baru
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAdjustmentMode("set")}
-                  className={`p-2.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                    adjustmentMode === "set"
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-background text-muted-foreground hover:bg-muted"
-                  }`}
-                >
-                  <SlidersHorizontal className="w-3.5 h-3.5" />
-                  Input Stok Baru
-                </button>
-              </div>
-            </div>
-
-            {/* Input Kuantitas Sesuai Mode */}
-            {adjustmentMode === "add" ? (
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  Jumlah Pasokan Masuk ({adjustingProduct?.unit})
-                </label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="number"
-                    min="1"
-                    value={addQty}
-                    onChange={(e) => setAddQty(Math.max(1, Number(e.target.value)))}
-                    className="h-10 text-base font-bold"
-                  />
-                  <div className="flex gap-1">
-                    {[10, 25, 50, 100].map((amt) => (
-                      <Button
-                        key={amt}
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setAddQty(amt)}
-                        className="text-xs font-medium"
-                      >
-                        +{amt}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Stok akhir kios akan menjadi:{" "}
-                  <strong className="text-primary font-bold">
-                    {(adjustingProduct?.stock || 0) + (addQty || 0)} {adjustingProduct?.unit}
-                  </strong>
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  Atur Total Stok Fisik Baru ({adjustingProduct?.unit})
-                </label>
-                <Input
-                  type="number"
-                  min="0"
-                  value={newStock}
-                  onChange={(e) => setNewStock(Math.max(0, Number(e.target.value)))}
-                  className="h-10 text-base font-bold"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Kuantitas stok langsung diubah ke angka ini.
-                </p>
-              </div>
-            )}
-
-            {/* Toggle Status Etalase */}
-            <div className="pt-2 border-t flex items-center justify-between">
-              <div>
-                <span className="text-sm font-medium block">Tampilkan di Etalase</span>
-                <span className="text-xs text-muted-foreground block">
-                  Pembeli dapat melihat dan memasukkan ke keranjang
-                </span>
-              </div>
-              <input
-                type="checkbox"
-                id="modal-available"
-                checked={isAvailableInModal}
-                onChange={(e) => setIsAvailableInModal(e.target.checked)}
-                className="w-4 h-4 rounded text-primary cursor-pointer"
-              />
+            <div className="text-right">
+              <span className="text-xs text-muted-foreground block">Harga Grosir:</span>
+              <span className="font-semibold">{product.formatted_price}</span>
             </div>
           </div>
 
-          <DialogFooter className="pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isUpdating}
-              onClick={() => setAdjustingProduct(null)}
-            >
-              Batal
-            </Button>
-            <Button
-              type="button"
-              disabled={isUpdating}
-              onClick={handleSaveAdjustment}
-              className="flex items-center gap-1.5"
-            >
-              {isUpdating ? <Spinner /> : "Simpan Perubahan"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+          {/* Pilihan Mode Penyesuaian */}
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">
+              Metode Penyesuaian
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setAdjustmentMode("add")}
+                className={`p-2.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                  adjustmentMode === "add"
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-background text-muted-foreground hover:bg-muted"
+                }`}
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Tambah Pasokan Baru
+              </button>
+              <button
+                type="button"
+                onClick={() => setAdjustmentMode("set")}
+                className={`p-2.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                  adjustmentMode === "set"
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-background text-muted-foreground hover:bg-muted"
+                }`}
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5" />
+                Input Stok Baru
+              </button>
+            </div>
+          </div>
+
+          {/* Input Kuantitas Sesuai Mode */}
+          {adjustmentMode === "add" ? (
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                Jumlah Pasokan Masuk ({product.unit})
+              </label>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  min="1"
+                  value={addQty}
+                  onChange={(e) => setAddQty(Math.max(1, Number(e.target.value)))}
+                  className="h-10 text-base font-bold"
+                />
+                <div className="flex gap-1">
+                  {[10, 25, 50, 100].map((amt) => (
+                    <Button
+                      key={amt}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setAddQty(amt)}
+                      className="text-xs font-medium"
+                    >
+                      +{amt}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Stok akhir kios akan menjadi:{" "}
+                <strong className="text-primary font-bold">
+                  {product.stock + (addQty || 0)} {product.unit}
+                </strong>
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                Atur Total Stok Fisik Baru ({product.unit})
+              </label>
+              <Input
+                type="number"
+                min="0"
+                value={newStock}
+                onChange={(e) => setNewStock(Math.max(0, Number(e.target.value)))}
+                className="h-10 text-base font-bold"
+              />
+              <p className="text-xs text-muted-foreground">
+                Kuantitas stok langsung diubah ke angka ini.
+              </p>
+            </div>
+          )}
+
+          {/* Toggle Status Etalase */}
+          <div className="pt-2 border-t flex items-center justify-between">
+            <div>
+              <span className="text-sm font-medium block">Tampilkan di Etalase</span>
+              <span className="text-xs text-muted-foreground block">
+                Pembeli dapat melihat dan memasukkan ke keranjang
+              </span>
+            </div>
+            <input
+              type="checkbox"
+              id="modal-available"
+              checked={isAvailableInModal}
+              onChange={(e) => setIsAvailableInModal(e.target.checked)}
+              className="w-4 h-4 rounded text-primary cursor-pointer"
+            />
+          </div>
+        </div>
+
+        <DialogFooter className="pt-2">
+          <Button
+            type="button"
+            variant="outline"
+            disabled={isUpdating}
+            onClick={onClose}
+          >
+            Batal
+          </Button>
+          <Button
+            type="button"
+            disabled={isUpdating}
+            onClick={handleSave}
+            className="flex items-center gap-1.5"
+          >
+            {isUpdating ? <Spinner /> : "Simpan Perubahan"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
