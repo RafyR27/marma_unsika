@@ -294,14 +294,10 @@ export default function CartPage() {
                 <Button
                   size="lg"
                   className="w-full text-base font-semibold"
-                  onClick={() => {
-                    toast.info(
-                      "Modul Pembayaran & Logistik sedang dalam integrasi teknopreneur berikutnya.",
-                      { position: "top-right" }
-                    );
-                  }}
+                  nativeButton={false}
+                  render={<Link href="/user/checkout" />}
                 >
-                  Lanjut ke Pembayaran
+                  Lanjut ke Checkout Pesanan
                 </Button>
 
                 <p className="text-[11px] text-muted-foreground text-center">
