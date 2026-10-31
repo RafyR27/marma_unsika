@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import Image from "next/image";
@@ -88,6 +89,27 @@ export default function CartPage() {
     total_price: 0,
     formatted_total_price: "Rp 0",
   };
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <MainLayout>
+        <div className="max-w-5xl mx-auto py-8 px-4 space-y-4">
+          <Skeleton className="h-8 w-48" />
+          <div className="space-y-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-28 w-full rounded-xl" />
+            ))}
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
 
   const hasToken =
     typeof window !== "undefined" ? !!localStorage.getItem("token") : false;

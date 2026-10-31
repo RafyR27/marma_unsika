@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -39,6 +40,26 @@ export default function OrdersListSection() {
     isError,
     refetch,
   } = useOrdersList();
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="max-w-4xl mx-auto py-8 px-4 space-y-6">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-10 w-full" />
+        <div className="space-y-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-40 w-full rounded-xl" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   const hasToken =
     typeof window !== "undefined" ? !!localStorage.getItem("token") : false;

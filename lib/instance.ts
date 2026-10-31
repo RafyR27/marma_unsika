@@ -27,6 +27,14 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (error?.response?.status === 401 && typeof window !== "undefined") {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      if (!window.location.pathname.startsWith("/auth/")) {
+        window.location.href = "/auth/login";
+      }
+    }
+
     const message =
       error?.response?.data?.message || error?.message || "Terjadi kesalahan";
 
