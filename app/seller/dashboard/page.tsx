@@ -3,14 +3,14 @@ import SidebarLayout from "@/components/layouts/Sidebar/SidebarLayout/SidebarLay
 import SellerDashboardSection from "@/components/views/SellerSection/Dashboard/SellerDashboardSection";
 
 export const metadata = {
-  title: "Dashboard Kios | Mitra Pedagang Marma",
-  description: "Ringkasan operasional kios pasar induk, antrean kemas barang, dan status etalase",
+  title: "Dashboard Penjual | Mitra Pedagang Marma",
+  description: "Kelola komoditas, stok persediaan, dan operasional kios pedagang pasar di Marma",
 };
 
 export default function SellerDashboardPage() {
   return (
     <SidebarLayout>
-      <SiteHeader title="Dashboard Kios" />
+      <SiteHeader title="Dashboard Penjual" />
       <SellerDashboardSection />
     </SidebarLayout>
   );
