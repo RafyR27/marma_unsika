@@ -1,14 +1,16 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import user from "@/services/user.service";
 import { IAuthUser } from "@/types/user";
 
 export const useMe = () => {
   const queryClient = useQueryClient();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     // Rehidrasi cache user dari localStorage setelah komponen mount di client.
     // Menghindari Hydration Mismatch (SSR render text != Client render text).
     if (typeof window !== "undefined") {
@@ -26,7 +28,7 @@ export const useMe = () => {
     }
   }, [queryClient]);
 
-  return useQuery<IAuthUser | null>({
+  const query = useQuery<IAuthUser | null>({
     queryKey: ["auth", "me"],
     queryFn: async () => {
       try {
@@ -50,9 +52,15 @@ export const useMe = () => {
         throw error;
       }
     },
-    // Hanya lakukan fetch ke server jika ada token di browser
-    enabled: typeof window !== "undefined" && !!localStorage.getItem("token"),
+    // Hanya lakukan fetch ke server jika komponen sudah mount dan ada token di browser
+    enabled: mounted && typeof window !== "undefined" && !!localStorage.getItem("token"),
     staleTime: 1000 * 60 * 5, // Cache valid selama 5 menit
     retry: 1,
   });
+
+  return {
+    ...query,
+    isMounted: mounted,
+    isLoading: !mounted || query.isLoading,
+  };
 };

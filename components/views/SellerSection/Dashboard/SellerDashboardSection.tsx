@@ -13,6 +13,7 @@ import {
   RefreshCw,
   AlertCircle,
   Package,
+  ClipboardList,
 } from "lucide-react";
 
 // useSyncExternalStore digunakan untuk mendeteksi client mount secara aman tanpa
@@ -63,7 +64,7 @@ export default function SellerDashboardSection() {
           <p className="text-sm text-neutral-600 mb-6 leading-relaxed">
             Silakan masuk dengan akun mitra penjual untuk mengelola etalase dan persediaan kios pasar Anda.
           </p>
-          <Link href="/login">
+          <Link href="/auth/login">
             <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium h-10">
               Masuk ke Akun
             </Button>
@@ -73,7 +74,8 @@ export default function SellerDashboardSection() {
     );
   }
 
-  if (user.role !== "seller") {
+  const isSeller = user.role === "seller" || user.role === "admin";
+  if (!isSeller) {
     return (
       <div className="max-w-md mx-auto my-16 px-4">
         <div className="bg-white rounded-2xl border border-neutral-200/90 p-8 text-center shadow-sm">
@@ -149,6 +151,15 @@ export default function SellerDashboardSection() {
           </div>
 
           <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 pt-1 lg:pt-0 shrink-0">
+            <Link href="/seller/orders">
+              <Button
+                variant="outline"
+                className="border-neutral-300 text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900 text-sm h-10 px-4 rounded-lg transition-colors font-medium flex items-center gap-1.5"
+              >
+                <ClipboardList className="w-4 h-4 text-emerald-600" />
+                Pesanan Masuk
+              </Button>
+            </Link>
             <Link href="/seller/products">
               <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm h-10 px-4 rounded-lg shadow-sm transition-colors">
                 <Plus className="w-4 h-4 mr-1.5" />
@@ -164,7 +175,7 @@ export default function SellerDashboardSection() {
               </Button>
             </Link>
             <Link
-              href="/products"
+              href="/"
               target="_blank"
               className="inline-flex items-center gap-1.5 text-xs text-neutral-500 hover:text-emerald-700 font-medium py-2.5 px-3 rounded-lg hover:bg-neutral-50 border border-transparent hover:border-neutral-200/70 transition-colors"
               title="Buka etalase pasar publik di tab baru"
@@ -205,7 +216,7 @@ export default function SellerDashboardSection() {
             type="button"
             onClick={() => refetch()}
             disabled={isLoading}
-            className="text-xs text-neutral-500 hover:text-neutral-800 inline-flex items-center gap-1.5 transition-colors"
+            className="text-xs text-neutral-500 hover:text-neutral-800 inline-flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <RefreshCw
               className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-emerald-600" : ""}`}

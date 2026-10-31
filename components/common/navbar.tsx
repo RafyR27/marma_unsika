@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 import { Search, ShoppingCart, LogOut, LayoutDashboard, ClipboardList } from "lucide-react";
 import {
@@ -17,8 +18,19 @@ import LogoutDialog from "@/components/common/LogoutDialog";
 import { getRoleDashboard } from "../views/AuthSection/LoginSection/useLogin";
 
 const MainNavbar = () => {
+  const router = useRouter();
   const { data: user } = useMe();
   const [logoutOpen, setLogoutOpen] = useState(false);
+  const [navSearch, setNavSearch] = useState("");
+
+  const handleNavSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (navSearch.trim()) {
+      router.push(`/?search=${encodeURIComponent(navSearch.trim())}`);
+    } else {
+      router.push("/");
+    }
+  };
 
   const { data: cartData } = useQuery({
     queryKey: ["cart"],
@@ -45,17 +57,26 @@ const MainNavbar = () => {
           </Link>
         </div>
 
-        <InputGroup className="lg:max-w-2xl max-w-lg">
-          <InputGroupAddon align="inline-start">
-            <Search className="w-4 h-4 text-muted-foreground" />
-          </InputGroupAddon>
-          <InputGroupInput placeholder="Cari cabai, bawang, sayuran segar..." />
-          <InputGroupAddon align="inline-end">
-            <button className="cursor-pointer px-2 text-xs font-medium text-primary hover:text-primary/80">
-              Cari
-            </button>
-          </InputGroupAddon>
-        </InputGroup>
+        <form onSubmit={handleNavSearch} className="lg:max-w-2xl max-w-lg w-full">
+          <InputGroup className="w-full">
+            <InputGroupAddon align="inline-start">
+              <Search className="w-4 h-4 text-muted-foreground" />
+            </InputGroupAddon>
+            <InputGroupInput
+              placeholder="Cari cabai, bawang, sayuran segar..."
+              value={navSearch}
+              onChange={(e) => setNavSearch(e.target.value)}
+            />
+            <InputGroupAddon align="inline-end">
+              <button
+                type="submit"
+                className="cursor-pointer px-2 text-xs font-medium text-primary hover:text-primary/80"
+              >
+                Cari
+              </button>
+            </InputGroupAddon>
+          </InputGroup>
+        </form>
 
         <div className="flex items-center gap-3">
           <Button variant="outline" className="h-10 lg:h-8 relative" nativeButton={false} render={

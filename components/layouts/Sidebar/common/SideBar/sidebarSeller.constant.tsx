@@ -71,7 +71,7 @@ const SIDEBAR_SELLER = {
   tools: [
     {
       title: "Pengaturan",
-      url: "/admin/settings",
+      url: "/seller/settings",
       icon: <Settings2Icon />,
     },
     {
