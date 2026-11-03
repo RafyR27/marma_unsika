@@ -39,6 +39,8 @@ export const useActiveDeliveries = () => {
       itemId: number;
       status: PickupStatus;
     }) => {
+      console.log(status)
+
       const res = await courier.updateItemPickup(itemId, {
         pickup_status: status,
       });

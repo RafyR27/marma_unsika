@@ -72,7 +72,7 @@ export default function CourierServiceAreaSection() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
           <MapPin className="w-6 h-6 text-primary" />
-          Peta Area Layanan & Denah Blok Pasar
+          Peta Area Layanan & Denah Blok Pasar (DUMMY)
         </h1>
         <p className="text-sm text-muted-foreground mt-0.5">
           Panduan navigasi penjemputan barang di blok kios pasar induk dan zonasi pengantaran warung pemesan.

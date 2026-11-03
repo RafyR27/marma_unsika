@@ -10,6 +10,7 @@ export const useMe = () => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     // Rehidrasi cache user dari localStorage setelah komponen mount di client.
     // Menghindari Hydration Mismatch (SSR render text != Client render text).
