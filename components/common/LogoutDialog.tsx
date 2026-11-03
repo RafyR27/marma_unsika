@@ -35,7 +35,7 @@ export default function LogoutDialog({
   open,
   onOpenChange,
   trigger,
-  redirectTo = "/auth/login",
+  redirectTo = "/",
   onSuccess,
   title = "Konfirmasi Keluar",
   description = "Apakah Anda yakin ingin keluar dari akun ini? Anda perlu masuk kembali untuk mengakses halaman ini.",

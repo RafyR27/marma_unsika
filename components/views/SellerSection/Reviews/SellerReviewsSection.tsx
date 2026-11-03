@@ -70,7 +70,7 @@ export default function SellerReviewsSection() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
             <Star className="w-6 h-6 text-amber-500 fill-amber-500" />
-            Ulasan & Kepuasan Pembeli Warung
+            Ulasan & Kepuasan Pembeli Warung (DUMMY)
           </h1>
           <p className="text-sm text-muted-foreground mt-0.5">
             Evaluasi kualitas kesegaran komoditas lapak, ketepatan timbangan, dan kepuasan pedagang warung pembeli.

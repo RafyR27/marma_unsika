@@ -55,7 +55,7 @@ export function AppSidebar({
     ? (currentUser as IAuthUser)?.profile?.store_name || "Marma Penjual"
     : isCourier
     ? "Marma Kurir"
-    : "Marma Super Admin";
+    : "Marma Admin";
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>

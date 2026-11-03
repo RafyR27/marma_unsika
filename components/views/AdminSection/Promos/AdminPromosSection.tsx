@@ -34,6 +34,7 @@ export default function AdminPromosSection() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -106,10 +107,11 @@ export default function AdminPromosSection() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
             <TicketPercent className="w-6 h-6 text-primary" />
-            Promo & Voucher Subsidi Pasar
+            Promo & Voucher Subsidi Pasar (DUMMY)
           </h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Kelola kupon diskon ongkos kirim dan potongan harga grosir untuk memicu transaksi warung pembeli.
+            Kelola kupon diskon ongkos kirim dan potongan harga grosir untuk
+            memicu transaksi warung pembeli.
           </p>
         </div>
 
@@ -138,7 +140,9 @@ export default function AdminPromosSection() {
 
         <div className="p-4 rounded-xl border bg-card shadow-xs space-y-1 border-primary/30">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="font-semibold text-primary">Klaim Digunakan Warung</span>
+            <span className="font-semibold text-primary">
+              Klaim Digunakan Warung
+            </span>
             <Users className="w-4 h-4 text-primary" />
           </div>
           <p className="text-2xl font-extrabold text-primary">{totalUsed}</p>
@@ -208,42 +212,47 @@ export default function AdminPromosSection() {
                       {p.discountType === "free_shipping"
                         ? `Potongan Ongkir Rp ${p.discountValue.toLocaleString("id-ID")}`
                         : p.discountType === "fixed"
-                        ? `Diskon Rp ${p.discountValue.toLocaleString("id-ID")}`
-                        : `Diskon ${p.discountValue}% (Maks Rp ${(p.maxDiscount || 0).toLocaleString("id-ID")})`}
+                          ? `Diskon Langsung Rp ${p.discountValue.toLocaleString("id-ID")}`
+                          : `Diskon ${p.discountValue}% (Maks Rp ${p.maxDiscount?.toLocaleString("id-ID")})`}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Minimal belanja: Rp {p.minSpend.toLocaleString("id-ID")}
                     </p>
                   </div>
 
-                  {/* Keterangan Syarat */}
-                  <div className="space-y-1 text-[11px] text-muted-foreground bg-muted/30 p-2.5 rounded-lg border">
-                    <div className="flex justify-between">
-                      <span>Min. Belanja:</span>
-                      <span className="font-semibold text-foreground">
-                        Rp {p.minSpend.toLocaleString("id-ID")}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Kuota Digunakan:</span>
-                      <span className="font-semibold text-foreground">
+                  {/* Progress Kuota */}
+                  <div className="space-y-1 text-xs">
+                    <div className="flex justify-between text-[11px] text-muted-foreground">
+                      <span>Kuota Terpakai:</span>
+                      <span>
                         {p.used} / {p.quota} klaim
                       </span>
                     </div>
-                    <div className="flex justify-between items-center pt-0.5">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" /> Berlaku s.d:
-                      </span>
-                      <span className="font-medium text-foreground">
-                        {new Date(p.expiresAt).toLocaleDateString("id-ID", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </span>
+                    <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full bg-primary rounded-full transition-all"
+                        style={{
+                          width: `${Math.min(100, (p.used / p.quota) * 100)}%`,
+                        }}
+                      />
                     </div>
+                  </div>
+
+                  <div className="flex items-center gap-1 text-[11px] text-muted-foreground pt-1">
+                    <Calendar className="w-3 h-3" />
+                    <span>
+                      Berlaku hingga:{" "}
+                      {new Date(p.expiresAt).toLocaleDateString("id-ID", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </span>
                   </div>
                 </div>
 
                 {/* Footer Kartu & Aksi */}
-                <div className="flex items-center justify-between pt-2 border-t text-xs">
+                <div className="pt-3 border-t flex items-center justify-between text-xs">
                   <span
                     className={`font-semibold px-2 py-0.5 rounded-full text-[10px] ${
                       isExpired
@@ -273,7 +282,7 @@ export default function AdminPromosSection() {
 
       {/* MODAL TERBITKAN VOUCHER BARU */}
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="min-w-xl">
           <DialogHeader>
             <DialogTitle className="text-base flex items-center gap-2">
               <TicketPercent className="w-5 h-5 text-primary" />
@@ -284,9 +293,14 @@ export default function AdminPromosSection() {
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleCreatePromo} className="space-y-3.5 py-2 text-xs">
-            <div className="space-y-1">
-              <label className="font-semibold text-foreground">Kode Kupon:</label>
+          <form
+            onSubmit={handleCreatePromo}
+            className="space-y-3.5 text-xs"
+          >
+            <div className="flex flex-col gap-2">
+              <label className="font-semibold text-foreground">
+                Kode Kupon:
+              </label>
               <Input
                 value={code}
                 onChange={(e) => setCode(e.target.value.toUpperCase())}
@@ -296,8 +310,10 @@ export default function AdminPromosSection() {
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="font-semibold text-foreground">Judul Promo:</label>
+            <div className="flex flex-col gap-2">
+              <label className="font-semibold text-foreground">
+                Judul Promo:
+              </label>
               <Input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -307,13 +323,15 @@ export default function AdminPromosSection() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="font-semibold text-foreground">Tipe Diskon:</label>
+              <div className="flex flex-col gap-2">
+                <label className="font-semibold text-foreground">
+                  Tipe Diskon:
+                </label>
                 <select
                   value={discountType}
                   onChange={(e) =>
                     setDiscountType(
-                      e.target.value as "percent" | "fixed" | "free_shipping"
+                      e.target.value as "percent" | "fixed" | "free_shipping",
                     )
                   }
                   className="w-full h-9 rounded-md border bg-background px-3 text-xs"
@@ -324,8 +342,10 @@ export default function AdminPromosSection() {
                 </select>
               </div>
 
-              <div className="space-y-1">
-                <label className="font-semibold text-foreground">Nilai Potongan:</label>
+              <div className="flex flex-col gap-2">
+                <label className="font-semibold text-foreground">
+                  Nilai Potongan:
+                </label>
                 <Input
                   type="number"
                   value={discountValue}
@@ -336,7 +356,7 @@ export default function AdminPromosSection() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
+              <div className="flex flex-col gap-2">
                 <label className="font-semibold text-foreground">
                   Min. Belanja (Rp):
                 </label>
@@ -348,8 +368,10 @@ export default function AdminPromosSection() {
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="font-semibold text-foreground">Total Kuota:</label>
+              <div className="flex flex-col gap-2">
+                <label className="font-semibold text-foreground">
+                  Kuota Maksimal:
+                </label>
                 <Input
                   type="number"
                   value={quota}
@@ -359,7 +381,7 @@ export default function AdminPromosSection() {
               </div>
             </div>
 
-            <div className="space-y-1">
+            <div className="flex flex-col gap-2">
               <label className="font-semibold text-foreground">
                 Masa Berlaku Hingga:
               </label>
@@ -371,16 +393,15 @@ export default function AdminPromosSection() {
               />
             </div>
 
-            <DialogFooter className="gap-2 sm:gap-0 pt-2">
+            <DialogFooter className="flex gap-2">
               <Button
                 type="button"
                 variant="outline"
-                size="sm"
                 onClick={() => setIsCreateModalOpen(false)}
               >
                 Batal
               </Button>
-              <Button type="submit" size="sm" className="font-semibold">
+              <Button type="submit" className="font-semibold">
                 Terbitkan Kupon
               </Button>
             </DialogFooter>

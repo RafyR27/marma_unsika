@@ -38,15 +38,10 @@ const RegisterPembeliSection = () => {
     <div className="w-full h-auto max-w-lg lg:max-w-md flex flex-col justify-center items-center gap-5 py-6">
       {/* Header & Typography */}
       <div className="space-y-2 text-center max-w-md">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
-          <ShoppingBag className="size-3.5" />
-          <span>Akun Pembeli</span>
-        </div>
-        <h1 className="font-bold text-2xl tracking-tight text-foreground sm:text-[1.65rem]">
-          Daftar sebagai Pembeli
-        </h1>
-        <p className="text-muted-foreground text-sm leading-relaxed">
-          Lengkapi data diri Anda untuk mulai berbelanja buah segar berkualitas langsung di Marma.
+        <h1 className="font-bold text-[1.1rem]">Daftar sebagai Pembeli</h1>
+        <p className="ext-muted-foreground text-[0.9rem] lg:text-[0.9rem]">
+          Lengkapi data diri Anda untuk mulai berbelanja buah segar berkualitas
+          langsung di Marma.
         </p>
       </div>
 
@@ -83,7 +78,9 @@ const RegisterPembeliSection = () => {
           control={control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="buyer-phone">Nomor Telepon / WhatsApp</FieldLabel>
+              <FieldLabel htmlFor="buyer-phone">
+                Nomor Telepon / WhatsApp
+              </FieldLabel>
               <FieldContent>
                 <Input
                   {...field}
@@ -143,7 +140,11 @@ const RegisterPembeliSection = () => {
                       type="button"
                       onClick={handleShowPassword}
                       className="px-1 text-muted-foreground hover:text-foreground transition-colors"
-                      aria-label={showPassword ? "Sembunyikan kata sandi" : "Lihat kata sandi"}
+                      aria-label={
+                        showPassword
+                          ? "Sembunyikan kata sandi"
+                          : "Lihat kata sandi"
+                      }
                     >
                       {showPassword ? (
                         <EyeOff className="size-4" />

@@ -35,6 +35,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import { cn } from "cn";
 
 export default function ProfileSection() {
   const {
@@ -61,14 +62,15 @@ export default function ProfileSection() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
   if (!mounted || isProfileLoading) {
     return (
-      <div className="max-w-3xl mx-auto py-8 px-4 space-y-6">
+      <div className="w-full p-8 space-y-6">
         <Skeleton className="h-24 w-full rounded-xl" />
-        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-10 w-full" />
         <Skeleton className="h-96 w-full rounded-xl" />
       </div>
     );
@@ -83,9 +85,13 @@ export default function ProfileSection() {
         <User className="w-12 h-12 text-muted-foreground mx-auto" />
         <h2 className="text-lg font-bold">Silakan Masuk Terlebih Dahulu</h2>
         <p className="text-sm text-muted-foreground">
-          Masuk ke akun Anda untuk melihat dan memperbarui informasi profil lapak dan pengaturan akun.
+          Masuk ke akun Anda untuk melihat dan memperbarui informasi profil
+          lapak dan pengaturan akun.
         </p>
-        <Button nativeButton={false} render={<Link href="/auth/login" className="px-6" />}>
+        <Button
+          nativeButton={false}
+          render={<Link href="/auth/login" className="px-6" />}
+        >
           Masuk Sekarang
         </Button>
       </div>
@@ -112,7 +118,7 @@ export default function ProfileSection() {
   const role = currentUser.role;
 
   return (
-    <div className="max-w-3xl mx-auto py-8 px-4 space-y-6">
+    <div className="w-full p-8 space-y-6">
       {/* Header Profil & Ringkasan Peran */}
       <div className="p-5 border rounded-xl bg-card shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
@@ -136,18 +142,20 @@ export default function ProfileSection() {
                 {role === "seller"
                   ? "Mitra Pedagang"
                   : role === "courier"
-                  ? "Kurir Lapangan"
-                  : role === "admin"
-                  ? "Admin Pengelola"
-                  : "Pembeli Warung"}
+                    ? "Kurir Lapangan"
+                    : role === "admin"
+                      ? "Admin Pengelola"
+                      : "Pembeli Warung"}
               </span>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {currentUser.phone} {currentUser.email ? `· ${currentUser.email}` : ""}
+              {currentUser.phone}{" "}
+              {currentUser.email ? `· ${currentUser.email}` : ""}
             </p>
             {p?.store_name && (
               <p className="text-xs font-semibold text-primary mt-1">
-                Lapak: {p.store_name} {p.market_name ? `(${p.market_name})` : ""}
+                Lapak: {p.store_name}{" "}
+                {p.market_name ? `(${p.market_name})` : ""}
               </p>
             )}
           </div>
@@ -165,7 +173,7 @@ export default function ProfileSection() {
           }`}
         >
           <User className="w-4 h-4" />
-          <span>Informasi Lapak & Kontak</span>
+          <span>Informasi Akun</span>
         </button>
 
         <button
@@ -190,7 +198,8 @@ export default function ProfileSection() {
                 Data Pribadi & Kontak
               </h2>
               <p className="text-xs text-muted-foreground">
-                Informasi ini digunakan dalam faktur pesanan dan koordinasi penjemputan barang.
+                Informasi ini digunakan dalam faktur pesanan dan koordinasi
+                penjemputan barang.
               </p>
             </div>
 
@@ -222,7 +231,9 @@ export default function ProfileSection() {
                 control={profileForm.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="profile-phone">Nomor Telepon / WhatsApp</FieldLabel>
+                    <FieldLabel htmlFor="profile-phone">
+                      Nomor Telepon / WhatsApp
+                    </FieldLabel>
                     <FieldContent>
                       <Input
                         {...field}
@@ -245,7 +256,9 @@ export default function ProfileSection() {
               control={profileForm.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="profile-email">Alamat Email (Opsional)</FieldLabel>
+                  <FieldLabel htmlFor="profile-email">
+                    Alamat Email (Opsional)
+                  </FieldLabel>
                   <FieldContent>
                     <Input
                       {...field}
@@ -262,94 +275,107 @@ export default function ProfileSection() {
               )}
             />
 
-            {/* Bagian Identitas Toko/Warung */}
-            <div className="space-y-1 pt-4 pb-2 border-b">
-              <h2 className="font-bold text-base text-foreground flex items-center gap-2">
-                <Store className="w-4 h-4 text-primary" />
-                Identitas Toko, Kios, atau Warung
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                Khusus pedagang pasar induk atau pemilik warung pembeli.
-              </p>
-            </div>
+            <div
+              className={cn("space-y-5", role === "admin" ? "hidden" : "block")}
+            >
+              {/* Bagian Identitas Toko/Warung */}
+              <div className="space-y-1 pt-4 pb-2 border-b">
+                <h2 className="font-bold text-base text-foreground flex items-center gap-2">
+                  <Store className="w-4 h-4 text-primary" />
+                  Identitas Toko, Kios, atau Warung
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  Khusus pedagang pasar induk atau pemilik warung pembeli.
+                </p>
+              </div>
 
-            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <Controller
+                  name="store_name"
+                  control={profileForm.control}
+                  render={({ field }) => (
+                    <Field>
+                      <FieldLabel htmlFor="profile-store">
+                        Nama Kios / Warung
+                      </FieldLabel>
+                      <FieldContent>
+                        <Input
+                          {...field}
+                          id="profile-store"
+                          placeholder="Contoh: UD Berkah Cabai Segar"
+                          disabled={isUpdatingProfile}
+                        />
+                      </FieldContent>
+                    </Field>
+                  )}
+                />
+
+                <Controller
+                  name="market_name"
+                  control={profileForm.control}
+                  render={({ field }) => (
+                    <Field>
+                      <FieldLabel htmlFor="profile-market">
+                        Nama Pasar Induk / Wilayah
+                      </FieldLabel>
+                      <FieldContent>
+                        <Input
+                          {...field}
+                          id="profile-market"
+                          placeholder="Contoh: Pasar Induk Kramat Jati"
+                          disabled={isUpdatingProfile}
+                        />
+                      </FieldContent>
+                    </Field>
+                  )}
+                />
+              </div>
+
               <Controller
-                name="store_name"
+                name="block_number"
                 control={profileForm.control}
                 render={({ field }) => (
                   <Field>
-                    <FieldLabel htmlFor="profile-store">Nama Kios / Warung</FieldLabel>
+                    <FieldLabel htmlFor="profile-block">
+                      Nomor Blok / Kios Lapak
+                    </FieldLabel>
                     <FieldContent>
                       <Input
                         {...field}
-                        id="profile-store"
-                        placeholder="Contoh: UD Berkah Cabai Segar"
+                        id="profile-block"
+                        placeholder="Contoh: Blok B-1 No. 45-48"
+                        disabled={isUpdatingProfile}
+                      />
+                    </FieldContent>
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      Sangat penting bagi kurir untuk menemukan titik lapak Anda
+                      dengan cepat.
+                    </p>
+                  </Field>
+                )}
+              />
+
+              <Controller
+                name="full_address"
+                control={profileForm.control}
+                render={({ field }) => (
+                  <Field>
+                    <FieldLabel htmlFor="profile-address">
+                      Alamat Lengkap
+                    </FieldLabel>
+                    <FieldContent>
+                      <Textarea
+                        {...field}
+                        id="profile-address"
+                        rows={3}
+                        placeholder="Alamat jalan lengkap, patokan kios, nomor gedung"
                         disabled={isUpdatingProfile}
                       />
                     </FieldContent>
                   </Field>
                 )}
               />
-
-              <Controller
-                name="market_name"
-                control={profileForm.control}
-                render={({ field }) => (
-                  <Field>
-                    <FieldLabel htmlFor="profile-market">Nama Pasar Induk / Wilayah</FieldLabel>
-                    <FieldContent>
-                      <Input
-                        {...field}
-                        id="profile-market"
-                        placeholder="Contoh: Pasar Induk Kramat Jati"
-                        disabled={isUpdatingProfile}
-                      />
-                    </FieldContent>
-                  </Field>
-                )}
-              />
             </div>
-
-            <Controller
-              name="block_number"
-              control={profileForm.control}
-              render={({ field }) => (
-                <Field>
-                  <FieldLabel htmlFor="profile-block">Nomor Blok / Kios Lapak</FieldLabel>
-                  <FieldContent>
-                    <Input
-                      {...field}
-                      id="profile-block"
-                      placeholder="Contoh: Blok B-1 No. 45-48"
-                      disabled={isUpdatingProfile}
-                    />
-                  </FieldContent>
-                  <p className="text-[11px] text-muted-foreground mt-1">
-                    Sangat penting bagi kurir untuk menemukan titik lapak Anda dengan cepat.
-                  </p>
-                </Field>
-              )}
-            />
-
-            <Controller
-              name="full_address"
-              control={profileForm.control}
-              render={({ field }) => (
-                <Field>
-                  <FieldLabel htmlFor="profile-address">Alamat Lengkap</FieldLabel>
-                  <FieldContent>
-                    <Textarea
-                      {...field}
-                      id="profile-address"
-                      rows={3}
-                      placeholder="Alamat jalan lengkap, patokan kios, nomor gedung"
-                      disabled={isUpdatingProfile}
-                    />
-                  </FieldContent>
-                </Field>
-              )}
-            />
 
             <div className="pt-2 flex justify-end">
               <Button
@@ -383,7 +409,8 @@ export default function ProfileSection() {
                 Ubah Kata Sandi Akun
               </h2>
               <p className="text-xs text-muted-foreground">
-                Gunakan kata sandi yang kuat minimal 8 karakter untuk mengamankan akses akun Anda.
+                Gunakan kata sandi yang kuat minimal 8 karakter untuk
+                mengamankan akses akun Anda.
               </p>
             </div>
 
@@ -393,7 +420,9 @@ export default function ProfileSection() {
               control={passwordForm.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="current_password">Kata Sandi Saat Ini</FieldLabel>
+                  <FieldLabel htmlFor="current_password">
+                    Kata Sandi Saat Ini
+                  </FieldLabel>
                   <FieldContent>
                     <InputGroup className="bg-background">
                       <InputGroupInput
@@ -406,7 +435,9 @@ export default function ProfileSection() {
                       <InputGroupAddon align="inline-end">
                         <button
                           type="button"
-                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                          onClick={() =>
+                            setShowCurrentPassword(!showCurrentPassword)
+                          }
                           className="px-2 text-muted-foreground hover:text-foreground cursor-pointer"
                         >
                           {showCurrentPassword ? (
