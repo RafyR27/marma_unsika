@@ -108,14 +108,14 @@ export function NavUser({
                       {displaySubtitle}
                     </span>
                     {storeName && (
-                      <span className="truncate text-[11px] text-primary font-medium">
-                        🏪 {storeName}
-                      </span>
+                      <p className="truncate text-[11px] text-primary font-medium">
+                        {storeName}
+                      </p>
                     )}
                     {userRole && (
-                      <span className="text-[10px] uppercase font-semibold text-muted-foreground tracking-wider">
+                      <p className="text-[10px] uppercase font-semibold text-muted-foreground tracking-wider mt-1">
                         {userRole}
-                      </span>
+                      </p>
                     )}
                   </div>
                 </div>

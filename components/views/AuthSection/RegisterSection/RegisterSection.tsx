@@ -9,16 +9,11 @@ const RegisterSection = () => {
   return (
     <div className="w-full h-auto max-w-lg flex flex-col justify-center items-center gap-6 py-6">
       {/* Header & Typography */}
-      <div className="space-y-2 text-center max-w-sm">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
-          <Sparkles className="size-3.5" />
-          <span>Pendaftaran Akun</span>
-        </div>
-        <h1 className="font-bold text-2xl tracking-tight text-foreground sm:text-[1.65rem]">
-          Pilih Jenis Akun Anda
-        </h1>
-        <p className="text-muted-foreground text-sm leading-relaxed">
-          Pilih peran yang paling sesuai untuk mulai menikmati pengalaman terbaik berbelanja dan berjualan di Marma.
+      <div className="space-y-1 text-center max-w-sm">
+        <h1 className="font-bold text-[1.1rem]">Pilih Jenis Akun Anda</h1>
+        <p className="text-muted-foreground text-[0.9rem] lg:text-[0.9rem]">
+          Pilih peran yang paling sesuai untuk mulai menikmati pengalaman
+          terbaik berbelanja dan berjualan di Marma.
         </p>
       </div>
 
@@ -36,12 +31,10 @@ const RegisterSection = () => {
                 <h2 className="text-base font-bold text-foreground group-hover:text-primary transition-colors">
                   Daftar sebagai Pembeli
                 </h2>
-                <span className="text-[0.7rem] font-semibold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                  Konsumen
-                </span>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Nikmati kemudahan berbelanja aneka buah segar berkualitas langsung dari mitra tani dan penjual pilihan.
+                Nikmati kemudahan berbelanja aneka buah segar berkualitas
+                langsung dari mitra tani dan penjual pilihan.
               </p>
             </div>
           </div>
@@ -62,7 +55,7 @@ const RegisterSection = () => {
               href="/auth/register/buyer"
               className={cn(
                 buttonVariants({ variant: "default" }),
-                "w-full h-10 rounded-xl justify-between px-4 font-semibold text-xs sm:text-sm group-hover:shadow-md transition-all"
+                "w-full h-10 rounded-xl justify-between px-4 font-semibold text-xs sm:text-sm group-hover:shadow-md transition-all",
               )}
             >
               <span>Lanjut sebagai Pembeli</span>
@@ -83,12 +76,10 @@ const RegisterSection = () => {
                 <h2 className="text-base font-bold text-foreground group-hover:text-primary transition-colors">
                   Daftar sebagai Penjual
                 </h2>
-                <span className="text-[0.7rem] font-semibold uppercase tracking-wider text-emerald-800 bg-emerald-100 dark:bg-emerald-950 dark:text-emerald-300 px-2 py-0.5 rounded-full">
-                  Mitra / Toko
-                </span>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Buka toko buah Anda, kelola stok dan produk secara efisien, serta jangkau ribuan pelanggan di Unsika & sekitarnya.
+                Buka toko buah Anda, kelola stok dan produk secara efisien,
+                serta jangkau ribuan pelanggan di Unsika & sekitarnya.
               </p>
             </div>
           </div>
@@ -109,7 +100,7 @@ const RegisterSection = () => {
               href="/auth/register/seller"
               className={cn(
                 buttonVariants({ variant: "outline" }),
-                "w-full h-10 rounded-xl justify-between px-4 font-semibold text-xs sm:text-sm border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground group-hover:border-primary transition-all"
+                "w-full h-10 rounded-xl justify-between px-4 font-semibold text-xs sm:text-sm border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground group-hover:border-primary transition-all",
               )}
             >
               <span>Lanjut sebagai Penjual</span>

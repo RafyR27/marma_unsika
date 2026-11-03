@@ -91,7 +91,7 @@ export default function AdminReimbursementSection() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
             <Banknote className="w-6 h-6 text-primary" />
-            Pencairan Dana Pedagang & Kurir
+            Pencairan Dana Pedagang & Kurir (DUMMY)
           </h1>
           <p className="text-sm text-muted-foreground mt-0.5">
             Manajemen pencairan saldo omzet lapak pasar induk dan upah kurir lapangan yang telah selesai diantar.

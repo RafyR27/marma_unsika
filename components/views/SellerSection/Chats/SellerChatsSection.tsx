@@ -52,7 +52,7 @@ export default function SellerChatsSection() {
     return (
       <div className="p-8 max-w-lg mx-auto text-center space-y-4 my-12 border rounded-xl bg-card">
         <ShieldAlert className="w-12 h-12 text-destructive mx-auto" />
-        <h2 className="text-xl font-bold">Akses Khusus Pedagang Pasar</h2>
+        <h2 className="text-xl font-bold">Akses Khusus Pedagang Pasar (DUMMY)</h2>
         <p className="text-sm text-muted-foreground">
           Pusat komunikasi obrolan pelanggan ini hanya dapat diakses oleh mitra pedagang pasar.
         </p>
