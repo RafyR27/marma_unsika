@@ -100,7 +100,7 @@ export const useCheckout = () => {
     },
     onSuccess: (data) => {
       const createdOrder = data.data;
-      toast.success("Pesanan berhasil dibuat!", { position: "top-right" });
+      toast.success(`Pesanan #${createdOrder.order_number} berhasil dibuat!`, { position: "top-right" });
       queryClient.invalidateQueries({ queryKey: ["cart"] });
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       router.push(`/user/orders/${createdOrder.order_number}/payment`);
@@ -119,6 +119,7 @@ export const useCheckout = () => {
   };
 
   const items = cartData?.data || [];
+  const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotalProducts = items.reduce(
     (sum, item) => sum + item.quantity * (item.product?.price || 0),
     0
@@ -129,6 +130,7 @@ export const useCheckout = () => {
     user,
     cartData,
     items,
+    totalQuantity,
     deliveryFee,
     subtotalProducts,
     totalAmount,

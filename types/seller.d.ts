@@ -1,6 +1,4 @@
-import { IAuthUser } from "./user";
 import { IOrder, IOrderItem, IPaginationLinks, IPaginationMeta, PickupStatus } from "./order";
-import { IProduct } from "./product";
 
 export interface IIncomingOrderItem extends IOrderItem {
   order?: IOrder;

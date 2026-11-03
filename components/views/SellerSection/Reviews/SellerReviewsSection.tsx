@@ -7,7 +7,6 @@ import {
   MessageSquare,
   ShieldAlert,
   ThumbsUp,
-  CheckCircle2,
   Package,
   Store,
 } from "lucide-react";
@@ -111,7 +110,9 @@ export default function SellerReviewsSection() {
             <span className="font-medium">Indeks Kesegaran Komoditas</span>
             <ThumbsUp className="w-4 h-4 text-green-600" />
           </div>
-          <p className="text-2xl font-bold text-green-600">100% Puas</p>
+          <p className="text-2xl font-bold text-green-600">
+            {totalReviews > 0 ? "100% Puas" : "-"}
+          </p>
           <span className="text-[11px] text-muted-foreground block">
             Zero komplain pembusukan barang
           </span>
@@ -141,55 +142,65 @@ export default function SellerReviewsSection() {
       </div>
 
       {/* Daftar Kartu Ulasan */}
-      <div className="space-y-4">
-        {reviews.map((r) => (
-          <div
-            key={r.id}
-            className="p-5 border rounded-xl bg-card shadow-xs space-y-3 hover:border-primary/40 transition-colors"
-          >
-            <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b text-xs">
-              <div>
-                <p className="font-bold text-sm text-foreground">{r.buyerName}</p>
-                <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-                  <Store className="w-3 h-3" />
-                  {r.storeName}
+      {reviews.length === 0 ? (
+        <div className="p-12 text-center border rounded-xl bg-card space-y-3">
+          <Star className="w-10 h-10 text-muted-foreground/30 mx-auto" />
+          <h3 className="font-bold text-base text-foreground">Belum Ada Ulasan Pembeli</h3>
+          <p className="text-xs text-muted-foreground max-w-md mx-auto">
+            Ulasan dan rating dari warung pembeli akan tampil di sini setelah pesanan komoditas diselesaikan.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {reviews.map((r) => (
+            <div
+              key={r.id}
+              className="p-5 border rounded-xl bg-card shadow-xs space-y-3 hover:border-primary/40 transition-colors"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b text-xs">
+                <div>
+                  <p className="font-bold text-sm text-foreground">{r.buyerName}</p>
+                  <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                    <Store className="w-3 h-3" />
+                    {r.storeName}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center text-amber-500">
+                    {Array.from({ length: r.rating }).map((_, i) => (
+                      <Star key={i} className="w-3.5 h-3.5 fill-amber-500" />
+                    ))}
+                  </div>
+                  <span className="text-[11px] text-muted-foreground">{r.date}</span>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <span className="font-semibold text-xs text-primary flex items-center gap-1">
+                  <Package className="w-3.5 h-3.5" />
+                  Komoditas: {r.commodityName}
+                </span>
+                <p className="text-xs text-foreground leading-relaxed italic">
+                  &quot;{r.comment}&quot;
                 </p>
               </div>
 
-              <div className="flex items-center gap-2">
-                <div className="flex items-center text-amber-500">
-                  {Array.from({ length: r.rating }).map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5 fill-amber-500" />
-                  ))}
-                </div>
-                <span className="text-[11px] text-muted-foreground">{r.date}</span>
+              {/* Tag Penilaian */}
+              <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                {r.tags.map((tag, i) => (
+                  <span
+                    key={i}
+                    className="text-[10px] bg-primary/10 text-primary font-semibold px-2 py-0.5 rounded-full"
+                  >
+                    ✓ {tag}
+                  </span>
+                ))}
               </div>
             </div>
-
-            <div className="space-y-1">
-              <span className="font-semibold text-xs text-primary flex items-center gap-1">
-                <Package className="w-3.5 h-3.5" />
-                Komoditas: {r.commodityName}
-              </span>
-              <p className="text-xs text-foreground leading-relaxed italic">
-                &quot;{r.comment}&quot;
-              </p>
-            </div>
-
-            {/* Tag Penilaian */}
-            <div className="flex flex-wrap items-center gap-1.5 pt-1">
-              {r.tags.map((tag, i) => (
-                <span
-                  key={i}
-                  className="text-[10px] bg-primary/10 text-primary font-semibold px-2 py-0.5 rounded-full"
-                >
-                  ✓ {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

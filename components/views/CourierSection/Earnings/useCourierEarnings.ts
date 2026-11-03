@@ -78,10 +78,10 @@ export const useCourierEarnings = () => {
       return;
     }
 
-    toast.success(
+    toast.info(
       `Permohonan penarikan upah ongkir Rp ${amount.toLocaleString(
         "id-ID"
-      )} berhasil dikirimkan ke bendahara pasar!`,
+      )} dicatat. Layanan pencairan online sedang dalam tahap integrasi backend. Silakan hubungi bendahara pasar induk.`,
       { position: "top-right" }
     );
     setIsWithdrawModalOpen(false);
@@ -89,8 +89,8 @@ export const useCourierEarnings = () => {
   };
 
   const handleConfirmRemittance = () => {
-    toast.success(
-      "Bukti serah terima setoran uang fisik COD berhasil dicatat dan diverifikasi oleh kasir pasar!",
+    toast.info(
+      "Pencatatan setoran uang fisik COD digital sedang menunggu integrasi backend. Silakan serahkan uang tunai langsung ke kasir pasar.",
       { position: "top-right" }
     );
     setIsRemitCODModalOpen(false);

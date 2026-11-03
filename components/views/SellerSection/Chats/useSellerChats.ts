@@ -1,110 +1,84 @@
 "use client";
 
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import chat from "@/services/chat.service";
 
 export interface IChatConversation {
-  id: string;
+  id: string | number;
   contactName: string;
   storeName: string;
   phone: string;
-  role: "buyer" | "helpdesk";
+  role: "buyer" | "helpdesk" | "courier" | "seller";
   lastMessage: string;
   time: string;
   unreadCount: number;
   messages: {
-    id: string;
+    id: string | number;
     sender: "me" | "them";
     text: string;
     time: string;
   }[];
 }
 
-export const initialChats: IChatConversation[] = [
-  {
-    id: "CHAT-01",
-    contactName: "Bu Dewi Sri",
-    storeName: "Kios Sayur Bu Dewi (Pasar Minggu)",
-    phone: "081300000001",
-    role: "buyer",
-    lastMessage: "Pak Haji, untuk pesanan cabai keriting besok subuh tolong pilihkan yang merah tua ya.",
-    time: "14:20",
-    unreadCount: 1,
-    messages: [
-      {
-        id: "M1",
-        sender: "them",
-        text: "Halo Pak Haji Syahril, apakah stok cabai merah keriting masih banyak?",
-        time: "14:15",
-      },
-      {
-        id: "M2",
-        sender: "me",
-        text: "Halo Bu Dewi, masih aman sekitar 200 kg baru datang dari Magelang tadi siang.",
-        time: "14:18",
-      },
-      {
-        id: "M3",
-        sender: "them",
-        text: "Pak Haji, untuk pesanan cabai keriting besok subuh tolong pilihkan yang merah tua ya.",
-        time: "14:20",
-      },
-    ],
-  },
-  {
-    id: "CHAT-02",
-    contactName: "Helpdesk Pasar Makar",
-    storeName: "Pos Koordinasi Operasional UNSIKA",
-    phone: "081100000001",
-    role: "helpdesk",
-    lastMessage: "Pencairan dana penjualan kemarin telah disetujui kasir pasar.",
-    time: "Kemarin",
-    unreadCount: 0,
-    messages: [
-      {
-        id: "M4",
-        sender: "them",
-        text: "Pencairan dana penjualan kemarin telah disetujui kasir pasar.",
-        time: "Kemarin",
-      },
-    ],
-  },
-];
+export const initialChats: IChatConversation[] = [];
 
 export const useSellerChats = () => {
-  const [conversations, setConversations] = useState<IChatConversation[]>(initialChats);
-  const [selectedChatId, setSelectedChatId] = useState<string>("CHAT-01");
+  const [localConversations] = useState<IChatConversation[]>(initialChats);
+  const [selectedChatId, setSelectedChatId] = useState<string | number>("");
   const [replyInput, setReplyInput] = useState<string>("");
 
-  const activeConversation = conversations.find((c) => c.id === selectedChatId);
+  const { data: remoteConversations, refetch } = useQuery({
+    queryKey: ["seller", "chats"],
+    queryFn: async () => {
+      const res = await chat.getConversations();
+      return res.data?.data;
+    },
+    enabled: typeof window !== "undefined" && !!localStorage.getItem("token"),
+  });
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const conversations: IChatConversation[] =
+    remoteConversations && remoteConversations.length > 0
+      ? remoteConversations.map((c) => ({
+          id: c.id,
+          contactName: c.contact_name,
+          storeName: c.store_name || "Pelanggan Pasar",
+          phone: c.phone || "-",
+          role: c.role,
+          lastMessage: c.last_message,
+          time: c.last_message_at,
+          unreadCount: c.unread_count,
+          messages:
+            c.messages?.map((m) => ({
+              id: m.id,
+              sender: m.sender_role === "seller" ? ("me" as const) : ("them" as const),
+              text: m.message,
+              time: m.created_at,
+            })) || [],
+        }))
+      : localConversations;
+
+  const activeConversation = conversations.find((c) => String(c.id) === String(selectedChatId));
+
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!replyInput.trim() || !activeConversation) return;
 
-    const newMessage = {
-      id: `M-${Date.now()}`,
-      sender: "me" as const,
-      text: replyInput.trim(),
-      time: new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }),
-    };
+    const messageText = replyInput.trim();
 
-    setConversations((prev) =>
-      prev.map((conv) => {
-        if (conv.id === selectedChatId) {
-          return {
-            ...conv,
-            lastMessage: newMessage.text,
-            time: "Baru saja",
-            messages: [...conv.messages, newMessage],
-          };
-        }
-        return conv;
-      })
-    );
+    try {
+      await chat.sendMessage(selectedChatId, { message: messageText });
+      refetch();
+      toast.success("Pesan terkirim ke pelanggan", { position: "top-right" });
+    } catch {
+      toast.info(
+        "Fitur perpesanan langsung saat ini sedang menunggu integrasi modul chat backend.",
+        { position: "top-right" }
+      );
+    }
 
     setReplyInput("");
-    toast.success("Pesan terkirim", { position: "top-right" });
   };
 
   return {

@@ -6,10 +6,7 @@ import {
   MessageSquare,
   Send,
   Phone,
-  Store,
-  User,
   ShieldAlert,
-  HelpCircle,
   ExternalLink,
 } from "lucide-react";
 
@@ -87,38 +84,48 @@ export default function SellerChatsSection() {
           </div>
 
           <div className="divide-y overflow-y-auto flex-1">
-            {conversations.map((conv) => {
-              const isSelected = conv.id === selectedChatId;
+            {conversations.length === 0 ? (
+              <div className="p-8 text-center text-xs text-muted-foreground space-y-2">
+                <MessageSquare className="w-8 h-8 text-muted-foreground/30 mx-auto" />
+                <p className="font-semibold text-foreground">Belum Ada Percakapan</p>
+                <p className="text-[11px] leading-relaxed">
+                  Daftar obrolan koordinasi dengan warung pembeli akan tampil di sini saat pesan masuk.
+                </p>
+              </div>
+            ) : (
+              conversations.map((conv) => {
+                const isSelected = conv.id === selectedChatId;
 
-              return (
-                <div
-                  key={conv.id}
-                  onClick={() => setSelectedChatId(conv.id)}
-                  className={`p-3.5 cursor-pointer transition-colors space-y-1 ${
-                    isSelected
-                      ? "bg-primary/10 border-l-4 border-l-primary"
-                      : "hover:bg-muted/40"
-                  }`}
-                >
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-foreground truncate">
-                      {conv.contactName}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground">
-                      {conv.time}
-                    </span>
+                return (
+                  <div
+                    key={conv.id}
+                    onClick={() => setSelectedChatId(conv.id)}
+                    className={`p-3.5 cursor-pointer transition-colors space-y-1 ${
+                      isSelected
+                        ? "bg-primary/10 border-l-4 border-l-primary"
+                        : "hover:bg-muted/40"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-foreground truncate">
+                        {conv.contactName}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground">
+                        {conv.time}
+                      </span>
+                    </div>
+
+                    <p className="text-[11px] text-muted-foreground truncate">
+                      {conv.storeName}
+                    </p>
+
+                    <p className="text-xs text-foreground/80 line-clamp-1 leading-snug">
+                      {conv.lastMessage}
+                    </p>
                   </div>
-
-                  <p className="text-[11px] text-muted-foreground truncate">
-                    {conv.storeName}
-                  </p>
-
-                  <p className="text-xs text-foreground/80 line-clamp-1 leading-snug">
-                    {conv.lastMessage}
-                  </p>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
         </div>
 
@@ -206,7 +213,7 @@ export default function SellerChatsSection() {
             </>
           ) : (
             <div className="flex flex-col items-center justify-center p-12 text-center text-muted-foreground space-y-2 h-full">
-              <MessageSquare className="w-10 h-10 text-muted-foreground/40" />
+              <MessageSquare className="w-10 h-10 text-muted-foreground/30" />
               <p className="text-xs">Pilih percakapan di kolom kiri untuk membaca pesan.</p>
             </div>
           )}

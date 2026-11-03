@@ -12,6 +12,7 @@ import {
   Copy,
   Receipt,
   Clock,
+  ShieldCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -100,7 +101,7 @@ export default function PaymentSection({ orderNumber }: PaymentSectionProps) {
         </Link>
         <h1 className="text-2xl font-bold tracking-tight">Pembayaran Pesanan</h1>
         <p className="text-sm text-muted-foreground mt-0.5">
-          Selesaikan pembayaran untuk pesanan nomor <strong className="text-foreground">{orderNumber}</strong>
+          Selesaikan pembayaran untuk pesanan nomor <strong className="text-foreground">#{orderNumber}</strong>
         </p>
       </div>
 
@@ -146,7 +147,7 @@ export default function PaymentSection({ orderNumber }: PaymentSectionProps) {
             Bukti Transfer Menunggu Verifikasi
           </h2>
           <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            Bukti transfer telah kami terima. Tim operasional pasar sedang memverifikasi dana Anda. Status akan otomatis diperbarui menjadi Terkonfirmasi.
+            Bukti transfer telah berhasil kami terima. Tim operasional pasar sedang memverifikasi dana Anda. Status akan otomatis diperbarui menjadi Lunas setelah disetujui.
           </p>
           <div className="pt-2 flex justify-center gap-2">
             <Button
@@ -226,96 +227,89 @@ export default function PaymentSection({ orderNumber }: PaymentSectionProps) {
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground leading-relaxed">
-                        Transfer ke rekening pengelola pasar induk dan unggah foto struk / tangkapan layar bukti transfer untuk diverifikasi oleh admin.
+                        Transfer ke rekening resmi operasional pasar dan unggah bukti transfer. Tim admin pasar akan memvalidasi pembayaran dalam waktu maksimal 15 menit.
                       </p>
                     </div>
                   </label>
                 </div>
               </div>
 
-              {/* Rincian Tambahan jika Memilih Transfer Bank */}
+              {/* Rincian Rekening & Upload Bukti jika Transfer Manual */}
               {paymentMethod === "manual_transfer" && (
                 <div className="p-5 border rounded-xl bg-card space-y-5">
-                  <h3 className="font-bold text-sm pb-2 border-b">
-                    Rekening Tujuan Pembayaran Pasar
-                  </h3>
+                  <div className="flex items-center gap-2 pb-2 border-b">
+                    <ShieldCheck className="w-5 h-5 text-primary" />
+                    <h2 className="font-bold text-base">Rekening Resmi Operasional Pasar</h2>
+                  </div>
 
-                  {/* Kartu Info Rekening */}
                   <div className="grid sm:grid-cols-2 gap-3 text-xs">
-                    <div className="p-3.5 rounded-lg border bg-muted/40 space-y-1.5">
-                      <div className="flex items-center justify-between font-semibold text-foreground">
-                        <span>Bank BCA</span>
-                        <button
+                    <div className="p-3.5 border rounded-lg bg-muted/30 space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold text-sm">Bank BCA</span>
+                        <Button
                           type="button"
-                          onClick={() => copyToClipboard("8720192837", "Nomor Rekening BCA")}
-                          className="text-primary hover:text-primary/80 flex items-center gap-1 cursor-pointer"
+                          variant="ghost"
+                          size="icon-xs"
+                          onClick={() => copyToClipboard("8410982314", "Nomor Rekening BCA")}
                         >
-                          <Copy className="w-3 h-3" />
-                          <span>Salin</span>
-                        </button>
+                          <Copy className="w-3.5 h-3.5" />
+                        </Button>
                       </div>
-                      <p className="font-mono text-sm font-bold text-primary">8720-192-837</p>
-                      <p className="text-muted-foreground">a.n. Pasar Induk Makar UNSIKA</p>
+                      <p className="font-mono text-base font-bold text-primary">8410 982 314</p>
+                      <p className="text-muted-foreground text-[11px]">a.n. PT Makar Komoditas Nusantara</p>
                     </div>
 
-                    <div className="p-3.5 rounded-lg border bg-muted/40 space-y-1.5">
-                      <div className="flex items-center justify-between font-semibold text-foreground">
-                        <span>Bank Mandiri</span>
-                        <button
+                    <div className="p-3.5 border rounded-lg bg-muted/30 space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold text-sm">Bank Mandiri</span>
+                        <Button
                           type="button"
-                          onClick={() => copyToClipboard("1730009821234", "Nomor Rekening Mandiri")}
-                          className="text-primary hover:text-primary/80 flex items-center gap-1 cursor-pointer"
+                          variant="ghost"
+                          size="icon-xs"
+                          onClick={() => copyToClipboard("132008912345", "Nomor Rekening Mandiri")}
                         >
-                          <Copy className="w-3 h-3" />
-                          <span>Salin</span>
-                        </button>
+                          <Copy className="w-3.5 h-3.5" />
+                        </Button>
                       </div>
-                      <p className="font-mono text-sm font-bold text-primary">173-00-0982123-4</p>
-                      <p className="text-muted-foreground">a.n. Pasar Induk Makar UNSIKA</p>
+                      <p className="font-mono text-base font-bold text-primary">132 00 8912345</p>
+                      <p className="text-muted-foreground text-[11px]">a.n. PT Makar Komoditas Nusantara</p>
                     </div>
                   </div>
 
-                  {/* Upload Form Struk */}
                   <div className="space-y-4 pt-2">
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <FieldLabel htmlFor="proof-upload">
                         Unggah Foto Bukti Transfer <span className="text-destructive">*</span>
                       </FieldLabel>
-                      <div className="border-2 border-dashed rounded-xl p-4 text-center hover:bg-muted/30 transition-colors">
+                      <div className="border-2 border-dashed rounded-xl p-4 text-center hover:bg-muted/40 transition-colors cursor-pointer relative">
                         <input
                           id="proof-upload"
                           type="file"
-                          accept="image/jpeg,image/png,image/jpg,image/webp"
+                          accept="image/*"
                           onChange={handleFileChange}
-                          className="hidden"
+                          className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
                           disabled={isSubmitting}
                         />
-                        <label
-                          htmlFor="proof-upload"
-                          className="cursor-pointer flex flex-col items-center justify-center gap-2"
-                        >
-                          <Upload className="w-7 h-7 text-muted-foreground" />
-                          <span className="text-xs font-semibold text-primary">
-                            Klik untuk memilih file foto struk / bukti transfer
-                          </span>
-                          <span className="text-[11px] text-muted-foreground">
-                            Format JPG, PNG, atau WEBP. Maksimal 2 MB.
-                          </span>
-                        </label>
+                        {proofPreview ? (
+                          <div className="space-y-2">
+                            <div className="relative w-40 h-40 mx-auto rounded-lg overflow-hidden border">
+                              <Image
+                                src={proofPreview}
+                                alt="Preview Bukti"
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                            <p className="text-xs text-primary font-medium">Klik untuk mengganti gambar</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-2 py-4">
+                            <Upload className="w-8 h-8 text-muted-foreground mx-auto" />
+                            <p className="text-xs font-semibold">Pilih atau Seret Foto Struk Transfer ke Sini</p>
+                            <p className="text-[11px] text-muted-foreground">Format JPG, PNG (Maksimal 2 MB)</p>
+                          </div>
+                        )}
                       </div>
-
-                      {proofPreview && (
-                        <div className="relative w-36 h-36 rounded-lg overflow-hidden border mt-3 bg-muted">
-                          <Image
-                            src={proofPreview}
-                            alt="Bukti Transfer"
-                            fill
-                            sizes="144px"
-                            className="object-cover"
-                            unoptimized
-                          />
-                        </div>
-                      )}
                     </div>
 
                     <div className="space-y-1.5">
@@ -350,7 +344,7 @@ export default function PaymentSection({ orderNumber }: PaymentSectionProps) {
                   <div className="flex justify-between text-muted-foreground text-xs">
                     <span>No. Pesanan:</span>
                     <span className="font-mono font-medium text-foreground">
-                      {orderNumber}
+                      #{orderNumber}
                     </span>
                   </div>
                   <div className="flex justify-between text-muted-foreground text-xs">

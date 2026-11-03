@@ -341,21 +341,11 @@ export default function OrderDetailSection({ orderNumber }: OrderDetailSectionPr
                     : "bg-amber-500/10 text-amber-600"
                 }`}
               >
-                {currentOrder.payment_status === "paid" ? "Lunas" : "Belum Lunas"}
+                {currentOrder.payment_status === "paid" ? "Lunas" : "Menunggu Pembayaran"}
               </span>
             </div>
 
             <div className="space-y-2 text-xs">
-              <div className="flex justify-between text-muted-foreground">
-                <span>Metode:</span>
-                <span className="font-semibold text-foreground uppercase">
-                  {currentOrder.payment?.payment_method === "cod"
-                    ? "Cash on Delivery (COD)"
-                    : currentOrder.payment?.payment_method === "manual_transfer"
-                    ? "Transfer Bank Manual"
-                    : "Belum Dipilih"}
-                </span>
-              </div>
               <div className="flex justify-between text-muted-foreground">
                 <span>Subtotal Komoditas:</span>
                 <span>{currentOrder.formatted_subtotal_products}</span>
@@ -371,13 +361,26 @@ export default function OrderDetailSection({ orderNumber }: OrderDetailSectionPr
             </div>
 
             {isUnpaid && !isCancelled && (
-              <Button
-                className="w-full text-xs font-semibold"
-                nativeButton={false}
-                render={<Link href={`/user/orders/${orderNumber}/payment`} />}
-              >
-                Pilih / Selesaikan Pembayaran
-              </Button>
+              currentOrder.payment?.payment_proof_url && !currentOrder.payment?.verified_by ? (
+                <div className="p-3 bg-amber-500/10 rounded-lg text-xs space-y-1.5 border border-amber-500/30">
+                  <div className="flex items-center gap-1.5 font-medium text-amber-700 dark:text-amber-400">
+                    <Clock className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Bukti Transfer Sedang Diverifikasi</span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    Bukti transfer telah dikirim. Tim operasional pasar sedang memvalidasi dana.
+                  </p>
+                </div>
+              ) : (
+                <Button
+                  className="w-full text-xs font-semibold"
+                  nativeButton={false}
+                  render={<Link href={`/user/orders/${orderNumber}/payment`} />}
+                >
+                  <CreditCard className="w-4 h-4 mr-1.5" />
+                  Bayar Sekarang
+                </Button>
+              )
             )}
           </div>
 

@@ -1,23 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import courier from "@/services/courier.service";
+import { IDeliveryZone, IMarketHubZone } from "@/types/courier";
 
-export interface IMarketHubZone {
-  code: string;
-  name: string;
-  description: string;
-  commodityType: string;
-  totalStalls: number;
-  pickupHub: string;
-}
-
-export interface IDeliveryZone {
-  zoneName: string;
-  coverage: string;
-  estimatedTransitTime: string;
-  deliveryFee: string;
-  activeStalls: number;
-}
+export type { IDeliveryZone, IMarketHubZone };
 
 export const marketHubZones: IMarketHubZone[] = [
   {
@@ -81,9 +69,30 @@ export const deliveryCoverageZones: IDeliveryZone[] = [
 export const useCourierServiceArea = () => {
   const [selectedHub, setSelectedHub] = useState<string>("BLOK-B");
 
+  const { data: remoteHubs } = useQuery({
+    queryKey: ["courier", "market-zones"],
+    queryFn: async () => {
+      const res = await courier.getMarketHubZones();
+      return res.data?.data;
+    },
+    enabled: typeof window !== "undefined" && !!localStorage.getItem("token"),
+  });
+
+  const { data: remoteZones } = useQuery({
+    queryKey: ["courier", "delivery-zones"],
+    queryFn: async () => {
+      const res = await courier.getDeliveryZones();
+      return res.data?.data;
+    },
+    enabled: typeof window !== "undefined" && !!localStorage.getItem("token"),
+  });
+
+  const hubs = remoteHubs && remoteHubs.length > 0 ? remoteHubs : marketHubZones;
+  const zones = remoteZones && remoteZones.length > 0 ? remoteZones : deliveryCoverageZones;
+
   return {
-    marketHubZones,
-    deliveryCoverageZones,
+    marketHubZones: hubs,
+    deliveryCoverageZones: zones,
     selectedHub,
     setSelectedHub,
   };

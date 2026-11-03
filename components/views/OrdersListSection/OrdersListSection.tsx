@@ -6,13 +6,11 @@ import Image from "next/image";
 import {
   Package,
   ShoppingBag,
-  CreditCard,
   ChevronRight,
   ChevronLeft,
   Store,
   AlertCircle,
   RefreshCw,
-  ExternalLink,
 } from "lucide-react";
 
 import { useOrdersList, OrderFilterTab } from "./useOrdersList";
@@ -142,7 +140,6 @@ export default function OrdersListSection() {
       ) : (
         <div className="space-y-4">
           {orders.map((o) => {
-            const isUnpaid = o.payment_status === "unpaid";
             const isCancelled = o.order_status === "cancelled";
             const firstItem = o.items?.[0];
             const otherItemsCount = (o.items?.length || 1) - 1;
@@ -204,7 +201,7 @@ export default function OrdersListSection() {
                           : "bg-amber-500/10 text-amber-600"
                       }`}
                     >
-                      {o.payment_status === "paid" ? "Lunas" : "Belum Lunas"}
+                      {o.payment_status === "paid" ? "Lunas" : "Menunggu Pembayaran"}
                     </span>
                   </div>
                 </div>
@@ -256,21 +253,19 @@ export default function OrdersListSection() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {isUnpaid && !isCancelled && (
+                    {o.payment_status === "unpaid" && !isCancelled && (
                       <Button
                         size="sm"
                         variant="default"
                         nativeButton={false}
                         render={<Link href={`/user/orders/${o.order_number}/payment`} />}
                       >
-                        <CreditCard className="w-3.5 h-3.5 mr-1" />
                         Bayar Sekarang
                       </Button>
                     )}
-
                     <Button
                       size="sm"
-                      variant="outline"
+                      variant={o.payment_status === "unpaid" && !isCancelled ? "outline" : "default"}
                       nativeButton={false}
                       render={<Link href={`/user/orders/${o.order_number}`} />}
                     >

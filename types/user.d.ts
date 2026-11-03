@@ -68,6 +68,17 @@ interface IValidationErrorResponse {
   errors?: Record<string, string[]>;
 }
 
+interface IForgotPasswordRequest {
+  identifier: string;
+}
+
+interface IResetPasswordRequest {
+  identifier: string;
+  token: string;
+  password: string;
+  password_confirmation: string;
+}
+
 interface SessionUser {
   id: string;
   name: string;
@@ -97,4 +108,6 @@ export type {
   IUserProfileResponse,
   IMessageResponse,
   IValidationErrorResponse,
+  IForgotPasswordRequest,
+  IResetPasswordRequest,
 };

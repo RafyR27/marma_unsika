@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import review from "@/services/review.service";
 
 export interface IReviewItem {
-  id: string;
+  id: string | number;
   buyerName: string;
   storeName: string;
   rating: number;
@@ -13,45 +15,44 @@ export interface IReviewItem {
   tags: string[];
 }
 
-export const initialReviews: IReviewItem[] = [
-  {
-    id: "REV-01",
-    buyerName: "Bu Dewi Sri",
-    storeName: "Kios Sayur Bu Dewi (Pasar Minggu)",
-    rating: 5,
-    commodityName: "Cabai Merah Keriting Super Grosir",
-    date: "28 Okt 2026",
-    comment:
-      "Cabai merah sangat segar dan kering sempurna, tidak ada yang busuk saat sampai di warung. Pelanggan warung saya sangat puas. Langganan terus!",
-    tags: ["Segar", "Timbangan Pas", "Kering Siap Simpan"],
-  },
-  {
-    id: "REV-02",
-    buyerName: "Pak Slamet Riyadi",
-    storeName: "Warung Berkah Jaya (Tanjungpura)",
-    rating: 5,
-    commodityName: "Bawang Merah Brebes Karung 25kg",
-    date: "27 Okt 2026",
-    comment:
-      "Bawang merah umbinya padat dan besar-besar. Pengemasan karung rapi dan aman selama dibawa kurir lapangan pasar.",
-    tags: ["Kualitas Super", "Kemasan Rapi"],
-  },
-  {
-    id: "REV-03",
-    buyerName: "Ibu Hajah Maryam",
-    storeName: "Toko Sembako Barokah",
-    rating: 4,
-    commodityName: "Cabai Rawit Merah Super",
-    date: "25 Okt 2026",
-    comment:
-      "Pedasnya mantap dan kualitas bagus. Pengemasan cepat sebelum kurir subuh tiba. Pertahankan kesegarannya.",
-    tags: ["Pedas Mantap", "Cepat Dikemas"],
-  },
-];
+export const initialReviews: IReviewItem[] = [];
 
 export const useSellerReviews = () => {
-  const [reviews] = useState<IReviewItem[]>(initialReviews);
   const [ratingFilter, setRatingFilter] = useState<number | "all">("all");
+
+  const {
+    data: remoteReviews,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["seller", "reviews"],
+    queryFn: async () => {
+      const res = await review.getSellerReviews();
+      return res.data?.data;
+    },
+    enabled: typeof window !== "undefined" && !!localStorage.getItem("token"),
+  });
+
+  // Petakan respons API atau fallback ke initialReviews
+  const reviews: IReviewItem[] =
+    remoteReviews && remoteReviews.length > 0
+      ? remoteReviews.map((r) => ({
+          id: r.id,
+          buyerName: r.buyer?.name || "Pembeli Terverifikasi",
+          storeName: r.buyer?.profile?.store_name || "Warung Pelanggan",
+          rating: r.rating,
+          commodityName: r.product?.name || "Komoditas Grosir",
+          date: r.created_at
+            ? new Date(r.created_at).toLocaleDateString("id-ID", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              })
+            : "Hari ini",
+          comment: r.comment,
+          tags: r.tags || ["Kualitas Terjamin"],
+        }))
+      : initialReviews;
 
   const filteredReviews = reviews.filter((r) => {
     if (ratingFilter === "all") return true;
@@ -71,5 +72,7 @@ export const useSellerReviews = () => {
     averageRating,
     ratingFilter,
     setRatingFilter,
+    isLoading,
+    refetch,
   };
 };

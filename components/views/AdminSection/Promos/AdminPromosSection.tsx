@@ -10,7 +10,6 @@ import {
   Users,
   ShieldAlert,
   CheckCircle2,
-  XCircle,
   Copy,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -153,7 +152,9 @@ export default function AdminPromosSection() {
             <span className="font-medium">Status Subsidi Pasar</span>
             <CheckCircle2 className="w-4 h-4 text-green-600" />
           </div>
-          <p className="text-2xl font-bold text-green-600">Aktif Berjalan</p>
+          <p className="text-2xl font-bold text-green-600">
+            {activeCount > 0 ? "Aktif Berjalan" : "Belum Ada Alokasi"}
+          </p>
           <span className="text-[11px] text-muted-foreground block">
             Alokasi subsidi ongkir tersedia
           </span>
@@ -161,100 +162,114 @@ export default function AdminPromosSection() {
       </div>
 
       {/* Grid Kartu Voucher */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {promos.map((p) => {
-          const isExpired = new Date(p.expiresAt) < new Date();
+      {promos.length === 0 ? (
+        <div className="p-12 text-center border rounded-xl bg-card space-y-3">
+          <TicketPercent className="w-10 h-10 text-muted-foreground/30 mx-auto" />
+          <h3 className="font-bold text-base text-foreground">Belum Ada Voucher Diterbitkan</h3>
+          <p className="text-xs text-muted-foreground max-w-md mx-auto">
+            Voucher subsidi ongkos kirim atau potongan harga komoditas pasar akan tampil di sini setelah diterbitkan.
+          </p>
+        </div>
+      ) : (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {promos.map((p) => {
+            const isExpired = new Date(p.expiresAt) < new Date();
 
-          return (
-            <div
-              key={p.id}
-              className={`border-2 rounded-2xl p-5 bg-card shadow-xs flex flex-col justify-between space-y-4 transition-all ${
-                p.isActive && !isExpired
-                  ? "border-primary/40 hover:border-primary"
-                  : "border-border opacity-70"
-              }`}
-            >
-              <div className="space-y-3">
-                {/* Kode Voucher & Tombol Salin */}
-                <div className="flex items-center justify-between gap-2 pb-2 border-b">
-                  <span className="font-mono text-sm font-extrabold text-primary bg-primary/10 px-2.5 py-1 rounded-lg tracking-wider">
-                    {p.code}
-                  </span>
-                  <button
-                    onClick={() => copyCode(p.code)}
-                    className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 cursor-pointer"
-                    title="Salin Kode"
-                  >
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>Salin</span>
-                  </button>
-                </div>
-
-                <div className="space-y-1">
-                  <h3 className="font-bold text-sm text-foreground leading-snug">
-                    {p.title}
-                  </h3>
-                  <p className="text-xs text-primary font-semibold">
-                    {p.discountType === "free_shipping"
-                      ? `Potongan Ongkir Rp ${p.discountValue.toLocaleString("id-ID")}`
-                      : p.discountType === "fixed"
-                      ? `Diskon Langsung Rp ${p.discountValue.toLocaleString("id-ID")}`
-                      : `Diskon ${p.discountValue}% (Maks Rp ${p.maxDiscount?.toLocaleString("id-ID")})`}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground">
-                    Minimal belanja: Rp {p.minSpend.toLocaleString("id-ID")}
-                  </p>
-                </div>
-
-                {/* Progress Kuota */}
-                <div className="space-y-1 text-xs">
-                  <div className="flex justify-between text-[11px] text-muted-foreground">
-                    <span>Kuota Terpakai:</span>
-                    <span>
-                      {p.used} / {p.quota} klaim
+            return (
+              <div
+                key={p.id}
+                className={`border-2 rounded-2xl p-5 bg-card shadow-xs flex flex-col justify-between space-y-4 transition-all ${
+                  p.isActive && !isExpired
+                    ? "border-primary/40 hover:border-primary"
+                    : "border-border opacity-70"
+                }`}
+              >
+                <div className="space-y-3">
+                  {/* Kode Voucher & Tombol Salin */}
+                  <div className="flex items-center justify-between gap-2 pb-2 border-b">
+                    <span className="font-mono text-sm font-extrabold text-primary bg-primary/10 px-2.5 py-1 rounded-lg tracking-wider">
+                      {p.code}
                     </span>
+                    <button
+                      onClick={() => copyCode(p.code)}
+                      className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 cursor-pointer"
+                      title="Salin Kode"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>Salin</span>
+                    </button>
                   </div>
-                  <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
-                    <div
-                      className="h-full bg-primary rounded-full transition-all"
-                      style={{
-                        width: `${Math.min(100, (p.used / p.quota) * 100)}%`,
-                      }}
-                    />
+
+                  <div className="space-y-1">
+                    <h3 className="font-bold text-sm text-foreground leading-snug">
+                      {p.title}
+                    </h3>
+                    <p className="text-xs text-primary font-semibold">
+                      {p.discountType === "free_shipping"
+                        ? `Potongan Ongkir Rp ${p.discountValue.toLocaleString("id-ID")}`
+                        : p.discountType === "fixed"
+                        ? `Diskon Rp ${p.discountValue.toLocaleString("id-ID")}`
+                        : `Diskon ${p.discountValue}% (Maks Rp ${(p.maxDiscount || 0).toLocaleString("id-ID")})`}
+                    </p>
+                  </div>
+
+                  {/* Keterangan Syarat */}
+                  <div className="space-y-1 text-[11px] text-muted-foreground bg-muted/30 p-2.5 rounded-lg border">
+                    <div className="flex justify-between">
+                      <span>Min. Belanja:</span>
+                      <span className="font-semibold text-foreground">
+                        Rp {p.minSpend.toLocaleString("id-ID")}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Kuota Digunakan:</span>
+                      <span className="font-semibold text-foreground">
+                        {p.used} / {p.quota} klaim
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center pt-0.5">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-3 h-3" /> Berlaku s.d:
+                      </span>
+                      <span className="font-medium text-foreground">
+                        {new Date(p.expiresAt).toLocaleDateString("id-ID", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1 text-[11px] text-muted-foreground pt-1">
-                  <Calendar className="w-3 h-3" />
-                  <span>Berlaku hingga: {p.expiresAt}</span>
+                {/* Footer Kartu & Aksi */}
+                <div className="flex items-center justify-between pt-2 border-t text-xs">
+                  <span
+                    className={`font-semibold px-2 py-0.5 rounded-full text-[10px] ${
+                      isExpired
+                        ? "bg-destructive/10 text-destructive"
+                        : p.isActive
+                        ? "bg-green-500/10 text-green-700"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {isExpired ? "Kadaluarsa" : p.isActive ? "Aktif" : "Nonaktif"}
+                  </span>
+
+                  <Button
+                    variant="outline"
+                    size="xs"
+                    onClick={() => togglePromoStatus(p.id)}
+                    className="text-xs"
+                  >
+                    {p.isActive ? "Nonaktifkan" : "Aktifkan"}
+                  </Button>
                 </div>
               </div>
-
-              {/* Footer Toggle Status */}
-              <div className="pt-3 border-t flex items-center justify-between text-xs">
-                <span
-                  className={`font-semibold px-2 py-0.5 rounded-full text-[10px] ${
-                    p.isActive && !isExpired
-                      ? "bg-green-500/10 text-green-700"
-                      : "bg-destructive/10 text-destructive"
-                  }`}
-                >
-                  {isExpired ? "Kadaluarsa" : p.isActive ? "Aktif" : "Nonaktif"}
-                </span>
-
-                <Button
-                  variant="outline"
-                  size="xs"
-                  onClick={() => togglePromoStatus(p.id)}
-                  className="text-xs"
-                >
-                  {p.isActive ? "Nonaktifkan" : "Aktifkan"}
-                </Button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* MODAL TERBITKAN VOUCHER BARU */}
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
@@ -301,21 +316,18 @@ export default function AdminPromosSection() {
                       e.target.value as "percent" | "fixed" | "free_shipping"
                     )
                   }
-                  className="w-full h-9 px-3 rounded-lg border border-input bg-background outline-none text-xs focus:border-ring cursor-pointer"
+                  className="w-full h-9 rounded-md border bg-background px-3 text-xs"
                 >
-                  <option value="free_shipping">Subsidi Ongkir</option>
-                  <option value="fixed">Potongan Nominal (Rp)</option>
+                  <option value="free_shipping">Bebas Ongkir</option>
+                  <option value="fixed">Nominal Tetap (Rp)</option>
                   <option value="percent">Persentase (%)</option>
                 </select>
               </div>
 
               <div className="space-y-1">
-                <label className="font-semibold text-foreground">
-                  Nilai Potongan:
-                </label>
+                <label className="font-semibold text-foreground">Nilai Potongan:</label>
                 <Input
                   type="number"
-                  min="1"
                   value={discountValue}
                   onChange={(e) => setDiscountValue(Number(e.target.value))}
                   required
@@ -326,11 +338,10 @@ export default function AdminPromosSection() {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="font-semibold text-foreground">
-                  Minimal Belanja (Rp):
+                  Min. Belanja (Rp):
                 </label>
                 <Input
                   type="number"
-                  min="0"
                   value={minSpend}
                   onChange={(e) => setMinSpend(Number(e.target.value))}
                   required
@@ -338,12 +349,9 @@ export default function AdminPromosSection() {
               </div>
 
               <div className="space-y-1">
-                <label className="font-semibold text-foreground">
-                  Kuota Maksimal:
-                </label>
+                <label className="font-semibold text-foreground">Total Kuota:</label>
                 <Input
                   type="number"
-                  min="1"
                   value={quota}
                   onChange={(e) => setQuota(Number(e.target.value))}
                   required

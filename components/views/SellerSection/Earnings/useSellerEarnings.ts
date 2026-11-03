@@ -107,10 +107,10 @@ export const useSellerEarnings = () => {
       return;
     }
 
-    toast.success(
+    toast.info(
       `Permohonan penarikan Rp ${amount.toLocaleString(
         "id-ID"
-      )} berhasil diajukan ke bendahara pasar induk! Dana akan ditransfer dalam 1x24 jam kerja.`,
+      )} dicatat. Layanan pencairan online sedang dalam tahap integrasi backend. Silakan konfirmasi ke bendahara pasar induk.`,
       { position: "top-right" }
     );
     setIsWithdrawModalOpen(false);

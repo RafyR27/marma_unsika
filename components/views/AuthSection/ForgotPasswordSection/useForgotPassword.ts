@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
+import user from "@/services/user.service";
 
 export const forgotPasswordSchema = z.object({
   identifier: z
@@ -38,16 +39,22 @@ export const useForgotPassword = () => {
 
   const onSubmit = async (values: ForgotPasswordFormValues) => {
     setIsPending(true);
-    // Simulasi pengiriman instruksi reset sandi ke nomor / email
-    setTimeout(() => {
-      setIsPending(false);
+    try {
+      await user.forgotPassword({ identifier: values.identifier });
       setIsSubmitted(true);
       setSubmittedIdentifier(values.identifier);
       toast.success(
         "Instruksi pemulihan kata sandi telah dikirimkan ke kontak Anda.",
         { position: "top-right" }
       );
-    }, 800);
+    } catch {
+      toast.info(
+        "Layanan pemulihan kata sandi otomatis via SMS/WhatsApp sedang dalam tahap integrasi backend. Silakan hubungi administrator operasional pasar.",
+        { position: "top-right" }
+      );
+    } finally {
+      setIsPending(false);
+    }
   };
 
   const handleResetAgain = () => {

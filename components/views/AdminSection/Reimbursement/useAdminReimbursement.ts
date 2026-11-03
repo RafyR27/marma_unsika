@@ -81,10 +81,10 @@ export const useAdminReimbursement = () => {
 
   const handleApproveDisbursement = () => {
     if (!selectedDisbursement) return;
-    toast.success(
+    toast.info(
       `Pencairan dana ${selectedDisbursement.id} sebesar Rp ${selectedDisbursement.amount.toLocaleString(
         "id-ID"
-      )} berhasil dibukukan dan disetujui!`,
+      )} dicatat. Eksekusi transfer otomatis sedang menunggu integrasi modul pembayaran backend.`,
       { position: "top-right" }
     );
     setSelectedDisbursement(null);

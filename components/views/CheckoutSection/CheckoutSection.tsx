@@ -21,6 +21,7 @@ import {
 export default function CheckoutSection() {
   const {
     items,
+    totalQuantity,
     deliveryFee,
     subtotalProducts,
     totalAmount,
@@ -239,7 +240,9 @@ export default function CheckoutSection() {
               <div className="flex items-center justify-between pb-2 border-b">
                 <div className="flex items-center gap-2">
                   <Store className="w-5 h-5 text-primary" />
-                  <h2 className="font-bold text-base">Rincian Komoditas ({items.length} Item)</h2>
+                  <h2 className="font-bold text-base">
+                    Rincian Komoditas ({items.length} Macam, {totalQuantity} Kuantitas)
+                  </h2>
                 </div>
                 <span className="text-xs text-muted-foreground">Pasar Induk Multi-Kios</span>
               </div>
@@ -292,6 +295,12 @@ export default function CheckoutSection() {
               <h2 className="font-bold text-base pb-3 border-b">Ringkasan Tagihan</h2>
 
               <div className="space-y-2.5 text-sm">
+                <div className="flex justify-between text-muted-foreground">
+                  <span>Total Kuantitas:</span>
+                  <span className="font-medium text-foreground">
+                    {totalQuantity} komoditas
+                  </span>
+                </div>
                 <div className="flex justify-between text-muted-foreground">
                   <span>Subtotal Komoditas:</span>
                   <span className="font-medium text-foreground">
