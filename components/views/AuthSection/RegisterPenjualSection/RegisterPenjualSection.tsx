@@ -134,7 +134,7 @@ const RegisterPenjualSection = () => {
                     {...field}
                     id="seller-password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Minimal 6 karakter"
+                    placeholder="Minimal 8 karakter"
                     className="px-4"
                     disabled={isSubmitting}
                   />
