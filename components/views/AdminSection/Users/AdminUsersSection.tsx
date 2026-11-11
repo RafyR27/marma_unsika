@@ -16,12 +16,17 @@ import {
   MapPin,
   Truck,
   ShoppingBag,
+  Plus,
+  UserPlus,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 
 import { useMe } from "@/hooks/useMe";
 import { useAdminUsers } from "./useAdminUsers";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import {
@@ -57,6 +62,36 @@ export default function AdminUsersSection() {
     setTogglingUser,
     executeUpdateStatus,
     isUpdatingStatus,
+    // Create User States & Handlers
+    isCreateModalOpen,
+    setIsCreateModalOpen,
+    createName,
+    setCreateName,
+    createPhone,
+    setCreatePhone,
+    createEmail,
+    setCreateEmail,
+    createPassword,
+    setCreatePassword,
+    createPasswordConfirmation,
+    setCreatePasswordConfirmation,
+    createRole,
+    setCreateRole,
+    createStoreName,
+    setCreateStoreName,
+    createMarketName,
+    setCreateMarketName,
+    createBlockNumber,
+    setCreateBlockNumber,
+    createFullAddress,
+    setCreateFullAddress,
+    showPassword,
+    setShowPassword,
+    showConfirmPassword,
+    setShowConfirmPassword,
+    formErrors,
+    handleCreateUser,
+    isCreatingUser,
   } = useAdminUsers();
 
   if (isCheckingAuth) {
@@ -98,15 +133,26 @@ export default function AdminUsersSection() {
           </p>
         </div>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => refetch()}
-          className="flex items-center gap-1.5 self-start sm:self-auto"
-        >
-          <RefreshCw className="w-3.5 h-3.5" />
-          Refresh
-        </Button>
+        <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refetch()}
+            className="flex items-center gap-1.5"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            Refresh
+          </Button>
+
+          <Button
+            size="sm"
+            onClick={() => setIsCreateModalOpen(true)}
+            className="flex items-center gap-1.5 font-semibold text-xs"
+          >
+            <Plus className="w-4 h-4" />
+            Tambah Pengguna
+          </Button>
+        </div>
       </div>
 
       {/* Toolbar Filter & Pencarian */}
@@ -352,6 +398,288 @@ export default function AdminUsersSection() {
           )}
         </div>
       )}
+
+      {/* MODAL FORM TAMBAH PENGGUNA */}
+      <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-base flex items-center gap-2">
+              <UserPlus className="w-5 h-5 text-primary" />
+              Tambah Akun Pengguna Baru
+            </DialogTitle>
+            <DialogDescription className="text-xs">
+              Daftarkan akun pengguna baru untuk pedagang pasar induk, warung pembeli, kurir, atau staf operasional.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleCreateUser} className="space-y-4 text-xs py-1">
+            {/* Bagian 1: Data Identitas & Kontak */}
+            <div className="space-y-3 p-3 rounded-lg border bg-muted/20">
+              <span className="font-bold text-xs text-foreground block border-b pb-1">
+                1. Data Akun & Kontak
+              </span>
+
+              <div className="grid sm:grid-cols-2 gap-3">
+                {/* Nama Lengkap */}
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="user-name" className="font-semibold text-foreground">
+                    Nama Lengkap <span className="text-destructive">*</span>
+                  </label>
+                  <Input
+                    id="user-name"
+                    value={createName}
+                    onChange={(e) => setCreateName(e.target.value)}
+                    placeholder="Contoh: Pak Haji Syahril"
+                    disabled={isCreatingUser}
+                    className={formErrors.name ? "border-destructive focus-visible:ring-destructive" : ""}
+                    required
+                  />
+                  {formErrors.name && (
+                    <p className="text-[11px] text-destructive">{formErrors.name}</p>
+                  )}
+                </div>
+
+                {/* Peran / Role */}
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="user-role" className="font-semibold text-foreground">
+                    Peran Akun (Role) <span className="text-destructive">*</span>
+                  </label>
+                  <select
+                    id="user-role"
+                    value={createRole}
+                    onChange={(e) =>
+                      setCreateRole(
+                        e.target.value as "buyer" | "seller" | "courier" | "admin"
+                      )
+                    }
+                    disabled={isCreatingUser}
+                    className="h-9 px-3 rounded-md border border-input bg-background outline-none text-xs focus:border-ring cursor-pointer"
+                  >
+                    <option value="buyer">Buyer (Warung / Pembeli Grosir)</option>
+                    <option value="seller">Seller (Pedagang Pasar Induk)</option>
+                    <option value="courier">Courier (Kurir Pengantaran)</option>
+                    <option value="admin">Admin (Operasional Pasar)</option>
+                  </select>
+                  {formErrors.role && (
+                    <p className="text-[11px] text-destructive">{formErrors.role}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-3">
+                {/* Nomor Telepon / WA */}
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="user-phone" className="font-semibold text-foreground">
+                    Nomor WhatsApp / HP <span className="text-destructive">*</span>
+                  </label>
+                  <Input
+                    id="user-phone"
+                    value={createPhone}
+                    onChange={(e) => setCreatePhone(e.target.value)}
+                    placeholder="Contoh: 081234567890"
+                    type="tel"
+                    disabled={isCreatingUser}
+                    className={formErrors.phone ? "border-destructive focus-visible:ring-destructive" : ""}
+                    required
+                  />
+                  {formErrors.phone && (
+                    <p className="text-[11px] text-destructive">{formErrors.phone}</p>
+                  )}
+                </div>
+
+                {/* Email (Opsional) */}
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="user-email" className="font-semibold text-foreground">
+                    Alamat Email (Opsional)
+                  </label>
+                  <Input
+                    id="user-email"
+                    value={createEmail}
+                    onChange={(e) => setCreateEmail(e.target.value)}
+                    placeholder="user@example.com"
+                    type="email"
+                    disabled={isCreatingUser}
+                    className={formErrors.email ? "border-destructive focus-visible:ring-destructive" : ""}
+                  />
+                  {formErrors.email && (
+                    <p className="text-[11px] text-destructive">{formErrors.email}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Bagian 2: Kata Sandi & Keamanan */}
+            <div className="space-y-3 p-3 rounded-lg border bg-muted/20">
+              <span className="font-bold text-xs text-foreground block border-b pb-1">
+                2. Kredensial Keamanan Akun
+              </span>
+
+              <div className="grid sm:grid-cols-2 gap-3">
+                {/* Password */}
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="user-password" className="font-semibold text-foreground">
+                    Kata Sandi <span className="text-destructive">*</span>
+                  </label>
+                  <div className="relative">
+                    <Input
+                      id="user-password"
+                      value={createPassword}
+                      onChange={(e) => setCreatePassword(e.target.value)}
+                      placeholder="Minimal 8 karakter"
+                      type={showPassword ? "text" : "password"}
+                      disabled={isCreatingUser}
+                      className={`pr-8 ${
+                        formErrors.password
+                          ? "border-destructive focus-visible:ring-destructive"
+                          : ""
+                      }`}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                  {formErrors.password && (
+                    <p className="text-[11px] text-destructive">{formErrors.password}</p>
+                  )}
+                </div>
+
+                {/* Password Confirmation */}
+                <div className="flex flex-col gap-1">
+                  <label
+                    htmlFor="user-password-confirmation"
+                    className="font-semibold text-foreground"
+                  >
+                    Ulangi Kata Sandi <span className="text-destructive">*</span>
+                  </label>
+                  <div className="relative">
+                    <Input
+                      id="user-password-confirmation"
+                      value={createPasswordConfirmation}
+                      onChange={(e) => setCreatePasswordConfirmation(e.target.value)}
+                      placeholder="Ketik ulang kata sandi"
+                      type={showConfirmPassword ? "text" : "password"}
+                      disabled={isCreatingUser}
+                      className={`pr-8 ${
+                        formErrors.password_confirmation
+                          ? "border-destructive focus-visible:ring-destructive"
+                          : ""
+                      }`}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="w-3.5 h-3.5" />
+                      ) : (
+                        <Eye className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  </div>
+                  {formErrors.password_confirmation && (
+                    <p className="text-[11px] text-destructive">
+                      {formErrors.password_confirmation}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Bagian 3: Profil Toko / Lokasi (Relevan untuk Seller & Buyer) */}
+            {(createRole === "seller" || createRole === "buyer") && (
+              <div className="space-y-3 p-3 rounded-lg border bg-muted/20">
+                <span className="font-bold text-xs text-foreground block border-b pb-1">
+                  3. Informasi Lapak / Kios (Opsional)
+                </span>
+
+                <div className="grid sm:grid-cols-3 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label htmlFor="user-store-name" className="font-semibold text-foreground">
+                      Nama Kios / Warung
+                    </label>
+                    <Input
+                      id="user-store-name"
+                      value={createStoreName}
+                      onChange={(e) => setCreateStoreName(e.target.value)}
+                      placeholder="Contoh: Kios Berkah Tani"
+                      disabled={isCreatingUser}
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label htmlFor="user-market-name" className="font-semibold text-foreground">
+                      Nama Pasar Induk
+                    </label>
+                    <Input
+                      id="user-market-name"
+                      value={createMarketName}
+                      onChange={(e) => setCreateMarketName(e.target.value)}
+                      placeholder="Contoh: Pasar Johar"
+                      disabled={isCreatingUser}
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label htmlFor="user-block-number" className="font-semibold text-foreground">
+                      Nomor Blok / Kios
+                    </label>
+                    <Input
+                      id="user-block-number"
+                      value={createBlockNumber}
+                      onChange={(e) => setCreateBlockNumber(e.target.value)}
+                      placeholder="Contoh: Blok B No. 12"
+                      disabled={isCreatingUser}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="user-address" className="font-semibold text-foreground">
+                    Alamat Lengkap Kios / Warung
+                  </label>
+                  <Textarea
+                    id="user-address"
+                    value={createFullAddress}
+                    onChange={(e) => setCreateFullAddress(e.target.value)}
+                    placeholder="Alamat lengkap toko / kios penjemputan atau pengantaran barang"
+                    rows={2}
+                    disabled={isCreatingUser}
+                    className="text-xs"
+                  />
+                </div>
+              </div>
+            )}
+
+            <DialogFooter className="flex gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsCreateModalOpen(false)}
+                disabled={isCreatingUser}
+              >
+                Batal
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                disabled={isCreatingUser || !createName.trim() || !createPhone.trim() || !createPassword}
+                className="font-semibold flex items-center gap-1.5"
+              >
+                {isCreatingUser && <Spinner className="w-3.5 h-3.5" />}
+                {isCreatingUser ? "Mendaftarkan..." : "Daftarkan Pengguna"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* MODAL KONFIRMASI UBAH STATUS AKUN */}
       <Dialog

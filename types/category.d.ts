@@ -12,4 +12,19 @@ interface ICategoryListResponse {
   data: ICategory[];
 }
 
-export type { ICategory, ICategoryListResponse };
+interface ICreateCategoryPayload {
+  name: string;
+  image_url?: string | null;
+}
+
+interface ICategorySingleResponse {
+  message?: string;
+  data: ICategory;
+}
+
+export type {
+  ICategory,
+  ICategoryListResponse,
+  ICreateCategoryPayload,
+  ICategorySingleResponse,
+};
