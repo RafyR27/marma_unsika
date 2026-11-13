@@ -267,7 +267,7 @@ export default function SellerOrdersSection() {
                         onClick={() =>
                           updateItemStatus({
                             itemId: item.id,
-                            status: "picked_up",
+                            status: "ready",
                           })
                         }
                         className="text-xs font-semibold"
@@ -440,15 +440,19 @@ export default function SellerOrdersSection() {
                             </span>
                             <span
                               className={`text-[10px] px-2 py-0.2 rounded-full font-semibold ${
-                                item.pickup_status === "picked_up"
+                                item.pickup_status === "ready"
+                                  ? "bg-blue-500/10 text-blue-700"
+                                  : item.pickup_status === "picked_up"
                                   ? "bg-green-500/10 text-green-700"
                                   : item.pickup_status === "out_of_stock"
                                   ? "bg-destructive/10 text-destructive"
                                   : "bg-muted text-muted-foreground"
                               }`}
                             >
-                              {item.pickup_status === "picked_up"
-                                ? "Siap / Diambil"
+                              {item.pickup_status === "ready"
+                                ? "Sedang Menunggu Kurir"
+                                : item.pickup_status === "picked_up"
+                                ? "Sudah Diambil Kurir"
                                 : item.pickup_status === "out_of_stock"
                                 ? "Stok Kosong"
                                 : "Menunggu Kemas"}

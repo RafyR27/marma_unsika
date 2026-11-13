@@ -335,6 +335,19 @@ export default function ActiveDeliveriesSection() {
                         {delivery.notes}
                       </p>
                     )}
+                    {address?.latitude && address?.longitude && (
+                      <div className="pt-2">
+                        <a
+                          href={`https://www.google.com/maps/dir/?api=1&destination=${address.latitude},${address.longitude}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs shadow-xs transition-colors"
+                        >
+                          <Navigation className="w-3.5 h-3.5" />
+                          Buka Navigasi Rute Google Maps
+                        </a>
+                      </div>
+                    )}
                   </div>
 
                   {/* Bagian 3: Instruksi Pembayaran Tagihan */}

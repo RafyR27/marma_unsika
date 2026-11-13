@@ -65,10 +65,12 @@ export const useSellerOrders = () => {
     }) => seller.updateItemStatus(itemId, { pickup_status: status }),
     onSuccess: (_, variables) => {
       const label =
-        variables.status === "picked_up"
-          ? "Barang ditandai siap dijemput kurir."
+        variables.status === "ready"
+          ? "Barang selesai dikemas dan siap dijemput kurir."
+          : variables.status === "picked_up"
+          ? "Barang telah diambil oleh kurir."
           : variables.status === "out_of_stock"
-          ? "Barang ditandai stok kosong."
+          ? "Barang ditandai stok kosong. Jika semua item habis, pesanan otomatis dibatalkan."
           : "Status barang diperbarui.";
       toast.success(label, { position: "top-right" });
 
