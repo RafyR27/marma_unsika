@@ -14,6 +14,10 @@ import {
   ExternalLink,
   Navigation,
   Scale,
+  Search,
+  Home,
+  Building2,
+  CheckCircle2,
 } from "lucide-react";
 
 import { useCheckout } from "./useCheckout";
@@ -41,7 +45,13 @@ export default function CheckoutSection() {
     setLongitude,
     detectGps,
     isDetectingGps,
-    presetAreas,
+    searchLocationQuery,
+    setSearchLocationQuery,
+    searchResults,
+    isSearchingLocation,
+    handleSearchLocation,
+    handleSelectLocationResult,
+    syncFullAddress,
     subtotalProducts,
     totalAmount,
     isCartLoading,
@@ -51,6 +61,14 @@ export default function CheckoutSection() {
     form,
     onSubmit,
   } = useCheckout();
+
+  const locationTypes = [
+    { id: "rumah", label: "Rumah Tinggal", icon: Home },
+    { id: "kios", label: "Kios / Lapak Pasar", icon: Store },
+    { id: "warung", label: "Warung Kelontong", icon: Store },
+    { id: "ruko_kantor", label: "Ruko / Kantor", icon: Building2 },
+    { id: "lainnya", label: "Lainnya", icon: MapPin },
+  ] as const;
 
   if (isCartLoading || isUserLoading) {
     return (
@@ -120,25 +138,66 @@ export default function CheckoutSection() {
         <div className="grid lg:grid-cols-3 gap-8 items-start">
           {/* Kolom Kiri: Alamat, Titik GPS & Komoditas */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Bagian 1: Alamat Pengiriman */}
-            <div className="p-5 border rounded-xl bg-card space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b">
-                <MapPin className="w-5 h-5 text-primary" />
-                <h2 className="font-bold text-base">Alamat Pengiriman Kios / Warung</h2>
+            {/* Bagian 1: Alamat Pengiriman Rinci */}
+            <div className="p-5 border rounded-xl bg-card space-y-5 shadow-xs">
+              <div className="flex items-center justify-between pb-3 border-b">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-primary" />
+                  <h2 className="font-bold text-base">Tujuan &amp; Alamat Pengantaran Rinci</h2>
+                </div>
+                <span className="text-xs text-muted-foreground">Wilayah Karawang</span>
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-4">
+              {/* Pilihan Jenis / Kategori Lokasi Pengantaran */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-foreground block">
+                  Jenis Lokasi Pengantaran:
+                </label>
+                <Controller
+                  name="location_type"
+                  control={form.control}
+                  render={({ field }) => (
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                      {locationTypes.map((type) => {
+                        const Icon = type.icon;
+                        const isSelected = field.value === type.id;
+                        return (
+                          <button
+                            key={type.id}
+                            type="button"
+                            onClick={() => {
+                              field.onChange(type.id);
+                              syncFullAddress();
+                            }}
+                            className={`flex flex-col items-center justify-center gap-1.5 p-2.5 rounded-xl border text-xs transition-all ${
+                              isSelected
+                                ? "border-emerald-600 bg-emerald-50/80 text-emerald-900 font-semibold ring-1 ring-emerald-600"
+                                : "border-border bg-background hover:bg-muted/50 text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            <Icon className={`w-4 h-4 ${isSelected ? "text-emerald-700" : "text-muted-foreground"}`} />
+                            <span className="text-[11px] text-center leading-tight">{type.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                />
+              </div>
+
+              {/* Data Penerima & Kontak */}
+              <div className="grid sm:grid-cols-2 gap-4 pt-1">
                 <Controller
                   name="recipient_name"
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor="recipient_name">Nama Penerima</FieldLabel>
+                      <FieldLabel htmlFor="recipient_name">Nama Penerima / Kontak</FieldLabel>
                       <FieldContent>
                         <Input
                           {...field}
                           id="recipient_name"
-                          placeholder="Nama penanggung jawab warung"
+                          placeholder="Contoh: Ibu Dewi / Pak Haji Slamet"
                           disabled={isSubmitting}
                         />
                       </FieldContent>
@@ -160,7 +219,7 @@ export default function CheckoutSection() {
                           {...field}
                           id="phone"
                           type="tel"
-                          placeholder="08xxxxxxxxxx"
+                          placeholder="08xxxxxxxxxx (Aktif WhatsApp)"
                           disabled={isSubmitting}
                         />
                       </FieldContent>
@@ -172,72 +231,35 @@ export default function CheckoutSection() {
                 />
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-4">
-                <Controller
-                  name="store_name"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Field>
-                      <FieldLabel htmlFor="store_name">Nama Warung / Toko (Opsional)</FieldLabel>
-                      <FieldContent>
-                        <Input
-                          {...field}
-                          id="store_name"
-                          placeholder="Contoh: Warung Sayur Bu Dewi"
-                          disabled={isSubmitting}
-                        />
-                      </FieldContent>
-                    </Field>
-                  )}
-                />
-
-                <Controller
-                  name="market_name"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Field>
-                      <FieldLabel htmlFor="market_name">Nama Pasar / Wilayah (Opsional)</FieldLabel>
-                      <FieldContent>
-                        <Input
-                          {...field}
-                          id="market_name"
-                          placeholder="Contoh: Pasar Johar / Sekitar UNSIKA"
-                          disabled={isSubmitting}
-                        />
-                      </FieldContent>
-                    </Field>
-                  )}
-                />
-              </div>
-
+              {/* Nama Usaha / Warung (Opsional) */}
               <Controller
-                name="full_address"
+                name="store_name"
                 control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="full_address">Alamat Lengkap Pengiriman</FieldLabel>
+                render={({ field }) => (
+                  <Field>
+                    <FieldLabel htmlFor="store_name">Nama Kios / Warung / Plang Nama (Opsional)</FieldLabel>
                     <FieldContent>
-                      <Textarea
+                      <Input
                         {...field}
-                        id="full_address"
-                        rows={3}
-                        placeholder="Nama jalan, nomor kios/toko, patokan lokasi terdekat di Karawang"
+                        id="store_name"
+                        placeholder="Contoh: Warung Sayur Segar Bu Dewi / Kios Berkah"
                         disabled={isSubmitting}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          syncFullAddress();
+                        }}
                       />
                     </FieldContent>
-                    {fieldState.error && (
-                      <FieldError>{fieldState.error.message}</FieldError>
-                    )}
                   </Field>
                 )}
               />
 
-              {/* Sub-bagian Titik Koordinat GPS / Navigasi Karawang (Nitik Map) */}
-              <div className="pt-3 border-t space-y-3">
+              {/* Fitur Pencarian Nama Jalan & Titik Navigasi Karawang */}
+              <div className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/40 space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-950">
                     <Navigation className="w-4 h-4 text-emerald-600" />
-                    <span>Titik Lokasi Pengantaran (Nitik Koordinat)</span>
+                    <span>Cari Titik Jalan / Wilayah Pengantaran</span>
                   </div>
 
                   <Button
@@ -246,93 +268,213 @@ export default function CheckoutSection() {
                     size="xs"
                     disabled={isDetectingGps || isSubmitting}
                     onClick={detectGps}
-                    className="text-xs h-7 gap-1.5 self-start sm:self-auto border-emerald-600 text-emerald-700 hover:bg-emerald-50"
+                    className="text-xs h-7 gap-1.5 border-emerald-600 text-emerald-700 hover:bg-emerald-100 bg-white shadow-2xs self-start sm:self-auto"
                   >
                     {isDetectingGps ? (
                       <Spinner className="w-3 h-3 mr-1" />
                     ) : (
                       <Compass className="w-3.5 h-3.5" />
                     )}
-                    Deteksi GPS Saya
+                    Deteksi GPS Perangkat
                   </Button>
                 </div>
 
-                {/* Preset Area Cepat Karawang */}
-                <div className="space-y-1.5">
-                  <span className="text-[11px] text-muted-foreground block">
-                    Pilihan Cepat Wilayah Karawang:
-                  </span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {presetAreas.map((area) => {
-                      const isSelected =
-                        Math.abs(latitude - area.lat) < 0.001 &&
-                        Math.abs(longitude - area.lng) < 0.001;
-                      return (
-                        <button
-                          key={area.name}
-                          type="button"
-                          onClick={() => {
-                            setLatitude(area.lat);
-                            setLongitude(area.lng);
-                          }}
-                          className={`text-[11px] px-2.5 py-1 rounded-md border transition-all ${
-                            isSelected
-                              ? "bg-emerald-600 text-white border-emerald-600 font-semibold"
-                              : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground border-border"
-                          }`}
-                        >
-                          {area.name}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Input Koordinat Manual */}
-                <div className="grid grid-cols-2 gap-3 pt-1">
-                  <div>
-                    <label className="text-[11px] font-medium text-muted-foreground block mb-1">
-                      Latitude
-                    </label>
+                {/* Input Pencarian */}
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Search className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
                     <Input
-                      type="number"
-                      step="0.000001"
-                      value={latitude}
-                      onChange={(e) => setLatitude(parseFloat(e.target.value) || 0)}
-                      disabled={isSubmitting}
-                      className="h-8 text-xs font-mono"
+                      type="text"
+                      value={searchLocationQuery}
+                      onChange={(e) => setSearchLocationQuery(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleSearchLocation();
+                        }
+                      }}
+                      placeholder="Ketik nama jalan, perumahan, kelurahan di Karawang (misal: Galuh Mas, Unsika, Tuparev)..."
+                      className="pl-9 text-xs h-9 bg-white"
+                      disabled={isSubmitting || isSearchingLocation}
                     />
                   </div>
-                  <div>
-                    <label className="text-[11px] font-medium text-muted-foreground block mb-1">
-                      Longitude
-                    </label>
-                    <Input
-                      type="number"
-                      step="0.000001"
-                      value={longitude}
-                      onChange={(e) => setLongitude(parseFloat(e.target.value) || 0)}
-                      disabled={isSubmitting}
-                      className="h-8 text-xs font-mono"
-                    />
-                  </div>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => handleSearchLocation()}
+                    disabled={isSearchingLocation || isSubmitting}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-9 px-4 shrink-0"
+                  >
+                    {isSearchingLocation ? <Spinner className="w-3.5 h-3.5 mr-1" /> : <Search className="w-3.5 h-3.5 mr-1" />}
+                    Cari Lokasi
+                  </Button>
                 </div>
 
-                <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                  <span>
-                    Hub Logistik Asal:{" "}
-                    <strong className="text-foreground">Pasar Johar Karawang</strong>
-                  </span>
+                {/* Hasil Rekomendasi Lokasi Geocoding */}
+                {searchResults.length > 0 && (
+                  <div className="bg-white rounded-xl border border-emerald-300 p-2 space-y-1 shadow-sm max-h-48 overflow-y-auto">
+                    <div className="text-[10px] font-semibold text-emerald-800 uppercase px-2 py-1">
+                      Pilih Titik Lokasi Paling Sesuai:
+                    </div>
+                    {searchResults.map((loc, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => handleSelectLocationResult(loc)}
+                        className="w-full text-left p-2 rounded-lg hover:bg-emerald-50/80 transition-colors flex items-start gap-2 text-xs"
+                      >
+                        <MapPin className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                        <div className="min-w-0">
+                          <span className="font-semibold text-foreground block truncate">{loc.name}</span>
+                          <span className="text-[11px] text-muted-foreground line-clamp-1">{loc.display_name}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Koordinat Terpilih & Tautan Google Maps */}
+                <div className="pt-2 border-t border-emerald-200/60 flex flex-wrap items-center justify-between gap-2 text-[11px] text-emerald-950">
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>
+                      Koordinat Terkunci: <code className="font-mono font-semibold bg-white px-1.5 py-0.5 rounded border">{latitude}, {longitude}</code>
+                    </span>
+                  </div>
+
                   <a
                     href={`https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-primary hover:underline font-medium"
+                    className="inline-flex items-center gap-1 text-emerald-700 font-semibold hover:underline bg-white px-2 py-1 rounded border border-emerald-300"
                   >
                     <ExternalLink className="w-3 h-3" />
-                    Cek Titik di Maps
+                    Cek Titik Pengantaran di Google Maps
                   </a>
                 </div>
+              </div>
+
+              {/* Rincian Alamat: Nama Jalan, Nomor Bangunan, Blok/Kios, Patokan */}
+              <div className="space-y-4 pt-1">
+                <Controller
+                  name="street_address"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor="street_address">
+                        Nama Jalan / Gang &amp; Nomor Bangunan <span className="text-destructive">*</span>
+                      </FieldLabel>
+                      <FieldContent>
+                        <Input
+                          {...field}
+                          id="street_address"
+                          placeholder="Contoh: Jl. HS Ronggowaluyo No. 45 / Gang H. Sholeh No. 12"
+                          disabled={isSubmitting}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            syncFullAddress();
+                          }}
+                        />
+                      </FieldContent>
+                      {fieldState.error && (
+                        <FieldError>{fieldState.error.message}</FieldError>
+                      )}
+                    </Field>
+                  )}
+                />
+
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <Controller
+                    name="block_number"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Field>
+                        <FieldLabel htmlFor="block_number">Nomor Blok / Kios / RT / RW (Opsional)</FieldLabel>
+                        <FieldContent>
+                          <Input
+                            {...field}
+                            id="block_number"
+                            placeholder="Contoh: Blok B-14 No. 4 / RT 03 RW 05 / Kios No. 08"
+                            disabled={isSubmitting}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              syncFullAddress();
+                            }}
+                          />
+                        </FieldContent>
+                      </Field>
+                    )}
+                  />
+
+                  <Controller
+                    name="district"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Field>
+                        <FieldLabel htmlFor="district">Kecamatan / Kelurahan (Opsional)</FieldLabel>
+                        <FieldContent>
+                          <Input
+                            {...field}
+                            id="district"
+                            placeholder="Contoh: Telukjambe Timur / Karawang Barat / Klari"
+                            disabled={isSubmitting}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              syncFullAddress();
+                            }}
+                          />
+                        </FieldContent>
+                      </Field>
+                    )}
+                  />
+                </div>
+
+                <Controller
+                  name="landmark"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Field>
+                      <FieldLabel htmlFor="landmark">Patokan Lokasi Terdekat (Landmark)</FieldLabel>
+                      <FieldContent>
+                        <Input
+                          {...field}
+                          id="landmark"
+                          placeholder="Contoh: Depan Masjid Al-Ikhlas / Samping Indomaret / Pagar Hitam"
+                          disabled={isSubmitting}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            syncFullAddress();
+                          }}
+                        />
+                      </FieldContent>
+                    </Field>
+                  )}
+                />
+
+                {/* Alamat Lengkap Gabungan (Preview & Final Edit) */}
+                <Controller
+                  name="full_address"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor="full_address">
+                        Alamat Lengkap Pengiriman (Tercetak di Surat Jalan Kurir) <span className="text-destructive">*</span>
+                      </FieldLabel>
+                      <FieldContent>
+                        <Textarea
+                          {...field}
+                          id="full_address"
+                          rows={3}
+                          placeholder="Alamat lengkap gabungan yang akan dibaca oleh kurir pengantar..."
+                          disabled={isSubmitting}
+                        />
+                      </FieldContent>
+                      {fieldState.error && (
+                        <FieldError>{fieldState.error.message}</FieldError>
+                      )}
+                    </Field>
+                  )}
+                />
               </div>
             </div>
 

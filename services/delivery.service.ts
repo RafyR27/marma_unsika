@@ -14,10 +14,23 @@ export interface ICalculateFeeResponse {
   data: IDeliveryFeeBreakdown;
 }
 
+export interface ILocationSearchResult {
+  name: string;
+  display_name: string;
+  latitude: number;
+  longitude: number;
+}
+
 const delivery = {
   // Calculate delivery fee based on GPS coordinates, road distance, and commodity weight
   calculateFee: (payload: ICalculateFeePayload) =>
     instance.post<ICalculateFeeResponse>("/delivery/calculate-fee", payload),
+
+  // Search locations/landmarks in Karawang
+  searchLocation: (query: string) =>
+    instance.get<{ data: ILocationSearchResult[] }>("/delivery/search-location", {
+      params: { q: query },
+    }),
 };
 
 export default delivery;
