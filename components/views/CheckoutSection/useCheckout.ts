@@ -16,7 +16,6 @@ import { useMe } from "@/hooks/useMe";
 import { IDeliveryAddress, IDeliveryFeeBreakdown } from "@/types/order";
 
 export const checkoutFormSchema = z.object({
-  location_type: z.enum(["rumah", "kios", "warung", "ruko_kantor", "lainnya"]),
   recipient_name: z.string().min(2, "Nama penerima minimal 2 karakter"),
   phone: z
     .string()
@@ -92,7 +91,6 @@ export const useCheckout = () => {
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutFormSchema),
     defaultValues: {
-      location_type: "rumah",
       recipient_name: "",
       phone: "",
       store_name: "",
@@ -110,15 +108,8 @@ export const useCheckout = () => {
   useEffect(() => {
     if (user) {
       const p = user.profile;
-      const initialType =
-        user.role === "seller"
-          ? "kios"
-          : p?.store_name
-          ? "warung"
-          : "rumah";
 
       form.reset({
-        location_type: initialType,
         recipient_name: user.name || "",
         phone: user.phone || "",
         store_name: p?.store_name || "",
@@ -141,19 +132,7 @@ export const useCheckout = () => {
   // Sinkronisasi otomatis alamat lengkap jika field rincian diubah
   const syncFullAddress = useCallback(() => {
     const cur = form.getValues();
-    const typeLabel =
-      cur.location_type === "kios"
-        ? "[Kios / Lapak Pasar]"
-        : cur.location_type === "warung"
-        ? "[Warung Kelontong]"
-        : cur.location_type === "ruko_kantor"
-        ? "[Ruko / Kantor]"
-        : cur.location_type === "rumah"
-        ? "[Rumah Tinggal]"
-        : "";
-
     const parts: string[] = [];
-    if (typeLabel) parts.push(typeLabel);
     if (cur.store_name) parts.push(cur.store_name);
     if (cur.street_address) parts.push(cur.street_address);
     if (cur.block_number) parts.push(`Blok/No: ${cur.block_number}`);
