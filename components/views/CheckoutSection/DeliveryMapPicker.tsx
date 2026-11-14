@@ -10,8 +10,8 @@ import {
   ExternalLink,
   Plus,
   Minus,
-  Navigation2,
   CheckCircle2,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,17 @@ interface DeliveryMapPickerProps {
   initialLng?: number;
 }
 
+const POPULAR_KARAWANG_LANDMARKS = [
+  "Mall KCP",
+  "Resinda Park Mall",
+  "Galuh Mas",
+  "Grand Taruma",
+  "UNSIKA",
+  "Pasar Johar",
+  "Pasar Baru Karawang",
+  "Alun-Alun Karawang",
+];
+
 export default function DeliveryMapPicker({
   latitude,
   longitude,
@@ -38,9 +49,8 @@ export default function DeliveryMapPicker({
 }: DeliveryMapPickerProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
-  const myLocationMarkerRef = useRef<L.Marker | null>(null);
+  const userLocationMarkerRef = useRef<L.Marker | null>(null);
 
-  const [isMapReady, setIsMapReady] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [currentCenter, setCurrentCenter] = useState({ lat: latitude, lng: longitude });
 
@@ -54,8 +64,104 @@ export default function DeliveryMapPicker({
   const [isSearching, setIsSearching] = useState(false);
   const [isLocatingUser, setIsLocatingUser] = useState(false);
 
-  // Titik patokan awal (lokasi pengguna yang tersimpan/terdeteksi)
-  const homeAnchorRef = useRef({ lat: initialLat, lng: initialLng });
+  // Titik patokan lokasi pengguna asli yang terdeteksi
+  const detectedUserPosRef = useRef<{ lat: number; lng: number } | null>(null);
+
+  // Fungsi menempatkan atau memperbarui marker titik pengguna (Pulsing Dot)
+  const renderUserMarker = useCallback((lat: number, lng: number, title: string = "Lokasi Anda") => {
+    if (!mapInstanceRef.current) return;
+
+    if (userLocationMarkerRef.current) {
+      userLocationMarkerRef.current.setLatLng([lat, lng]);
+    } else {
+      const pulseDotIcon = L.divIcon({
+        className: "user-gps-pulse-marker",
+        html: `
+          <div style="position:relative; width:20px; height:20px; cursor:pointer;" title="${title}">
+            <div style="position:absolute; inset:-6px; border-radius:9999px; background:rgba(16,185,129,0.35); animation:ping 1.8s cubic-bezier(0,0,0.2,1) infinite;"></div>
+            <div style="position:relative; width:20px; height:20px; border-radius:9999px; background:#059669; border:3px solid white; box-shadow:0 2px 6px rgba(0,0,0,0.45); display:flex; align-items:center; justify-content:center;">
+              <div style="width:6px; height:6px; border-radius:9999px; background:white;"></div>
+            </div>
+          </div>
+        `,
+        iconSize: [20, 20],
+        iconAnchor: [10, 10],
+      });
+
+      userLocationMarkerRef.current = L.marker([lat, lng], {
+        icon: pulseDotIcon,
+        zIndexOffset: 800,
+      }).addTo(mapInstanceRef.current);
+    }
+  }, []);
+
+  // Multi-tier location detection: Browser Geolocation -> IP Geolocation -> Karawang center
+  const detectUserLocation = useCallback(
+    async (isUserTriggered: boolean = false) => {
+      setIsLocatingUser(true);
+
+      const applyLocation = (lat: number, lng: number, label: string) => {
+        detectedUserPosRef.current = { lat, lng };
+        setCurrentCenter({ lat, lng });
+        setManualLat(lat.toString());
+        setManualLng(lng.toString());
+
+        if (mapInstanceRef.current) {
+          renderUserMarker(lat, lng, label);
+          mapInstanceRef.current.flyTo([lat, lng], 16, { duration: 1.2 });
+        }
+
+        onChange(lat, lng, label);
+        setIsLocatingUser(false);
+
+        if (isUserTriggered) {
+          toast.success(`Titik lokasi Anda berhasil dikunci: ${label}`, {
+            position: "top-right",
+          });
+        }
+      };
+
+      // 1. Coba browser Geolocation (timeout 3.5 detik)
+      if (typeof window !== "undefined" && navigator.geolocation) {
+        try {
+          const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              timeout: 3500,
+              enableHighAccuracy: false,
+              maximumAge: 60000,
+            });
+          });
+
+          const userLat = Number(pos.coords.latitude.toFixed(6));
+          const userLng = Number(pos.coords.longitude.toFixed(6));
+          applyLocation(userLat, userLng, "Lokasi GPS Perangkat");
+          return;
+        } catch {
+          // Gagal atau timeout, lanjut otomatis ke IP Geolocation
+        }
+      }
+
+      // 2. Fallback otomatis ke IP Geolocation (BE / External)
+      try {
+        const res = await delivery.detectLocation();
+        if (res.data?.success && res.data.latitude && res.data.longitude) {
+          const ipLat = Number(res.data.latitude.toFixed(6));
+          const ipLng = Number(res.data.longitude.toFixed(6));
+          const name = res.data.name || "Lokasi Jaringan Internet";
+          applyLocation(ipLat, ipLng, name);
+          return;
+        }
+      } catch {
+        // Fallback terakhir
+      }
+
+      // 3. Fallback ke titik default Karawang (Unsika)
+      const fallbackLat = initialLat || -6.3262;
+      const fallbackLng = initialLng || 107.3045;
+      applyLocation(fallbackLat, fallbackLng, "Pusat Wilayah Karawang");
+    },
+    [initialLat, initialLng, onChange, renderUserMarker]
+  );
 
   // Inisialisasi Peta Leaflet
   useEffect(() => {
@@ -64,7 +170,7 @@ export default function DeliveryMapPicker({
     const map = L.map(mapContainerRef.current, {
       center: [latitude, longitude],
       zoom: 15,
-      zoomControl: false, // Gunakan kontrol zoom kustom yang lebih bersih
+      zoomControl: false,
       attributionControl: false,
     });
 
@@ -113,7 +219,9 @@ export default function DeliveryMapPicker({
     });
 
     mapInstanceRef.current = map;
-    setIsMapReady(true);
+
+    // Deteksi lokasi pengguna pertama kali saat peta siap
+    detectUserLocation(false);
 
     return () => {
       map.remove();
@@ -121,7 +229,7 @@ export default function DeliveryMapPicker({
     };
   }, []);
 
-  // Update center peta jika koordinat di luar komponen berubah (misal dari form reset)
+  // Update center peta jika koordinat di luar komponen berubah
   useEffect(() => {
     if (!mapInstanceRef.current) return;
     const center = mapInstanceRef.current.getCenter();
@@ -140,84 +248,23 @@ export default function DeliveryMapPicker({
 
   // Tombol Kompas / Recenter: mengembalikan peta ke titik lokasi asli pengguna
   const handleRecenterToMyLocation = useCallback(() => {
-    if (!mapInstanceRef.current) return;
-    setIsLocatingUser(true);
-
-    if (typeof window !== "undefined" && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setIsLocatingUser(false);
-          const userLat = Number(pos.coords.latitude.toFixed(6));
-          const userLng = Number(pos.coords.longitude.toFixed(6));
-
-          homeAnchorRef.current = { lat: userLat, lng: userLng };
-
-          // Tambah atau perbarui marker titik biru GPS pengguna
-          if (mapInstanceRef.current) {
-            if (myLocationMarkerRef.current) {
-              myLocationMarkerRef.current.setLatLng([userLat, userLng]);
-            } else {
-              const pulseDotIcon = L.divIcon({
-                className: "user-gps-dot",
-                html: `
-                  <div style="position:relative; width:16px; height:16px;">
-                    <div style="position:absolute; inset:-4px; border-radius:9999px; background:rgba(37,99,235,0.3); animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite;"></div>
-                    <div style="position:relative; width:16px; height:16px; border-radius:9999px; background:#2563eb; border:2.5px solid white; box-shadow:0 1px 4px rgba(0,0,0,0.4);"></div>
-                  </div>
-                `,
-                iconSize: [16, 16],
-                iconAnchor: [8, 8],
-              });
-
-              myLocationMarkerRef.current = L.marker([userLat, userLng], {
-                icon: pulseDotIcon,
-                zIndexOffset: 500,
-              }).addTo(mapInstanceRef.current);
-            }
-
-            mapInstanceRef.current.flyTo([userLat, userLng], 16, {
-              duration: 1.2,
-            });
-          }
-
-          toast.success("Peta diarahkan ke titik lokasi perangkat Anda", {
-            position: "top-right",
-          });
-        },
-        () => {
-          // Fallback halus jika GPS perangkat gagal / timeout: kembali ke anchor awal pengguna
-          setIsLocatingUser(false);
-          const fallbackLat = homeAnchorRef.current.lat || initialLat;
-          const fallbackLng = homeAnchorRef.current.lng || initialLng;
-
-          if (mapInstanceRef.current) {
-            mapInstanceRef.current.flyTo([fallbackLat, fallbackLng], 16, {
-              duration: 1.0,
-            });
-          }
-
-          toast.info("Peta diarahkan kembali ke titik lokasi pengantaran Anda", {
-            position: "top-right",
-          });
-        },
-        { timeout: 10000, enableHighAccuracy: false, maximumAge: 60000 }
-      );
+    if (detectedUserPosRef.current && mapInstanceRef.current) {
+      const { lat, lng } = detectedUserPosRef.current;
+      setCurrentCenter({ lat, lng });
+      setManualLat(lat.toString());
+      setManualLng(lng.toString());
+      renderUserMarker(lat, lng, "Lokasi Anda");
+      mapInstanceRef.current.flyTo([lat, lng], 16, { duration: 1.0 });
+      onChange(lat, lng);
+      toast.success("Peta diarahkan kembali ke titik lokasi Anda", { position: "top-right" });
     } else {
-      setIsLocatingUser(false);
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.flyTo([homeAnchorRef.current.lat, homeAnchorRef.current.lng], 16, {
-          duration: 1.0,
-        });
-      }
-      toast.info("Peta diarahkan kembali ke titik lokasi Anda", {
-        position: "top-right",
-      });
+      detectUserLocation(true);
     }
-  }, [initialLat, initialLng]);
+  }, [detectUserLocation, onChange, renderUserMarker]);
 
   // Pencarian Lokasi
-  const handleSearch = async () => {
-    const q = searchQuery.trim();
+  const handleSearch = async (overrideQuery?: string) => {
+    const q = (overrideQuery ?? searchQuery).trim();
     if (q.length < 2) {
       toast.info("Ketik minimal 2 karakter untuk mencari lokasi.");
       return;
@@ -229,7 +276,7 @@ export default function DeliveryMapPicker({
       const results = res.data?.data || [];
       setSearchResults(results);
       if (results.length === 0) {
-        toast.info("Lokasi tidak ditemukan. Coba ketik nama jalan atau kelurahan lain.");
+        toast.info(`Lokasi "${q}" tidak ditemukan di Karawang.`);
       }
     } catch {
       toast.error("Gagal mencari lokasi.");
@@ -278,8 +325,8 @@ export default function DeliveryMapPicker({
 
   return (
     <div className="space-y-3">
-      {/* 1. Bar Pencarian Nama Jalan di Karawang */}
-      <div className="space-y-1.5">
+      {/* 1. Bar Pencarian Nama Jalan & Landmark di Karawang */}
+      <div className="space-y-2">
         <div className="flex gap-2">
           <div className="relative flex-1">
             <Search className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
@@ -293,14 +340,26 @@ export default function DeliveryMapPicker({
                   handleSearch();
                 }
               }}
-              placeholder="Cari nama jalan, perumahan, atau kelurahan di Karawang (misal: Galuh Mas, Unsika, Tuparev)..."
-              className="pl-9 text-xs h-9 bg-white"
+              placeholder="Cari mall, pasar, jalan, atau perumahan (misal: Mall KCP, Resinda, Galuh Mas)..."
+              className="pl-9 pr-8 text-xs h-9 bg-white"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery("");
+                  setSearchResults([]);
+                }}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
           <Button
             type="button"
             size="sm"
-            onClick={handleSearch}
+            onClick={() => handleSearch()}
             disabled={isSearching}
             className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-9 px-4 shrink-0 font-medium"
           >
@@ -309,23 +368,58 @@ export default function DeliveryMapPicker({
           </Button>
         </div>
 
+        {/* Saran Cepat Landmark Karawang */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 no-scrollbar text-[11px]">
+          <span className="text-muted-foreground shrink-0 font-medium text-[10px] uppercase tracking-wider">
+            Saran:
+          </span>
+          {POPULAR_KARAWANG_LANDMARKS.map((landmark) => (
+            <button
+              key={landmark}
+              type="button"
+              onClick={() => {
+                setSearchQuery(landmark);
+                handleSearch(landmark);
+              }}
+              className="px-2 py-0.5 rounded-md bg-muted/60 hover:bg-emerald-50 hover:text-emerald-800 text-muted-foreground border border-border/80 shrink-0 transition-colors"
+            >
+              {landmark}
+            </button>
+          ))}
+        </div>
+
         {/* Dropdown Hasil Pencarian */}
         {searchResults.length > 0 && (
-          <div className="bg-white rounded-xl border border-emerald-300 p-2 space-y-1 shadow-md max-h-48 overflow-y-auto z-20 relative">
-            <div className="text-[10px] font-semibold text-emerald-800 uppercase px-2 py-1">
-              Pilih Titik Lokasi:
+          <div className="bg-white rounded-xl border border-emerald-300 p-2 space-y-1 shadow-md max-h-56 overflow-y-auto z-20 relative">
+            <div className="flex items-center justify-between px-2 py-1 border-b border-neutral-100">
+              <span className="text-[10px] font-semibold text-emerald-800 uppercase tracking-wider">
+                Ditemukan {searchResults.length} Lokasi:
+              </span>
+              <button
+                type="button"
+                onClick={() => setSearchResults([])}
+                className="text-[10px] text-muted-foreground hover:text-foreground"
+              >
+                Tutup
+              </button>
             </div>
             {searchResults.map((loc, idx) => (
               <button
                 key={idx}
                 type="button"
                 onClick={() => handleSelectSearchResult(loc)}
-                className="w-full text-left p-2 rounded-lg hover:bg-emerald-50 transition-colors flex items-start gap-2 text-xs"
+                className="w-full text-left p-2 rounded-lg hover:bg-emerald-50 transition-colors flex items-start gap-2.5 text-xs group"
               >
-                <MapPin className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <div className="w-6 h-6 rounded-md bg-emerald-100 group-hover:bg-emerald-200 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
+                  <MapPin className="w-3.5 h-3.5" />
+                </div>
                 <div className="min-w-0">
-                  <span className="font-semibold text-foreground block truncate">{loc.name}</span>
-                  <span className="text-[11px] text-muted-foreground line-clamp-1">{loc.display_name}</span>
+                  <span className="font-semibold text-foreground block truncate group-hover:text-emerald-900">
+                    {loc.name}
+                  </span>
+                  <span className="text-[11px] text-muted-foreground line-clamp-1">
+                    {loc.display_name}
+                  </span>
                 </div>
               </button>
             ))}

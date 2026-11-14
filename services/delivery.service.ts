@@ -21,6 +21,15 @@ export interface ILocationSearchResult {
   longitude: number;
 }
 
+export interface IDetectLocationResponse {
+  success: boolean;
+  source: string;
+  latitude: number;
+  longitude: number;
+  name: string;
+  display_name: string;
+}
+
 const delivery = {
   // Calculate delivery fee based on GPS coordinates, road distance, and commodity weight
   calculateFee: (payload: ICalculateFeePayload) =>
@@ -31,6 +40,10 @@ const delivery = {
     instance.get<{ data: ILocationSearchResult[] }>("/delivery/search-location", {
       params: { q: query },
     }),
+
+  // Detect user's current location via IP / Profile / Network
+  detectLocation: () =>
+    instance.get<IDetectLocationResponse>("/delivery/detect-location"),
 };
 
 export default delivery;
