@@ -14,6 +14,7 @@ import {
   Ban,
   Clock,
   User,
+  ExternalLink,
 } from "lucide-react";
 
 import { useOrderDetail } from "./useOrderDetail";
@@ -276,18 +277,22 @@ export default function OrderDetailSection({ orderNumber }: OrderDetailSectionPr
                       </p>
                       <span
                         className={`inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                          item.pickup_status === "picked_up"
+                          item.pickup_status === "ready"
+                            ? "bg-blue-500/10 text-blue-700 dark:text-blue-400"
+                            : item.pickup_status === "picked_up"
                             ? "bg-green-500/10 text-green-700 dark:text-green-400"
                             : item.pickup_status === "out_of_stock"
                             ? "bg-destructive/10 text-destructive"
                             : "bg-muted text-muted-foreground"
                         }`}
                       >
-                        {item.pickup_status === "picked_up"
+                        {item.pickup_status === "ready"
+                          ? "Sedang Menunggu Kurir"
+                          : item.pickup_status === "picked_up"
                           ? "Sudah Diambil Kurir"
                           : item.pickup_status === "out_of_stock"
                           ? "Stok Kios Kosong"
-                          : "Menunggu Pengambilan"}
+                          : "Menunggu Penyiapan Kios"}
                       </span>
                     </div>
                   </div>
@@ -313,6 +318,19 @@ export default function OrderDetailSection({ orderNumber }: OrderDetailSectionPr
               <p className="text-foreground leading-relaxed pt-1">
                 {address?.full_address || "Alamat belum diatur"}
               </p>
+              {address?.latitude && address?.longitude && (
+                <div className="pt-2">
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${address.latitude},${address.longitude}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs text-primary font-semibold hover:underline"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    Buka Titik Lokasi Pengiriman (Google Maps)
+                  </a>
+                </div>
+              )}
             </div>
           </div>
 

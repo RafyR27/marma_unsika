@@ -2,8 +2,17 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { Controller } from "react-hook-form";
-import { ArrowLeft, Store, MapPin, Truck, AlertCircle, ShoppingBag } from "lucide-react";
+import {
+  ArrowLeft,
+  Store,
+  MapPin,
+  Truck,
+  AlertCircle,
+  ShoppingBag,
+  Scale,
+} from "lucide-react";
 
 import { useCheckout } from "./useCheckout";
 import { Button } from "@/components/ui/button";
@@ -18,10 +27,28 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 
+// Leaflet map picker dynamically imported with SSR disabled
+const DeliveryMapPicker = dynamic(() => import("./DeliveryMapPicker"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-80 sm:h-96 rounded-2xl bg-muted/40 border animate-pulse flex items-center justify-center text-xs text-muted-foreground">
+      Memuat peta pengantaran Karawang...
+    </div>
+  ),
+});
+
 export default function CheckoutSection() {
   const {
+    user,
     items,
     deliveryFee,
+    deliveryBreakdown,
+    isFeeLoading,
+    latitude,
+    longitude,
+    setLatitude,
+    setLongitude,
+    syncFullAddress,
     subtotalProducts,
     totalAmount,
     isCartLoading,
@@ -92,33 +119,67 @@ export default function CheckoutSection() {
         </Link>
         <h1 className="text-2xl font-bold tracking-tight">Checkout Pesanan Grosir</h1>
         <p className="text-sm text-muted-foreground mt-0.5">
-          Pastikan alamat warung dan rincian komoditas sudah sesuai sebelum mengirim pesanan.
+          Geser peta untuk menentukan titik pengantaran langsung di Karawang dan lengkapi rincian alamat penerima.
         </p>
       </div>
 
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="grid lg:grid-cols-3 gap-8 items-start">
-          {/* Kolom Kiri: Alamat & Komoditas */}
+          {/* Kolom Kiri: Peta Geser & Alamat Rinci */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Bagian 1: Alamat Pengiriman */}
-            <div className="p-5 border rounded-xl bg-card space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b">
-                <MapPin className="w-5 h-5 text-primary" />
-                <h2 className="font-bold text-base">Alamat Pengiriman Kios / Warung</h2>
+            {/* Bagian 1: Peta Interaktif Geser Titik (Grab/Gojek Map Dropper) */}
+            <div className="p-5 border rounded-xl bg-card space-y-4 shadow-xs">
+              <div className="flex items-center justify-between pb-3 border-b">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-emerald-600" />
+                  <h2 className="font-bold text-base">Titik Pengantaran Peta (Geser Peta)</h2>
+                </div>
+                <span className="text-xs text-muted-foreground">Router OSRM Karawang</span>
               </div>
 
+              {/* Komponen Peta Geser Interaktif */}
+              <DeliveryMapPicker
+                latitude={latitude}
+                longitude={longitude}
+                onChange={(lat, lng, name) => {
+                  setLatitude(lat);
+                  setLongitude(lng);
+                  if (name && !form.getValues("street_address")) {
+                    form.setValue("street_address", name);
+                    syncFullAddress();
+                  }
+                }}
+                onAddressSelect={(name) => {
+                  form.setValue("street_address", name);
+                  syncFullAddress();
+                }}
+                initialLat={user?.profile?.latitude ? Number(user.profile.latitude) : -6.3262}
+                initialLng={user?.profile?.longitude ? Number(user.profile.longitude) : 107.3045}
+              />
+            </div>
+
+            {/* Bagian 2: Formulir Rincian Alamat Rumah/Kios */}
+            <div className="p-5 border rounded-xl bg-card space-y-4 shadow-xs">
+              <div className="pb-3 border-b">
+                <h2 className="font-bold text-base">Rincian Alamat &amp; Kontak Penerima</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Lengkapi nomor rumah, nama jalan, blok kios, atau patokan agar kurir tidak tersesat.
+                </p>
+              </div>
+
+              {/* Penerima & Kontak */}
               <div className="grid sm:grid-cols-2 gap-4">
                 <Controller
                   name="recipient_name"
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor="recipient_name">Nama Penerima</FieldLabel>
+                      <FieldLabel htmlFor="recipient_name">Nama Penerima / Kontak</FieldLabel>
                       <FieldContent>
                         <Input
                           {...field}
                           id="recipient_name"
-                          placeholder="Nama penanggung jawab warung"
+                          placeholder="Contoh: Ibu Dewi / Pak Haji Slamet"
                           disabled={isSubmitting}
                         />
                       </FieldContent>
@@ -140,7 +201,7 @@ export default function CheckoutSection() {
                           {...field}
                           id="phone"
                           type="tel"
-                          placeholder="08xxxxxxxxxx"
+                          placeholder="08xxxxxxxxxx (Aktif WhatsApp)"
                           disabled={isSubmitting}
                         />
                       </FieldContent>
@@ -152,19 +213,75 @@ export default function CheckoutSection() {
                 />
               </div>
 
+              {/* Nama Usaha / Warung (Opsional) */}
+              <Controller
+                name="store_name"
+                control={form.control}
+                render={({ field }) => (
+                  <Field>
+                    <FieldLabel htmlFor="store_name">Nama Kios / Warung / Toko (Opsional)</FieldLabel>
+                    <FieldContent>
+                      <Input
+                        {...field}
+                        id="store_name"
+                        placeholder="Contoh: Warung Sayur Bu Dewi / Kios Berkah"
+                        disabled={isSubmitting}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          syncFullAddress();
+                        }}
+                      />
+                    </FieldContent>
+                  </Field>
+                )}
+              />
+
+              {/* Rincian Alamat: Nama Jalan & Nomor Bangunan */}
+              <Controller
+                name="street_address"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="street_address">
+                      Nama Jalan / Gang &amp; Nomor Bangunan <span className="text-destructive">*</span>
+                    </FieldLabel>
+                    <FieldContent>
+                      <Input
+                        {...field}
+                        id="street_address"
+                        placeholder="Contoh: Jl. HS Ronggowaluyo No. 45 / Gang H. Sholeh No. 12"
+                        disabled={isSubmitting}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          syncFullAddress();
+                        }}
+                      />
+                    </FieldContent>
+                    {fieldState.error && (
+                      <FieldError>{fieldState.error.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+
+              {/* Blok/Kios & Kecamatan */}
               <div className="grid sm:grid-cols-2 gap-4">
                 <Controller
-                  name="store_name"
+                  name="block_number"
                   control={form.control}
                   render={({ field }) => (
                     <Field>
-                      <FieldLabel htmlFor="store_name">Nama Warung / Toko (Opsional)</FieldLabel>
+                      <FieldLabel htmlFor="block_number">Nomor Blok / Kios / RT / RW (Opsional)</FieldLabel>
                       <FieldContent>
                         <Input
                           {...field}
-                          id="store_name"
-                          placeholder="Contoh: Warung Sayur Bu Dewi"
+                          id="block_number"
+                          placeholder="Contoh: Blok B-14 No. 4 / RT 03 RW 05 / Kios No. 08"
                           disabled={isSubmitting}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            syncFullAddress();
+                          }}
                         />
                       </FieldContent>
                     </Field>
@@ -172,17 +289,21 @@ export default function CheckoutSection() {
                 />
 
                 <Controller
-                  name="market_name"
+                  name="district"
                   control={form.control}
                   render={({ field }) => (
                     <Field>
-                      <FieldLabel htmlFor="market_name">Nama Pasar / Wilayah (Opsional)</FieldLabel>
+                      <FieldLabel htmlFor="district">Kecamatan / Kelurahan (Opsional)</FieldLabel>
                       <FieldContent>
                         <Input
                           {...field}
-                          id="market_name"
-                          placeholder="Contoh: Pasar Johar / Sekitar UNSIKA"
+                          id="district"
+                          placeholder="Contoh: Telukjambe Timur / Karawang Barat / Klari"
                           disabled={isSubmitting}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            syncFullAddress();
+                          }}
                         />
                       </FieldContent>
                     </Field>
@@ -190,18 +311,44 @@ export default function CheckoutSection() {
                 />
               </div>
 
+              {/* Patokan Terdekat (Landmark) */}
+              <Controller
+                name="landmark"
+                control={form.control}
+                render={({ field }) => (
+                  <Field>
+                    <FieldLabel htmlFor="landmark">Patokan Lokasi Terdekat (Landmark)</FieldLabel>
+                    <FieldContent>
+                      <Input
+                        {...field}
+                        id="landmark"
+                        placeholder="Contoh: Depan Masjid Al-Ikhlas / Samping Indomaret / Pagar Hitam"
+                        disabled={isSubmitting}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          syncFullAddress();
+                        }}
+                      />
+                    </FieldContent>
+                  </Field>
+                )}
+              />
+
+              {/* Alamat Lengkap Gabungan (Preview & Final Edit) */}
               <Controller
                 name="full_address"
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="full_address">Alamat Lengkap Pengiriman</FieldLabel>
+                    <FieldLabel htmlFor="full_address">
+                      Alamat Lengkap Pengiriman (Tercetak di Surat Jalan Kurir) <span className="text-destructive">*</span>
+                    </FieldLabel>
                     <FieldContent>
                       <Textarea
                         {...field}
                         id="full_address"
                         rows={3}
-                        placeholder="Nama jalan, nomor kios/toko, patokan lokasi terdekat"
+                        placeholder="Alamat lengkap gabungan yang akan dibaca oleh kurir pengantar..."
                         disabled={isSubmitting}
                       />
                     </FieldContent>
@@ -213,9 +360,9 @@ export default function CheckoutSection() {
               />
             </div>
 
-            {/* Bagian 2: Catatan Operasional Pesanan */}
+            {/* Bagian 3: Catatan Khusus Kurir */}
             <div className="p-5 border rounded-xl bg-card space-y-3">
-              <FieldLabel htmlFor="notes">Catatan Pesanan untuk Kios & Kurir (Opsional)</FieldLabel>
+              <FieldLabel htmlFor="notes">Catatan Pesanan untuk Kios &amp; Kurir (Opsional)</FieldLabel>
               <Controller
                 name="notes"
                 control={form.control}
@@ -234,7 +381,7 @@ export default function CheckoutSection() {
               </p>
             </div>
 
-            {/* Bagian 3: Rincian Barang Dipesan */}
+            {/* Bagian 4: Rincian Barang Dipesan */}
             <div className="p-5 border rounded-xl bg-card space-y-4">
               <div className="flex items-center justify-between pb-2 border-b">
                 <div className="flex items-center gap-2">
@@ -286,10 +433,72 @@ export default function CheckoutSection() {
             </div>
           </div>
 
-          {/* Kolom Kanan: Ringkasan Tagihan & Tombol Aksi */}
-          <div className="lg:col-span-1">
-            <div className="border rounded-xl p-5 bg-card space-y-5 sticky top-6 shadow-xs">
+          {/* Kolom Kanan: Ringkasan Tagihan & Breakdown Ongkir Dinamis */}
+          <div className="lg:col-span-1 space-y-4 sticky top-6">
+            <div className="border rounded-xl p-5 bg-card space-y-5 shadow-xs">
               <h2 className="font-bold text-base pb-3 border-b">Ringkasan Tagihan</h2>
+
+              {/* Rincian Ongkir Dinamis OSRM & Bobot */}
+              {deliveryBreakdown && (
+                <div className="p-3.5 bg-muted/40 rounded-xl border border-border/80 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                      <Truck className="w-3.5 h-3.5 text-emerald-600" />
+                      Kalkulasi Rute Karawang
+                    </span>
+                    <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                      {deliveryBreakdown.routing_source === "osrm_live" ? "OSRM Live" : "Karawang Matrix"}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 text-center pt-1 border-t border-border/60">
+                    <div className="p-1.5 bg-background rounded-lg border">
+                      <span className="text-[10px] text-muted-foreground block">Jarak</span>
+                      <strong className="text-xs font-bold text-foreground">
+                        {deliveryBreakdown.distance_km} km
+                      </strong>
+                    </div>
+                    <div className="p-1.5 bg-background rounded-lg border">
+                      <span className="text-[10px] text-muted-foreground block">Muatan</span>
+                      <strong className="text-xs font-bold text-foreground flex items-center justify-center gap-0.5">
+                        <Scale className="w-3 h-3 text-muted-foreground" />
+                        {deliveryBreakdown.estimated_weight_kg} kg
+                      </strong>
+                    </div>
+                    <div className="p-1.5 bg-background rounded-lg border">
+                      <span className="text-[10px] text-muted-foreground block">Kios</span>
+                      <strong className="text-xs font-bold text-foreground">
+                        {deliveryBreakdown.stall_count} Lapak
+                      </strong>
+                    </div>
+                  </div>
+
+                  <div className="text-[11px] text-muted-foreground space-y-1 pt-1 border-t border-border/50">
+                    <div className="flex justify-between">
+                      <span>Tarif Dasar (0-2 km):</span>
+                      <span>Rp {deliveryBreakdown.base_fee.toLocaleString("id-ID")}</span>
+                    </div>
+                    {deliveryBreakdown.distance_fee > 0 && (
+                      <div className="flex justify-between">
+                        <span>Tambahan Jarak ({Math.max(0, deliveryBreakdown.distance_km - 2).toFixed(1)} km):</span>
+                        <span>+Rp {deliveryBreakdown.distance_fee.toLocaleString("id-ID")}</span>
+                      </div>
+                    )}
+                    {deliveryBreakdown.weight_fee > 0 && (
+                      <div className="flex justify-between text-amber-700">
+                        <span>Surcharge Muatan ({deliveryBreakdown.estimated_weight_kg} kg):</span>
+                        <span>+Rp {deliveryBreakdown.weight_fee.toLocaleString("id-ID")}</span>
+                      </div>
+                    )}
+                    {deliveryBreakdown.multi_stall_fee > 0 && (
+                      <div className="flex justify-between text-blue-700">
+                        <span>Insentif Multi-Kios ({deliveryBreakdown.stall_count} Kios):</span>
+                        <span>+Rp {deliveryBreakdown.multi_stall_fee.toLocaleString("id-ID")}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-2.5 text-sm">
                 <div className="flex justify-between text-muted-foreground">
@@ -303,7 +512,8 @@ export default function CheckoutSection() {
                     <Truck className="w-3.5 h-3.5 text-primary" />
                     Ongkos Kirim Pasar:
                   </span>
-                  <span className="font-medium text-foreground">
+                  <span className="font-medium text-foreground flex items-center gap-1">
+                    {isFeeLoading && <Spinner className="w-3 h-3 text-muted-foreground" />}
                     Rp {deliveryFee.toLocaleString("id-ID")}
                   </span>
                 </div>
