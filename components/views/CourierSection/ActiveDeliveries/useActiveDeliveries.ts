@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
@@ -9,6 +10,8 @@ import { PickupStatus } from "@/types/order";
 
 export const useActiveDeliveries = () => {
   const queryClient = useQueryClient();
+  const [updatingItemId, setUpdatingItemId] = useState<number | null>(null);
+  const [updatingOrderNumber, setUpdatingOrderNumber] = useState<string | null>(null);
 
   const {
     data: deliveriesResponse,
@@ -18,7 +21,8 @@ export const useActiveDeliveries = () => {
   } = useQuery({
     queryKey: ["courier", "active-deliveries"],
     queryFn: async () => {
-      const res = await courier.getDeliveries();
+      // Ambil hingga 50 data agar order aktif tidak tenggelam oleh order yang sudah selesai
+      const res = await courier.getDeliveries({ per_page: 50 });
       return res.data;
     },
     enabled: typeof window !== "undefined" && !!localStorage.getItem("token"),
@@ -26,11 +30,16 @@ export const useActiveDeliveries = () => {
   });
 
   const allDeliveries = deliveriesResponse?.data || [];
+
+  // Mencegah order 'confirmed' yang ditugaskan manual oleh admin hilang dari pantauan kurir
   const activeDeliveries = allDeliveries.filter(
-    (d) => d.order_status === "picking_up" || d.order_status === "in_transit"
+    (d) =>
+      d.order_status === "confirmed" ||
+      d.order_status === "picking_up" ||
+      d.order_status === "in_transit"
   );
 
-  // Mutasi validasi fisik barang di kios pasar induk
+  // Mutasi checklist fisik komoditas di kios lapak
   const { mutate: updatePickup, isPending: isUpdatingPickup } = useMutation({
     mutationFn: async ({
       itemId,
@@ -39,8 +48,7 @@ export const useActiveDeliveries = () => {
       itemId: number;
       status: PickupStatus;
     }) => {
-      console.log(status)
-
+      setUpdatingItemId(itemId);
       const res = await courier.updateItemPickup(itemId, {
         pickup_status: status,
       });
@@ -63,6 +71,9 @@ export const useActiveDeliveries = () => {
         "Gagal memperbarui status penjemputan barang";
       toast.error(msg, { position: "top-right" });
     },
+    onSettled: () => {
+      setUpdatingItemId(null);
+    },
   });
 
   // Mutasi transisi status pengantaran (in_transit / completed)
@@ -75,6 +86,7 @@ export const useActiveDeliveries = () => {
         orderNumber: string;
         status: "in_transit" | "completed";
       }) => {
+        setUpdatingOrderNumber(orderNumber);
         const res = await courier.updateDeliveryStatus(orderNumber, { status });
         return res.data;
       },
@@ -95,6 +107,9 @@ export const useActiveDeliveries = () => {
           "Gagal memperbarui status pengantaran";
         toast.error(msg, { position: "top-right" });
       },
+      onSettled: () => {
+        setUpdatingOrderNumber(null);
+      },
     });
 
   return {
@@ -104,7 +119,9 @@ export const useActiveDeliveries = () => {
     refetch,
     updatePickup,
     isUpdatingPickup,
+    updatingItemId,
     updateDeliveryStatus,
     isUpdatingDelivery,
+    updatingOrderNumber,
   };
 };

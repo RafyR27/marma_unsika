@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -16,8 +17,8 @@ import {
   AlertCircle,
   PackageCheck,
   Phone,
-  ArrowRight,
   ClipboardList,
+  Package,
 } from "lucide-react";
 
 import { useMe } from "@/hooks/useMe";
@@ -25,11 +26,16 @@ import { useActiveDeliveries } from "./useActiveDeliveries";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { cn } from "cn";
 
 export default function ActiveDeliveriesSection() {
   const router = useRouter();
   const { data: user, isLoading: isCheckingAuth } = useMe();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const {
     activeDeliveries,
     isLoading,
@@ -37,11 +43,13 @@ export default function ActiveDeliveriesSection() {
     refetch,
     updatePickup,
     isUpdatingPickup,
+    updatingItemId,
     updateDeliveryStatus,
     isUpdatingDelivery,
+    updatingOrderNumber,
   } = useActiveDeliveries();
 
-  if (isCheckingAuth) {
+  if (!mounted || isCheckingAuth) {
     return (
       <div className="p-6 space-y-4">
         <Skeleton className="h-8 w-64" />
@@ -57,8 +65,7 @@ export default function ActiveDeliveriesSection() {
         <ShieldAlert className="w-12 h-12 text-destructive mx-auto" />
         <h2 className="text-xl font-bold">Akses Khusus Kurir Lapangan</h2>
         <p className="text-sm text-muted-foreground">
-          Halaman pengiriman aktif hanya dapat diakses oleh kurir resmi pasar
-          yang terdaftar.
+          Halaman pengiriman aktif hanya dapat diakses oleh kurir resmi pasar yang terdaftar.
         </p>
         <div className="pt-2 flex justify-center gap-2">
           <Button variant="outline" onClick={() => router.push("/")}>
@@ -82,8 +89,7 @@ export default function ActiveDeliveriesSection() {
             Pengiriman Aktif
           </h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Rute penjemputan fisik barang di kios pasar induk dan konfirmasi
-            serah terima ke warung pembeli.
+            Rute penjemputan fisik barang di kios pasar induk dan konfirmasi serah terima ke warung pembeli.
           </p>
         </div>
 
@@ -120,8 +126,7 @@ export default function ActiveDeliveriesSection() {
           <Truck className="w-16 h-16 text-muted-foreground/40 mx-auto" />
           <h2 className="text-base font-bold">Tidak Ada Pengiriman Aktif</h2>
           <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-            Anda belum mengklaim tugas pengantaran baru. Cek halaman tugas
-            tersedia untuk mengambil order.
+            Anda belum memiliki tugas pengantaran yang sedang berjalan. Buka halaman tugas tersedia untuk mengambil order baru.
           </p>
           <Link href="/courier/available-tasks">
             <Button size="sm" className="font-semibold">
@@ -133,19 +138,25 @@ export default function ActiveDeliveriesSection() {
       ) : (
         <div className="space-y-6">
           {activeDeliveries.map((delivery) => {
-            const isPickingUp = delivery.order_status === "picking_up";
+            const isConfirmed = delivery.order_status === "confirmed";
+            const isPickingUp = delivery.order_status === "picking_up" || isConfirmed;
+            const isInTransit = delivery.order_status === "in_transit";
             const isCOD = delivery.payment?.payment_method === "cod";
+            const isPaid = delivery.payment_status === "paid";
             const address = delivery.delivery_address_snapshot;
             const buyerProfile = delivery.buyer?.profile;
 
             // Hitung status kelengkapan barang
             const items = delivery.items || [];
             const readyOrPickedItems = items.filter(
-              (it) => it.pickup_status === "picked_up",
+              (it) => it.pickup_status === "picked_up"
             );
             const allItemsPicked =
               items.length > 0 &&
               items.every((it) => it.pickup_status !== "waiting");
+
+            const isThisOrderUpdating =
+              isUpdatingDelivery && updatingOrderNumber === delivery.order_number;
 
             return (
               <div
@@ -161,24 +172,24 @@ export default function ActiveDeliveriesSection() {
                       </span>
                       <span
                         className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
-                          isPickingUp
-                            ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20"
-                            : "bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-500/20"
+                          isInTransit
+                            ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-500/20"
+                            : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20"
                         }`}
                       >
-                        {isPickingUp
-                          ? "Fase 1: Jemput Barang di Kios"
-                          : "Fase 2: Dalam Pengantaran ke Warung"}
+                        {isInTransit
+                          ? "Fase 2: Dalam Pengantaran ke Warung"
+                          : "Fase 1: Jemput Barang di Kios Pasar"}
                       </span>
                     </div>
 
                     <p className="text-xs text-muted-foreground">
                       Diterima:{" "}
                       {delivery.ordered_at
-                        ? new Date(delivery.ordered_at).toLocaleTimeString(
-                            "id-ID",
-                            { hour: "2-digit", minute: "2-digit" },
-                          )
+                        ? new Date(delivery.ordered_at).toLocaleTimeString("id-ID", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
                         : "-"}{" "}
                       WIB
                     </p>
@@ -200,17 +211,21 @@ export default function ActiveDeliveriesSection() {
                     <div className="flex items-center justify-between">
                       <h3 className="font-bold text-sm flex items-center gap-2 text-foreground">
                         <Store className="w-4 h-4 text-primary" />
-                        Checklist Fisik Barang Lapak (
-                        {readyOrPickedItems.length}/{items.length} Barang
-                        Terambil)
+                        Checklist Fisik Barang Lapak ({readyOrPickedItems.length}/{items.length} Barang Terambil)
                       </h3>
                       {allItemsPicked && (
                         <span className="text-xs text-green-600 font-semibold flex items-center gap-1">
                           <Check className="w-3.5 h-3.5" />
-                          Semua Lapak Selesai
+                          Semua Lapak Tervalidasi
                         </span>
                       )}
                     </div>
+
+                    {isInTransit && (
+                      <p className="text-xs text-muted-foreground bg-blue-500/10 text-blue-700 dark:text-blue-400 p-2.5 rounded-lg border border-blue-500/20">
+                        Barang telah selesai diambil dari pasar induk. Anda sedang dalam perjalanan mengantar ke warung pembeli.
+                      </p>
+                    )}
 
                     <div className="divide-y border rounded-xl overflow-hidden bg-background">
                       {items.map((item) => {
@@ -221,24 +236,35 @@ export default function ActiveDeliveriesSection() {
                           "Kios Pasar";
                         const blockNumber = sellerProfile?.block_number;
                         const isPicked = item.pickup_status === "picked_up";
+                        const isOutOfStock = item.pickup_status === "out_of_stock";
+                        const isItemLoading =
+                          isUpdatingPickup && updatingItemId === item.id;
 
                         return (
                           <div
                             key={item.id}
                             className={`p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs transition-colors ${
-                              isPicked ? "bg-green-500/5" : ""
+                              isPicked
+                                ? "bg-green-500/5"
+                                : isOutOfStock
+                                ? "bg-destructive/5"
+                                : ""
                             }`}
                           >
                             <div className="flex items-start gap-3 min-w-0">
-                              <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-muted border shrink-0">
-                                <Image
-                                  src={item.product?.image_url || "/test.jpg"}
-                                  alt={item.product_name_snapshot}
-                                  fill
-                                  sizes="48px"
-                                  className="object-cover"
-                                  unoptimized
-                                />
+                              <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-muted border shrink-0 flex items-center justify-center">
+                                {item.product?.image_url ? (
+                                  <Image
+                                    src={item.product.image_url}
+                                    alt={item.product_name_snapshot}
+                                    fill
+                                    sizes="48px"
+                                    className="object-cover"
+                                    unoptimized
+                                  />
+                                ) : (
+                                  <Package className="w-5 h-5 text-muted-foreground/60" />
+                                )}
                               </div>
 
                               <div className="space-y-0.5 min-w-0">
@@ -246,11 +272,10 @@ export default function ActiveDeliveriesSection() {
                                   {item.product_name_snapshot}
                                 </p>
                                 <p className="text-primary font-bold">
-                                  Kuantitas: {item.quantity}{" "}
-                                  {item.unit_snapshot}
+                                  Kuantitas: {item.quantity} {item.unit_snapshot}
                                 </p>
                                 <p className="text-muted-foreground flex items-center gap-1 truncate">
-                                  <Store className="w-3 h-3 text-muted-foreground" />
+                                  <Store className="w-3 h-3 text-muted-foreground shrink-0" />
                                   <strong className="text-foreground">
                                     {storeName}
                                   </strong>
@@ -263,26 +288,98 @@ export default function ActiveDeliveriesSection() {
                               </div>
                             </div>
 
-                            {/* Tombol Checklist Kurir */}
-                            <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
-                              <Button
-                                size="xs"
-                                disabled={isUpdatingPickup || isPicked}
-                                onClick={() =>
-                                  updatePickup({
-                                    itemId: item.id,
-                                    status: "picked_up",
-                                  })
-                                }
-                                className={`text-[11px] font-semibold ${
-                                  isPicked
-                                    ? "bg-green-600 hover:bg-green-700 text-white"
-                                    : ""
-                                }`}
-                              >
-                                <Check className="w-3 h-3 mr-1" />
-                                {isPicked ? "Sudah Diambil" : "Ambil Barang"}
-                              </Button>
+                            {/* Tombol Checklist & Validasi Status Kurir */}
+                            <div className="flex items-center gap-1.5 self-end sm:self-center shrink-0">
+                              {isPicked ? (
+                                <div className="flex items-center gap-1.5">
+                                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-green-700 dark:text-green-400 bg-green-500/10 border border-green-500/20 px-2.5 py-1 rounded-full">
+                                    <Check className="w-3 h-3" />
+                                    Sudah Diambil
+                                  </span>
+                                  {isPickingUp && (
+                                    <Button
+                                      size="xs"
+                                      variant="ghost"
+                                      className="text-[10px] text-muted-foreground hover:text-destructive h-6 px-1.5"
+                                      disabled={isItemLoading}
+                                      onClick={() =>
+                                        updatePickup({
+                                          itemId: item.id,
+                                          status: "out_of_stock",
+                                        })
+                                      }
+                                      title="Ubah ke Stok Kosong"
+                                    >
+                                      Kosong?
+                                    </Button>
+                                  )}
+                                </div>
+                              ) : isOutOfStock ? (
+                                <div className="flex items-center gap-1.5">
+                                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-destructive bg-destructive/10 border border-destructive/20 px-2.5 py-1 rounded-full">
+                                    <XCircle className="w-3 h-3" />
+                                    Stok Kosong
+                                  </span>
+                                  {isPickingUp && (
+                                    <Button
+                                      size="xs"
+                                      variant="ghost"
+                                      className="text-[10px] text-muted-foreground hover:text-green-600 h-6 px-1.5"
+                                      disabled={isItemLoading}
+                                      onClick={() =>
+                                        updatePickup({
+                                          itemId: item.id,
+                                          status: "picked_up",
+                                        })
+                                      }
+                                      title="Ubah ke Sudah Diambil"
+                                    >
+                                      Ambil?
+                                    </Button>
+                                  )}
+                                </div>
+                              ) : (
+                                /* Status: waiting */
+                                <div className="flex items-center gap-1.5">
+                                  <Button
+                                    size="xs"
+                                    variant="outline"
+                                    disabled={isItemLoading || !isPickingUp}
+                                    onClick={() =>
+                                      updatePickup({
+                                        itemId: item.id,
+                                        status: "out_of_stock",
+                                      })
+                                    }
+                                    className="text-[11px] text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30 h-7"
+                                  >
+                                    {isItemLoading ? (
+                                      <Spinner className="w-3 h-3 mr-1" />
+                                    ) : (
+                                      <XCircle className="w-3 h-3 mr-1" />
+                                    )}
+                                    Stok Kosong
+                                  </Button>
+                                  <Button
+                                    size="xs"
+                                    disabled={isItemLoading || !isPickingUp}
+                                    onClick={() =>
+                                      updatePickup({
+                                        itemId: item.id,
+                                        status: "picked_up",
+                                      })
+                                    }
+                                    className="text-[11px] font-semibold bg-primary hover:bg-primary/90 h-7"
+                                  >
+                                    {isItemLoading ? (
+                                      <Spinner className="w-3 h-3 mr-1" />
+                                    ) : (
+                                      <Check className="w-3 h-3 mr-1" />
+                                    )}
+                                    Ambil Barang
+                                  </Button>
+                                </div>
+                              )}
                             </div>
                           </div>
                         );
@@ -310,9 +407,7 @@ export default function ActiveDeliveriesSection() {
 
                     <p className="font-semibold text-sm text-foreground">
                       {address?.recipient_name || delivery.buyer?.name} (
-                      {address?.store_name ||
-                        buyerProfile?.store_name ||
-                        "Warung"}
+                      {address?.store_name || buyerProfile?.store_name || "Warung"}
                       )
                     </p>
                     <p className="text-muted-foreground leading-relaxed">
@@ -320,30 +415,32 @@ export default function ActiveDeliveriesSection() {
                     </p>
                     {delivery.notes && (
                       <p className="p-2 bg-background border rounded text-muted-foreground mt-1">
-                        <strong className="text-foreground">
-                          Catatan Pembeli:{" "}
-                        </strong>
+                        <strong className="text-foreground">Catatan Pembeli: </strong>
                         {delivery.notes}
                       </p>
                     )}
                   </div>
 
-                  {/* Bagian 3: Instruksi Pembayaran Tagihan */}
+                  {/* Bagian 3: Tagihan Pembayaran & Validasi Keuangan */}
                   <div className="p-3.5 rounded-xl border text-xs flex items-center justify-between">
                     <div className="space-y-0.5">
                       <span className="font-semibold text-muted-foreground block">
                         Kewajiban Pembayaran:
                       </span>
-                      {isCOD ? (
+                      {isCOD && !isPaid ? (
                         <p className="font-bold text-amber-600 flex items-center gap-1.5 text-sm">
                           <Banknote className="w-4 h-4" />
-                          Wajib Tagih Tunai COD:{" "}
-                          {delivery.formatted_total_amount}
+                          Wajib Tagih Tunai COD: {delivery.formatted_total_amount}
                         </p>
-                      ) : (
+                      ) : isPaid ? (
                         <p className="font-bold text-green-600 flex items-center gap-1.5 text-sm">
                           <PackageCheck className="w-4 h-4" />
-                          Sudah Lunas via Transfer (Jangan minta uang tunai)
+                          Sudah Lunas ({isCOD ? "COD Terverifikasi" : "Transfer Bank"}) — Jangan minta uang tunai
+                        </p>
+                      ) : (
+                        <p className="font-bold text-destructive flex items-center gap-1.5 text-sm">
+                          <AlertCircle className="w-4 h-4" />
+                          Transfer Belum Terverifikasi / Belum Lunas (Hubungi admin sebelum serah terima)
                         </p>
                       )}
                     </div>
@@ -352,34 +449,43 @@ export default function ActiveDeliveriesSection() {
                   {/* Tombol Aksi Utama Sesuai Status */}
                   <div className="pt-2">
                     {isPickingUp ? (
-                      <Button
-                        size="lg"
-                        disabled={isUpdatingDelivery}
-                        onClick={() =>
-                          updateDeliveryStatus({
-                            orderNumber: delivery.order_number,
-                            status: "in_transit",
-                          })
-                        }
-                        className="w-full font-bold text-sm h-11"
-                      >
-                        {isUpdatingDelivery ? (
-                          <>
-                            <Spinner className="mr-2" />
-                            Memproses Rute...
-                          </>
-                        ) : (
-                          <>
-                            <Truck className="w-4 h-4 mr-2" />
-                            Selesai Ambil Barang — Berangkat ke Warung (In
-                            Transit)
-                          </>
+                      <div className="space-y-2">
+                        {!allItemsPicked && (
+                          <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-700 dark:text-amber-400 flex items-center gap-2">
+                            <AlertCircle className="w-4 h-4 shrink-0" />
+                            <span>
+                              Harap selesaikan validasi seluruh barang di kios (<strong>Ambil Barang</strong> atau <strong>Stok Kosong</strong>) sebelum memulai pengantaran ke warung.
+                            </span>
+                          </div>
                         )}
-                      </Button>
+                        <Button
+                          size="lg"
+                          disabled={isThisOrderUpdating || !allItemsPicked}
+                          onClick={() =>
+                            updateDeliveryStatus({
+                              orderNumber: delivery.order_number,
+                              status: "in_transit",
+                            })
+                          }
+                          className="w-full font-bold text-sm h-11"
+                        >
+                          {isThisOrderUpdating ? (
+                            <>
+                              <Spinner className="mr-2" />
+                              Memproses Rute...
+                            </>
+                          ) : (
+                            <>
+                              <Truck className="w-4 h-4 mr-2" />
+                              Selesai Ambil Barang — Berangkat ke Warung (In Transit)
+                            </>
+                          )}
+                        </Button>
+                      </div>
                     ) : (
                       <Button
                         size="lg"
-                        disabled={isUpdatingDelivery}
+                        disabled={isThisOrderUpdating}
                         onClick={() =>
                           updateDeliveryStatus({
                             orderNumber: delivery.order_number,
@@ -388,7 +494,7 @@ export default function ActiveDeliveriesSection() {
                         }
                         className="w-full font-bold text-sm h-11 bg-green-600 hover:bg-green-700 text-white"
                       >
-                        {isUpdatingDelivery ? (
+                        {isThisOrderUpdating ? (
                           <>
                             <Spinner className="mr-2" />
                             Menyelesaikan Pengantaran...
@@ -396,7 +502,7 @@ export default function ActiveDeliveriesSection() {
                         ) : (
                           <>
                             <Check className="w-4 h-4 mr-2" />
-                            {isCOD
+                            {isCOD && !isPaid
                               ? `Uang COD Diterima — Selesaikan Pengantaran`
                               : "Barang Diserahkan — Selesaikan Pengantaran"}
                           </>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   ClipboardList,
@@ -11,8 +12,7 @@ import {
   RefreshCw,
   AlertCircle,
   CreditCard,
-  Clock,
-  ArrowRight,
+  Package,
 } from "lucide-react";
 
 import { useMe } from "@/hooks/useMe";
@@ -24,6 +24,12 @@ import { Spinner } from "@/components/ui/spinner";
 export default function AvailableTasksSection() {
   const router = useRouter();
   const { data: user, isLoading: isCheckingAuth } = useMe();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const {
     availableTasks,
     isLoading,
@@ -33,7 +39,7 @@ export default function AvailableTasksSection() {
     isClaiming,
   } = useAvailableTasks();
 
-  if (isCheckingAuth) {
+  if (!mounted || isCheckingAuth) {
     return (
       <div className="p-6 space-y-4">
         <Skeleton className="h-8 w-64" />
@@ -92,7 +98,7 @@ export default function AvailableTasksSection() {
       {/* Info Status Operasional */}
       <div className="p-3.5 rounded-xl border bg-muted/30 text-xs text-muted-foreground flex items-center justify-between">
         <p>
-          Pesanan terverifikasi langsung muncul di bawah. Segera klaim sebelum diambil oleh kurir lain.
+          Pesanan terverifikasi langsung muncul di bawah. Periksa rincian muatan dan segera klaim sebelum diambil oleh kurir lain.
         </p>
         <span className="font-semibold text-foreground shrink-0 ml-2">
           Live Refresh 10 Detik
@@ -165,7 +171,6 @@ export default function AvailableTasksSection() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {/* Badge Metode Bayar */}
                     <span
                       className={`font-semibold px-2.5 py-0.5 rounded-full ${
                         isCOD
@@ -176,7 +181,6 @@ export default function AvailableTasksSection() {
                       {isCOD ? "Tagih Tunai (COD)" : "Transfer Lunas"}
                     </span>
 
-                    {/* Pendapatan Ongkir Kurir */}
                     <span className="font-bold text-sm text-primary">
                       Ongkir: {t.formatted_delivery_fee}
                     </span>
@@ -198,9 +202,6 @@ export default function AvailableTasksSection() {
                         </li>
                       ))}
                     </ul>
-                    <p className="text-[11px] text-muted-foreground pt-1">
-                      Total muatan: {t.items?.length || 0} jenis komoditas
-                    </p>
                   </div>
 
                   {/* Titik Antar: Warung Pembeli */}
@@ -223,7 +224,57 @@ export default function AvailableTasksSection() {
                   </div>
                 </div>
 
-                {/* Catatan Khusus Pesanan (jika ada) */}
+                {/* RINCIAN KOMODITAS YANG DIPESAN */}
+                <div className="p-3.5 rounded-lg border bg-muted/20 space-y-2 text-xs">
+                  <div className="flex items-center justify-between font-bold text-foreground">
+                    <span className="flex items-center gap-1.5">
+                      <Package className="w-4 h-4 text-primary" />
+                      Daftar Komoditas yang Dipesan ({t.items?.length || 0} Barang):
+                    </span>
+                    <span className="text-[11px] text-muted-foreground font-normal">
+                      Subtotal: {t.formatted_subtotal_products}
+                    </span>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-2 pt-1">
+                    {t.items?.map((item) => {
+                      const stallName =
+                        item.seller?.profile?.store_name ||
+                        item.seller?.name ||
+                        `Kios #${item.seller_id}`;
+                      const blockNumber = item.seller?.profile?.block_number;
+
+                      return (
+                        <div
+                          key={item.id}
+                          className="p-2.5 rounded-md border bg-background flex items-center justify-between gap-2 shadow-2xs"
+                        >
+                          <div className="min-w-0">
+                            <p className="font-semibold text-foreground truncate">
+                              {item.product_name_snapshot}
+                            </p>
+                            <p className="text-[11px] text-muted-foreground truncate flex items-center gap-1 mt-0.5">
+                              <Store className="w-3 h-3 text-muted-foreground shrink-0" />
+                              <span className="truncate">{stallName}</span>
+                              {blockNumber && (
+                                <span className="text-amber-700 dark:text-amber-400 font-medium bg-amber-500/10 px-1 rounded text-[10px] shrink-0">
+                                  {blockNumber}
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <span className="font-bold text-primary text-xs block">
+                              {item.quantity} {item.unit_snapshot}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Catatan Khusus Pesanan */}
                 {t.notes && (
                   <div className="p-2.5 rounded-md bg-muted/50 text-[11px] text-muted-foreground">
                     <strong className="text-foreground">Catatan Pemesan: </strong>
