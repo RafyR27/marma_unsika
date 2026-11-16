@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -14,6 +14,8 @@ import {
   RefreshCw,
   AlertCircle,
   FolderTree,
+  Plus,
+  FolderPlus,
 } from "lucide-react";
 
 import { useMe } from "@/hooks/useMe";
@@ -21,15 +23,22 @@ import { useAdminCategories } from "./useAdminCategories";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+const subscribe = () => () => {};
 
 export default function AdminCategoriesSection() {
   const router = useRouter();
   const { data: user, isLoading: isCheckingAuth } = useMe();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(subscribe, () => true, () => false);
 
   const {
     categories,
@@ -40,6 +49,15 @@ export default function AdminCategoriesSection() {
     isLoading,
     isError,
     refetch,
+    isCreateModalOpen,
+    setIsCreateModalOpen,
+    categoryName,
+    setCategoryName,
+    imageUrl,
+    setImageUrl,
+    formErrors,
+    handleCreateCategory,
+    isCreatingCategory,
   } = useAdminCategories();
 
   if (!mounted || isCheckingAuth) {
@@ -91,15 +109,26 @@ export default function AdminCategoriesSection() {
           </p>
         </div>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => refetch()}
-          className="flex items-center gap-1.5 self-start sm:self-auto"
-        >
-          <RefreshCw className="w-3.5 h-3.5" />
-          Refresh Data
-        </Button>
+        <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refetch()}
+            className="flex items-center gap-1.5"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            Refresh Data
+          </Button>
+
+          <Button
+            size="sm"
+            onClick={() => setIsCreateModalOpen(true)}
+            className="flex items-center gap-1.5 font-semibold text-xs"
+          >
+            <Plus className="w-4 h-4" />
+            Tambah Kategori
+          </Button>
+        </div>
       </div>
 
       {/* 3 Kartu Metrik Kategori */}
@@ -236,6 +265,109 @@ export default function AdminCategoriesSection() {
           ))}
         </div>
       )}
+
+      {/* MODAL FORM TAMBAH KATEGORI */}
+      <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-base flex items-center gap-2">
+              <FolderPlus className="w-5 h-5 text-primary" />
+              Tambah Kategori Komoditas Baru
+            </DialogTitle>
+            <DialogDescription className="text-xs">
+              Daftarkan master kategori baru untuk pengelompokan komoditas pasar grosir.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleCreateCategory} className="space-y-4 text-xs py-1">
+            {/* Field Nama Kategori */}
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="category-name" className="font-semibold text-foreground">
+                Nama Kategori <span className="text-destructive">*</span>
+              </label>
+              <Input
+                id="category-name"
+                value={categoryName}
+                onChange={(e) => setCategoryName(e.target.value)}
+                placeholder="Contoh: Sayuran Organik & Hidroponik"
+                disabled={isCreatingCategory}
+                className={formErrors.name ? "border-destructive focus-visible:ring-destructive" : ""}
+                required
+              />
+              {formErrors.name ? (
+                <p className="text-[11px] text-destructive">{formErrors.name}</p>
+              ) : (
+                <p className="text-[11px] text-muted-foreground">
+                  Slug URL akan digenerate otomatis berdasarkan nama kategori.
+                </p>
+              )}
+            </div>
+
+            {/* Field URL Gambar Kategori */}
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="category-image" className="font-semibold text-foreground flex items-center justify-between">
+                <span>URL Gambar / Banner (Opsional)</span>
+                <span className="text-[11px] font-normal text-muted-foreground">Link Gambar Publik</span>
+              </label>
+              <Input
+                id="category-image"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="https://images.unsplash.com/photo-..."
+                disabled={isCreatingCategory}
+                className={formErrors.image_url ? "border-destructive focus-visible:ring-destructive" : ""}
+              />
+              {formErrors.image_url && (
+                <p className="text-[11px] text-destructive">{formErrors.image_url}</p>
+              )}
+
+              {/* Preview Gambar Thumbnail */}
+              {imageUrl.trim() && (
+                <div className="mt-1 flex items-center gap-2.5 p-2 rounded-lg border bg-muted/30">
+                  <div className="relative w-12 h-12 rounded-md overflow-hidden bg-muted border shrink-0">
+                    <Image
+                      src={imageUrl.trim()}
+                      alt="Preview Kategori"
+                      fill
+                      sizes="48px"
+                      className="object-cover"
+                      unoptimized
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = "none";
+                      }}
+                    />
+                  </div>
+                  <div className="min-w-0 text-[11px] text-muted-foreground">
+                    <span className="font-medium text-foreground block">Preview Gambar</span>
+                    <span className="truncate block">{imageUrl.trim()}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <DialogFooter className="flex gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsCreateModalOpen(false)}
+                disabled={isCreatingCategory}
+              >
+                Batal
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                disabled={isCreatingCategory || !categoryName.trim()}
+                className="font-semibold flex items-center gap-1.5"
+              >
+                {isCreatingCategory && <Spinner className="w-3.5 h-3.5" />}
+                {isCreatingCategory ? "Menyimpan..." : "Simpan Kategori"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

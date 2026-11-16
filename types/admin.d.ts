@@ -65,3 +65,16 @@ export interface IAdminUsersResponse {
 export interface IUpdateUserStatusPayload {
   is_active: boolean;
 }
+
+export interface ICreateUserPayload {
+  name: string;
+  phone: string;
+  email?: string | null;
+  password: string;
+  password_confirmation: string;
+  role: "buyer" | "seller" | "courier" | "admin";
+  store_name?: string | null;
+  market_name?: string | null;
+  block_number?: string | null;
+  full_address?: string | null;
+}

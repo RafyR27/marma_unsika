@@ -10,6 +10,7 @@ import {
   IAdminUsersQueryParams,
   IAdminUsersResponse,
   IUpdateUserStatusPayload,
+  ICreateUserPayload,
 } from "@/types/admin";
 import { IPayment } from "@/types/payment";
 import { IOrder } from "@/types/order";
@@ -53,6 +54,9 @@ const admin = {
 
   getUserDetail: (userId: number | string) =>
     instance.get<{ data: IAuthUser }>(`/admin/users/${userId}`),
+
+  createUser: (payload: ICreateUserPayload) =>
+    instance.post<{ message: string; data: IAuthUser }>("/admin/users", payload),
 
   updateUserStatus: (
     userId: number | string,
