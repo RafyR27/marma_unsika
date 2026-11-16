@@ -12,7 +12,29 @@ export type OrderStatus =
 
 export type PaymentStatus = "unpaid" | "paid";
 
-export type PickupStatus = "waiting" | "picked_up" | "out_of_stock";
+export type PickupStatus = "waiting" | "ready" | "picked_up" | "out_of_stock";
+
+export interface IDeliveryFeeBreakdown {
+  distance_km: number;
+  estimated_weight_kg: number;
+  stall_count: number;
+  base_fee: number;
+  distance_fee: number;
+  weight_fee: number;
+  multi_stall_fee: number;
+  total_delivery_fee: number;
+  formatted_total_fee: string;
+  routing_source: string;
+  hub: {
+    name: string;
+    latitude: number;
+    longitude: number;
+  };
+  destination: {
+    latitude: number;
+    longitude: number;
+  };
+}
 
 export interface IDeliveryAddress {
   recipient_name: string;
