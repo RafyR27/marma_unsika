@@ -93,13 +93,13 @@ export default function AdminDashboardSection() {
 
         <div className="flex flex-wrap items-center gap-2">
           <Link href="/admin/verifikasi">
-            <Button size="sm" className="font-semibold text-xs">
+            <Button className="font-semibold text-xs">
               <CreditCard className="w-4 h-4 mr-1.5" />
               Verifikasi Struk ({pendingVerificationCount})
             </Button>
           </Link>
           <Link href="/admin/orders">
-            <Button variant="outline" size="sm" className="text-xs">
+            <Button variant="outline" className="text-xs">
               <Truck className="w-4 h-4 mr-1.5 text-primary" />
               Dispatching Kurir ({unassignedCount})
             </Button>

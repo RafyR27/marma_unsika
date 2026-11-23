@@ -84,7 +84,6 @@ export default function CourierHistorySection() {
 
         <Button
           variant="outline"
-          size="sm"
           onClick={() => refetch()}
           className="flex items-center gap-1.5 self-start sm:self-auto"
         >
@@ -126,7 +125,7 @@ export default function CourierHistorySection() {
           <p className="text-sm text-destructive font-medium">
             Gagal mengambil riwayat pengantaran dari server.
           </p>
-          <Button variant="outline" size="sm" onClick={() => refetch()}>
+          <Button variant="outline" onClick={() => refetch()}>
             Coba Lagi
           </Button>
         </div>

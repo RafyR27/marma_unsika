@@ -80,7 +80,6 @@ export default function SellerShipmentsSection() {
 
         <Button
           variant="outline"
-          size="sm"
           onClick={() => refetch()}
           className="flex items-center gap-1.5 self-start sm:self-auto"
         >
@@ -141,7 +140,7 @@ export default function SellerShipmentsSection() {
             <p className="text-sm text-destructive font-medium">
               Gagal mengambil data pengiriman berjalan.
             </p>
-            <Button variant="outline" size="sm" onClick={() => refetch()}>
+            <Button variant="outline" onClick={() => refetch()}>
               Coba Lagi
             </Button>
           </div>
@@ -153,7 +152,7 @@ export default function SellerShipmentsSection() {
               Seluruh barang kios telah selesai diantar atau masih menunggu pemesanan baru dari pembeli warung.
             </p>
             <Link href="/seller/orders">
-              <Button size="sm" variant="outline" className="text-xs">
+              <Button variant="outline" className="text-xs">
                 Cek Pesanan Masuk
               </Button>
             </Link>

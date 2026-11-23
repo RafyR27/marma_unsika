@@ -162,7 +162,6 @@ export default function PaymentSection({ orderNumber }: PaymentSectionProps) {
           <div className="pt-2 flex justify-center gap-2">
             <Button
               variant="outline"
-              size="sm"
               nativeButton={false}
               render={<Link href={`/user/orders/${orderNumber}`} />}
             >

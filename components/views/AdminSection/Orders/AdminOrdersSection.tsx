@@ -115,7 +115,6 @@ export default function AdminOrdersSection() {
 
         <Button
           variant="outline"
-          size="sm"
           onClick={() => refetchOrders()}
           className="flex items-center gap-1.5 self-start sm:self-auto"
         >
@@ -136,7 +135,7 @@ export default function AdminOrdersSection() {
               className="pl-9 h-9 text-xs"
             />
           </div>
-          <Button type="submit" variant="secondary" size="sm" className="text-xs">
+          <Button type="submit" variant="secondary" className="text-xs">
             Cari
           </Button>
         </form>
@@ -183,7 +182,7 @@ export default function AdminOrdersSection() {
           <p className="text-sm text-destructive font-medium">
             Gagal memuat data transaksi pasar.
           </p>
-          <Button variant="outline" size="sm" onClick={() => refetchOrders()}>
+          <Button variant="outline" onClick={() => refetchOrders()}>
             Coba Lagi
           </Button>
         </div>
@@ -439,7 +438,6 @@ export default function AdminOrdersSection() {
             <Button
               type="button"
               variant="outline"
-              size="sm"
               disabled={isAssigning}
               onClick={() => setAssigningOrder(null)}
             >
@@ -447,7 +445,6 @@ export default function AdminOrdersSection() {
             </Button>
             <Button
               type="button"
-              size="sm"
               disabled={isAssigning || !selectedCourierId}
               onClick={() => {
                 if (assigningOrder && selectedCourierId) {
@@ -498,7 +495,6 @@ export default function AdminOrdersSection() {
             <Button
               type="button"
               variant="outline"
-              size="sm"
               disabled={isCancelling}
               onClick={() => setCancellingOrder(null)}
             >
@@ -507,7 +503,6 @@ export default function AdminOrdersSection() {
             <Button
               type="button"
               variant="destructive"
-              size="sm"
               disabled={isCancelling || !cancelReason.trim()}
               onClick={() => {
                 if (cancellingOrder) {
@@ -610,7 +605,6 @@ export default function AdminOrdersSection() {
             <Button
               type="button"
               variant="outline"
-              size="sm"
               onClick={() => setSelectedDetailOrderNumber(null)}
             >
               Tutup

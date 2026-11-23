@@ -112,7 +112,6 @@ export default function CourierEarningsSection() {
         <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
           <Button
             variant="outline"
-            size="sm"
             onClick={() => refetch()}
             className="flex items-center gap-1.5"
           >
@@ -123,7 +122,6 @@ export default function CourierEarningsSection() {
           {totalCODCashCollected > 0 && (
             <Button
               variant="outline"
-              size="sm"
               onClick={() => setIsRemitCODModalOpen(true)}
               className="flex items-center gap-1.5 text-xs text-amber-600 border-amber-500/40 hover:bg-amber-500/10"
             >
@@ -388,14 +386,12 @@ export default function CourierEarningsSection() {
             <Button
               type="button"
               variant="outline"
-              size="sm"
               onClick={() => setIsRemitCODModalOpen(false)}
             >
               Batal
             </Button>
             <Button
               type="button"
-              size="sm"
               onClick={handleConfirmRemittance}
               className="bg-amber-600 hover:bg-amber-700 text-white font-semibold"
             >

@@ -96,13 +96,13 @@ export default function CourierDashboardSection() {
 
         <div className="flex items-center gap-2">
           <Link href="/courier/available-tasks">
-            <Button size="sm" className="font-semibold text-xs">
+            <Button className="font-semibold text-xs">
               <ClipboardList className="w-4 h-4 mr-1.5" />
               Ambil Tugas ({availableTasks.length})
             </Button>
           </Link>
           <Link href="/courier/active-deliveries">
-            <Button variant="outline" size="sm" className="text-xs">
+            <Button variant="outline" className="text-xs">
               <Navigation className="w-4 h-4 mr-1.5 text-primary" />
               Rute Aktif ({activeDeliveries.length})
             </Button>
@@ -203,7 +203,7 @@ export default function CourierDashboardSection() {
                 Tidak ada tugas pengiriman yang sedang berjalan saat ini.
               </p>
               <Link href="/courier/available-tasks">
-                <Button size="sm" variant="outline" className="text-xs">
+                <Button variant="outline" className="text-xs">
                   Klaim Tugas Baru
                 </Button>
               </Link>

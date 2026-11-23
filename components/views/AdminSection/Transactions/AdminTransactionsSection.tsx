@@ -112,7 +112,6 @@ export default function AdminTransactionsSection() {
 
         <Button
           variant="outline"
-          size="sm"
           onClick={() => refetch()}
           className="flex items-center gap-1.5 self-start sm:self-auto"
         >
@@ -175,7 +174,7 @@ export default function AdminTransactionsSection() {
               className="pl-9 h-9 text-xs"
             />
           </div>
-          <Button type="submit" variant="secondary" size="sm" className="text-xs">
+          <Button type="submit" variant="secondary" className="text-xs">
             Cari
           </Button>
         </form>
@@ -218,7 +217,7 @@ export default function AdminTransactionsSection() {
           <p className="text-sm text-destructive font-medium">
             Gagal mengambil data buku transaksi keuangan.
           </p>
-          <Button variant="outline" size="sm" onClick={() => refetch()}>
+          <Button variant="outline" onClick={() => refetch()}>
             Coba Lagi
           </Button>
         </div>
@@ -451,14 +450,12 @@ export default function AdminTransactionsSection() {
             <Button
               type="button"
               variant="outline"
-              size="sm"
               onClick={() => setSelectedReceiptOrder(null)}
             >
               Tutup
             </Button>
             <Button
               type="button"
-              size="sm"
               onClick={() => window.print()}
               className="flex items-center gap-1.5"
             >

@@ -144,7 +144,6 @@ export default function OrderDetailSection({ orderNumber }: OrderDetailSectionPr
           {isPending && (
             <Button
               variant="outline"
-              size="sm"
               onClick={() => setIsCancelModalOpen(true)}
               className="text-destructive hover:bg-destructive/10 hover:text-destructive"
             >
@@ -155,7 +154,6 @@ export default function OrderDetailSection({ orderNumber }: OrderDetailSectionPr
 
           {isUnpaid && !isCancelled && (
             <Button
-              size="sm"
               nativeButton={false}
               render={<Link href={`/user/orders/${orderNumber}/payment`} />}
             >
@@ -463,7 +461,6 @@ export default function OrderDetailSection({ orderNumber }: OrderDetailSectionPr
             <Button
               type="button"
               variant="outline"
-              size="sm"
               disabled={isCancelling}
               onClick={() => setIsCancelModalOpen(false)}
             >
@@ -472,7 +469,6 @@ export default function OrderDetailSection({ orderNumber }: OrderDetailSectionPr
             <Button
               type="button"
               variant="destructive"
-              size="sm"
               disabled={isCancelling}
               onClick={() => executeCancel()}
             >

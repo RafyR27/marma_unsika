@@ -195,7 +195,6 @@ export default function SellerDashboardSection() {
             <span>Terjadi kendala saat menyinkronkan data kios dari server.</span>
           </div>
           <Button
-            size="sm"
             variant="outline"
             onClick={() => refetch()}
             className="border-rose-300 text-rose-700 hover:bg-rose-100 bg-white text-xs h-8 font-medium"
@@ -215,7 +214,6 @@ export default function SellerDashboardSection() {
           <Button
             type="button"
             variant="ghost"
-            size="sm"
             onClick={() => refetch()}
             disabled={isLoading}
             className="text-xs text-neutral-500 hover:text-neutral-800 inline-flex items-center gap-1.5 transition-colors cursor-pointer h-auto p-1 font-normal"
@@ -340,7 +338,6 @@ export default function SellerDashboardSection() {
           <Link href="/seller/inventory">
             <Button
               variant="outline"
-              size="sm"
               className="text-xs border-neutral-300 text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900 h-8 font-medium self-start sm:self-auto"
             >
               Buka Inventaris Stok

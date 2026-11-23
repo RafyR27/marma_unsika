@@ -105,7 +105,6 @@ export default function AdminVerifikasiSection() {
 
         <Button
           variant="outline"
-          size="sm"
           onClick={() => refetch()}
           className="flex items-center gap-1.5 self-start sm:self-auto"
         >
@@ -149,7 +148,7 @@ export default function AdminVerifikasiSection() {
           <p className="text-sm text-destructive font-medium">
             Gagal mengambil data verifikasi pembayaran dari server.
           </p>
-          <Button variant="outline" size="sm" onClick={() => refetch()}>
+          <Button variant="outline" onClick={() => refetch()}>
             Coba Lagi
           </Button>
         </div>
@@ -291,7 +290,6 @@ export default function AdminVerifikasiSection() {
                   <div className="flex items-center justify-end gap-2 pt-3 border-t">
                     <Button
                       variant="outline"
-                      size="sm"
                       disabled={isApproving || isRejecting}
                       onClick={() => setRejectingPayment(p)}
                       className="text-destructive hover:bg-destructive/10 hover:text-destructive text-xs"
@@ -301,7 +299,6 @@ export default function AdminVerifikasiSection() {
                     </Button>
 
                     <Button
-                      size="sm"
                       disabled={isApproving || isRejecting}
                       onClick={() => approvePayment(p.id)}
                       className="text-xs font-semibold"
@@ -386,7 +383,6 @@ export default function AdminVerifikasiSection() {
                 <Button
                   type="button"
                   variant="outline"
-                  size="sm"
                   onClick={() => {
                     const current = previewPayment;
                     setPreviewPayment(null);
@@ -399,7 +395,6 @@ export default function AdminVerifikasiSection() {
 
                 <Button
                   type="button"
-                  size="sm"
                   disabled={isApproving}
                   onClick={() => {
                     if (previewPayment) approvePayment(previewPayment.id);
@@ -446,7 +441,6 @@ export default function AdminVerifikasiSection() {
             <Button
               type="button"
               variant="outline"
-              size="sm"
               disabled={isRejecting}
               onClick={() => setRejectingPayment(null)}
             >
@@ -455,7 +449,6 @@ export default function AdminVerifikasiSection() {
             <Button
               type="button"
               variant="destructive"
-              size="sm"
               disabled={isRejecting || !rejectReason.trim()}
               onClick={() => {
                 if (rejectingPayment) {

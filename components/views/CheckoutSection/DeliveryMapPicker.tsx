@@ -360,7 +360,6 @@ export default function DeliveryMapPicker({
           </div>
           <Button
             type="button"
-            size="sm"
             onClick={() => handleSearch()}
             disabled={isSearching}
             className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-9 px-4 shrink-0 font-medium"
@@ -563,7 +562,6 @@ export default function DeliveryMapPicker({
             <Button
               type="button"
               variant="outline"
-              size="sm"
               onClick={handleApplyManualCoords}
               className="w-full h-8 text-xs font-medium"
             >

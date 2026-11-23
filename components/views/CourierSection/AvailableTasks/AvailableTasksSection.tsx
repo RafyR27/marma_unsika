@@ -86,7 +86,6 @@ export default function AvailableTasksSection() {
 
         <Button
           variant="outline"
-          size="sm"
           onClick={() => refetch()}
           className="flex items-center gap-1.5 self-start sm:self-auto"
         >
@@ -118,7 +117,7 @@ export default function AvailableTasksSection() {
           <p className="text-sm text-destructive font-medium">
             Gagal memuat tugas pengantaran tersedia.
           </p>
-          <Button variant="outline" size="sm" onClick={() => refetch()}>
+          <Button variant="outline" onClick={() => refetch()}>
             Coba Lagi
           </Button>
         </div>
@@ -299,7 +298,6 @@ export default function AvailableTasksSection() {
                   </div>
 
                   <Button
-                    size="sm"
                     disabled={isClaiming}
                     onClick={() => executeClaim(t.order_number)}
                     className="font-semibold text-xs h-9 px-4"

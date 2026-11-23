@@ -110,7 +110,6 @@ function AdminProductCatalogContent() {
 
         <Button
           variant="outline"
-          size="sm"
           onClick={() => refetchProducts()}
           className="flex items-center gap-1.5 self-start sm:self-auto"
         >
@@ -180,7 +179,7 @@ function AdminProductCatalogContent() {
               className="pl-9 h-9 text-xs"
             />
           </div>
-          <Button type="submit" variant="secondary" size="sm" className="text-xs">
+          <Button type="submit" variant="secondary" className="text-xs">
             Cari
           </Button>
         </form>
@@ -226,7 +225,7 @@ function AdminProductCatalogContent() {
           <p className="text-sm text-destructive font-medium">
             Gagal mengambil data katalog produk dari server.
           </p>
-          <Button variant="outline" size="sm" onClick={() => refetchProducts()}>
+          <Button variant="outline" onClick={() => refetchProducts()}>
             Coba Lagi
           </Button>
         </div>

@@ -112,7 +112,6 @@ export default function AdminCategoriesSection() {
         <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
           <Button
             variant="outline"
-            size="sm"
             onClick={() => refetch()}
             className="flex items-center gap-1.5"
           >
@@ -121,7 +120,6 @@ export default function AdminCategoriesSection() {
           </Button>
 
           <Button
-            size="sm"
             onClick={() => setIsCreateModalOpen(true)}
             className="flex items-center gap-1.5 font-semibold text-xs"
           >
@@ -201,7 +199,7 @@ export default function AdminCategoriesSection() {
           <p className="text-sm text-destructive font-medium">
             Gagal mengambil data kategori komoditas dari server.
           </p>
-          <Button variant="outline" size="sm" onClick={() => refetch()}>
+          <Button variant="outline" onClick={() => refetch()}>
             Coba Lagi
           </Button>
         </div>
@@ -349,7 +347,6 @@ export default function AdminCategoriesSection() {
               <Button
                 type="button"
                 variant="outline"
-                size="sm"
                 onClick={() => setIsCreateModalOpen(false)}
                 disabled={isCreatingCategory}
               >
@@ -357,7 +354,6 @@ export default function AdminCategoriesSection() {
               </Button>
               <Button
                 type="submit"
-                size="sm"
                 disabled={isCreatingCategory || !categoryName.trim()}
                 className="font-semibold flex items-center gap-1.5"
               >

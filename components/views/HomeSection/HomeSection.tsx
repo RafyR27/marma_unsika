@@ -90,7 +90,6 @@ function HomeContent() {
           </p>
           <Button
             variant="outline"
-            size="sm"
             onClick={() => refetchProducts()}
             className="flex items-center gap-2"
           >

@@ -134,7 +134,6 @@ export default function CartPage() {
           {items.length > 0 && (
             <Button
               variant="outline"
-              size="sm"
               onClick={() => clearAll()}
               disabled={isClearing}
               className="text-destructive hover:text-destructive hover:bg-destructive/10"
@@ -167,7 +166,7 @@ export default function CartPage() {
             <p className="text-destructive font-medium">
               Gagal memuat keranjang belanja.
             </p>
-            <Button variant="outline" size="sm" onClick={() => refetch()}>
+            <Button variant="outline" onClick={() => refetch()}>
               Coba Lagi
             </Button>
           </div>

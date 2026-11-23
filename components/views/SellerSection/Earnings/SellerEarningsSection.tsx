@@ -112,7 +112,6 @@ export default function SellerEarningsSection() {
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <Button
             variant="outline"
-            size="sm"
             onClick={() => refetch()}
             className="flex items-center gap-1.5"
           >

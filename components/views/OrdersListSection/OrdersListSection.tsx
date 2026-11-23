@@ -120,7 +120,7 @@ export default function OrdersListSection() {
           <p className="text-sm text-destructive font-medium">
             Gagal mengambil riwayat pesanan dari server.
           </p>
-          <Button variant="outline" size="sm" onClick={() => refetch()}>
+          <Button variant="outline" onClick={() => refetch()}>
             <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
             Coba Lagi
           </Button>
@@ -259,7 +259,6 @@ export default function OrdersListSection() {
                   <div className="flex items-center gap-2">
                     {isUnpaid && !isCancelled && (
                       <Button
-                        size="sm"
                         variant="default"
                         nativeButton={false}
                         render={<Link href={`/user/orders/${o.order_number}/payment`} />}
@@ -270,7 +269,6 @@ export default function OrdersListSection() {
                     )}
 
                     <Button
-                      size="sm"
                       variant="outline"
                       nativeButton={false}
                       render={<Link href={`/user/orders/${o.order_number}`} />}

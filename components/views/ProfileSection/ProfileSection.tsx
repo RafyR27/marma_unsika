@@ -108,7 +108,7 @@ export default function ProfileSection() {
         <p className="text-xs text-muted-foreground">
           Terjadi kendala saat membaca data akun Anda dari server.
         </p>
-        <Button variant="outline" size="sm" onClick={() => refetch()}>
+        <Button variant="outline" onClick={() => refetch()}>
           <RefreshCw className="w-3.5 h-3.5 mr-1" />
           Coba Lagi
         </Button>

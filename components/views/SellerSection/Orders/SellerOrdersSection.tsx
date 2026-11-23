@@ -94,7 +94,6 @@ export default function SellerOrdersSection() {
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
-            size="sm"
             onClick={() => {
               if (activeTab === "incoming") refetchIncoming();
               else refetchOrders();
@@ -165,7 +164,7 @@ export default function SellerOrdersSection() {
               <p className="text-sm text-destructive font-medium">
                 Gagal memuat antrean komoditas.
               </p>
-              <Button variant="outline" size="sm" onClick={() => refetchIncoming()}>
+              <Button variant="outline" onClick={() => refetchIncoming()}>
                 Coba Lagi
               </Button>
             </div>
@@ -249,7 +248,6 @@ export default function SellerOrdersSection() {
                     <div className="flex items-center gap-2 self-end md:self-center shrink-0 border-t md:border-t-0 pt-3 md:pt-0 w-full md:w-auto justify-end">
                       <Button
                         variant="outline"
-                        size="sm"
                         disabled={isUpdatingStatus}
                         onClick={() =>
                           updateItemStatus({
@@ -264,7 +262,6 @@ export default function SellerOrdersSection() {
                       </Button>
 
                       <Button
-                        size="sm"
                         disabled={isUpdatingStatus}
                         onClick={() =>
                           updateItemStatus({
@@ -306,7 +303,6 @@ export default function SellerOrdersSection() {
               <Button
                 key={st.key}
                 variant={orderStatusFilter === st.key ? "default" : "outline"}
-                size="sm"
                 onClick={() => setOrderStatusFilter(st.key)}
                 className={`px-3 py-1.5 rounded-lg border font-medium transition-colors cursor-pointer shrink-0 h-auto text-xs ${
                   orderStatusFilter === st.key
@@ -331,7 +327,7 @@ export default function SellerOrdersSection() {
               <p className="text-sm text-destructive font-medium">
                 Gagal memuat riwayat faktur pesanan masuk.
               </p>
-              <Button variant="outline" size="sm" onClick={() => refetchOrders()}>
+              <Button variant="outline" onClick={() => refetchOrders()}>
                 Coba Lagi
               </Button>
             </div>

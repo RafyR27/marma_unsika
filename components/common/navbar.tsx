@@ -101,7 +101,7 @@ const MainNavbar = () => {
           {user ? (
             <div className="flex items-center gap-2">
               <Link href="/user/orders">
-                <Button variant="outline" size="sm" className="flex items-center gap-1.5">
+                <Button variant="outline" className="flex items-center gap-1.5">
                   <ClipboardList className="w-4 h-4" />
                   <span className="hidden md:inline text-xs font-medium">
                     Pesanan
@@ -110,7 +110,7 @@ const MainNavbar = () => {
               </Link>
               {dashboardUrl !== "/" && (
                 <Link href={dashboardUrl}>
-                  <Button variant="outline" size="sm" className="flex items-center gap-1.5">
+                  <Button variant="outline" className="flex items-center gap-1.5">
                     <LayoutDashboard className="w-4 h-4" />
                     <span className="hidden md:inline text-xs font-medium">
                       {user.role === "seller" ? "Kios Saya" : "Dashboard"}
@@ -120,7 +120,6 @@ const MainNavbar = () => {
               )}
               <Button
                 variant="ghost"
-                size="sm"
                 onClick={() => setLogoutOpen(true)}
                 className="text-destructive hover:text-destructive hover:bg-destructive/10"
                 title="Keluar"
@@ -131,12 +130,12 @@ const MainNavbar = () => {
             </div>
           ) : (
             <div className="space-x-2 hidden lg:flex items-center">
-              <Button variant="outline" size="sm" nativeButton={false} render={
+              <Button variant="outline" nativeButton={false} render={
                 <Link href={"/auth/login"} className="px-3" />
               }>
                 Masuk
               </Button>
-              <Button variant="default" size="sm" nativeButton={false} render={
+              <Button variant="default" nativeButton={false} render={
                 <Link href={"/auth/register"} className="px-3" />
               }>
                 Daftar

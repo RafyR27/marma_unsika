@@ -220,7 +220,7 @@ export default function SellerProductsSection() {
             onChange={(e) => setSearchInput(e.target.value)}
             className="h-9"
           />
-          <Button type="submit" variant="secondary" size="sm">
+          <Button type="submit" variant="secondary">
             <Search className="w-4 h-4 mr-1" />
             Cari
           </Button>
@@ -228,7 +228,6 @@ export default function SellerProductsSection() {
         {search && (
           <Button
             variant="ghost"
-            size="sm"
             onClick={() => {
               setSearchInput("");
               setSearch("");
@@ -253,7 +252,7 @@ export default function SellerProductsSection() {
           <p className="text-sm text-destructive font-medium">
             Gagal mengambil data produk seller.
           </p>
-          <Button variant="outline" size="sm" onClick={() => refetch()}>
+          <Button variant="outline" onClick={() => refetch()}>
             Coba Lagi
           </Button>
         </div>

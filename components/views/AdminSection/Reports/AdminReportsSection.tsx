@@ -98,7 +98,6 @@ export default function AdminReportsSection() {
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <Button
             variant="outline"
-            size="sm"
             onClick={() => refetch()}
             className="flex items-center gap-1.5"
           >
@@ -107,7 +106,6 @@ export default function AdminReportsSection() {
           </Button>
 
           <Button
-            size="sm"
             onClick={() => window.print()}
             className="flex items-center gap-1.5 text-xs font-semibold"
           >

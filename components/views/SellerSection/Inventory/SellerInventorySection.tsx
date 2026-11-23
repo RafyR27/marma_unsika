@@ -107,7 +107,6 @@ export default function SellerInventorySection() {
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
-            size="sm"
             onClick={() => refetch()}
             className="flex items-center gap-1.5"
           >
@@ -115,7 +114,7 @@ export default function SellerInventorySection() {
             Refresh Data
           </Button>
           <Link href="/seller/products">
-            <Button size="sm" className="flex items-center gap-1.5">
+            <Button className="flex items-center gap-1.5">
               <Plus className="w-4 h-4" />
               Tambah Produk
             </Button>
@@ -260,7 +259,7 @@ export default function SellerInventorySection() {
           <p className="text-sm text-destructive font-medium">
             Gagal mengambil data inventaris produk.
           </p>
-          <Button variant="outline" size="sm" onClick={() => refetch()}>
+          <Button variant="outline" onClick={() => refetch()}>
             Coba Lagi
           </Button>
         </div>
@@ -276,7 +275,6 @@ export default function SellerInventorySection() {
           {(search || stockFilter !== "all" || selectedCategoryId !== "all") && (
             <Button
               variant="outline"
-              size="sm"
               onClick={() => {
                 setSearch("");
                 setStockFilter("all");
@@ -552,7 +550,6 @@ function StockAdjustmentDialog({
                       key={amt}
                       type="button"
                       variant="outline"
-                      size="sm"
                       onClick={() => setAddQty(amt)}
                       className="text-xs font-medium"
                     >

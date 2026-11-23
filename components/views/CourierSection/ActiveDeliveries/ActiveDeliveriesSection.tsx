@@ -108,7 +108,6 @@ export default function ActiveDeliveriesSection() {
 
         <Button
           variant="outline"
-          size="sm"
           onClick={() => refetch()}
           className="flex items-center gap-1.5 self-start sm:self-auto"
         >
@@ -130,7 +129,7 @@ export default function ActiveDeliveriesSection() {
           <p className="text-sm text-destructive font-medium">
             Gagal memuat daftar pengiriman aktif.
           </p>
-          <Button variant="outline" size="sm" onClick={() => refetch()}>
+          <Button variant="outline" onClick={() => refetch()}>
             Coba Lagi
           </Button>
         </div>
@@ -142,7 +141,7 @@ export default function ActiveDeliveriesSection() {
             Anda belum memiliki tugas pengantaran yang sedang berjalan. Buka halaman tugas tersedia untuk mengambil order baru.
           </p>
           <Link href="/courier/available-tasks">
-            <Button size="sm" className="font-semibold">
+            <Button className="font-semibold">
               <ClipboardList className="w-4 h-4 mr-1.5" />
               Lihat Tugas Tersedia
             </Button>
@@ -624,7 +623,6 @@ export default function ActiveDeliveriesSection() {
             <Button
               type="button"
               variant="outline"
-              size="sm"
               onClick={() => setViewingDeliveryNumber(null)}
             >
               Tutup

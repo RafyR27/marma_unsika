@@ -140,7 +140,6 @@ export default function AdminUsersSection() {
         <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
           <Button
             variant="outline"
-            size="sm"
             onClick={() => refetch()}
             className="flex items-center gap-1.5"
           >
@@ -149,7 +148,6 @@ export default function AdminUsersSection() {
           </Button>
 
           <Button
-            size="sm"
             onClick={() => setIsCreateModalOpen(true)}
             className="flex items-center gap-1.5 font-semibold text-xs"
           >
@@ -171,7 +169,7 @@ export default function AdminUsersSection() {
               className="pl-9 h-9 text-xs"
             />
           </div>
-          <Button type="submit" variant="secondary" size="sm" className="text-xs">
+          <Button type="submit" variant="secondary" className="text-xs">
             Cari
           </Button>
         </form>
@@ -216,7 +214,7 @@ export default function AdminUsersSection() {
           <p className="text-sm text-destructive font-medium">
             Gagal mengambil data pengguna dari server.
           </p>
-          <Button variant="outline" size="sm" onClick={() => refetch()}>
+          <Button variant="outline" onClick={() => refetch()}>
             Coba Lagi
           </Button>
         </div>
@@ -681,7 +679,6 @@ export default function AdminUsersSection() {
               <Button
                 type="button"
                 variant="outline"
-                size="sm"
                 onClick={() => setIsCreateModalOpen(false)}
                 disabled={isCreatingUser}
               >
@@ -689,7 +686,6 @@ export default function AdminUsersSection() {
               </Button>
               <Button
                 type="submit"
-                size="sm"
                 disabled={isCreatingUser || !createName.trim() || !createPhone.trim() || !createPassword}
                 className="font-semibold flex items-center gap-1.5"
               >
@@ -732,7 +728,6 @@ export default function AdminUsersSection() {
             <Button
               type="button"
               variant="outline"
-              size="sm"
               disabled={isUpdatingStatus}
               onClick={() => setTogglingUser(null)}
             >
@@ -741,7 +736,6 @@ export default function AdminUsersSection() {
             <Button
               type="button"
               variant={togglingUser?.is_active ? "destructive" : "default"}
-              size="sm"
               disabled={isUpdatingStatus}
               onClick={() => {
                 if (togglingUser) {
@@ -864,7 +858,6 @@ export default function AdminUsersSection() {
             <Button
               type="button"
               variant="outline"
-              size="sm"
               onClick={() => setViewingUserId(null)}
             >
               Tutup
