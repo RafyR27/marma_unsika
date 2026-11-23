@@ -16,6 +16,7 @@ function HomeContent() {
   const urlSearch = searchParams.get("search");
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null);
 
   const queryParams = useMemo(() => {
     const p: { category?: string; search?: string } = {};
@@ -39,7 +40,10 @@ function HomeContent() {
 
       <Kategori
         selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
+        onSelectCategory={(slug, name) => {
+          setSelectedCategory(slug);
+          setSelectedCategoryName(name ?? null);
+        }}
       />
 
       {/* Filter Info Bar untuk Kategori */}
@@ -47,13 +51,16 @@ function HomeContent() {
         <div className="flex items-center gap-2 mb-4 p-2.5 bg-muted rounded-md text-sm">
           <span>
             Menampilkan produk kategori:{" "}
-            <strong className="text-primary">{selectedCategory}</strong>
+            <strong className="text-primary">{selectedCategoryName || selectedCategory}</strong>
           </span>
           <Button
             variant="ghost"
             size="xs"
-            onClick={() => setSelectedCategory(null)}
-            className="ml-auto flex items-center gap-1 text-muted-foreground hover:text-foreground"
+            onClick={() => {
+              setSelectedCategory(null);
+              setSelectedCategoryName(null);
+            }}
+            className="ml-auto flex items-center gap-1 text-muted-foreground hover:text-foreground cursor-pointer"
           >
             <X className="w-3.5 h-3.5" />
             Reset Kategori

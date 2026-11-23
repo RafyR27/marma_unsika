@@ -39,9 +39,17 @@ export default function CartPage() {
     enabled: typeof window !== "undefined" && !!localStorage.getItem("token"),
   });
 
+  const [updatingId, setUpdatingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
   const { mutate: updateQuantity, isPending: isUpdating } = useMutation({
-    mutationFn: ({ id, quantity }: { id: number; quantity: number }) =>
-      cart.updateCartItem(id, { quantity }),
+    mutationFn: ({ id, quantity }: { id: number; quantity: number }) => {
+      setUpdatingId(id);
+      return cart.updateCartItem(id, { quantity });
+    },
+    onSettled: () => {
+      setUpdatingId(null);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
@@ -54,7 +62,13 @@ export default function CartPage() {
   });
 
   const { mutate: removeItem, isPending: isDeleting } = useMutation({
-    mutationFn: (id: number) => cart.deleteCartItem(id),
+    mutationFn: (id: number) => {
+      setDeletingId(id);
+      return cart.deleteCartItem(id);
+    },
+    onSettled: () => {
+      setDeletingId(null);
+    },
     onSuccess: () => {
       toast.success("Item dihapus dari keranjang", { position: "top-right" });
       queryClient.invalidateQueries({ queryKey: ["cart"] });
@@ -99,8 +113,14 @@ export default function CartPage() {
   if (!mounted) {
     return (
       <MainLayout>
-        <div className="max-w-5xl mx-auto py-8 px-4 space-y-4">
-          <Skeleton className="h-8 w-48" />
+        <div className="max-w-5xl mx-auto py-4 sm:py-6 md:py-8 px-2 sm:px-4 space-y-4">
+          <div className="flex items-center justify-between pb-3 sm:pb-5 border-b border-border/60">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Skeleton className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl" />
+              <Skeleton className="h-6 sm:h-8 w-36 sm:w-48 rounded-md" />
+            </div>
+            <Skeleton className="h-8 sm:h-9 w-20 sm:w-36 rounded-md" />
+          </div>
           <div className="space-y-4">
             {Array.from({ length: 3 }).map((_, i) => (
               <Skeleton key={i} className="h-28 w-full rounded-xl" />
@@ -116,30 +136,45 @@ export default function CartPage() {
 
   return (
     <MainLayout>
-      <div className="max-w-5xl mx-auto py-8 px-4">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
+      <div className="max-w-5xl mx-auto py-4 sm:py-6 md:py-8 px-2 sm:px-4">
+        {/* Top Header Section */}
+        <div className="flex items-center justify-between gap-2 sm:gap-4 mb-4 sm:mb-6 pb-3 sm:pb-5 border-b border-border/60">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <Link
               href="/"
-              className="text-muted-foreground hover:text-foreground"
+              className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-lg sm:rounded-xl border border-border bg-card hover:bg-muted text-foreground flex items-center justify-center shrink-0 transition-colors shadow-xs active:scale-95"
+              aria-label="Kembali ke beranda"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
             </Link>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              <ShoppingCart className="w-6 h-6 text-primary" />
-              Keranjang Belanja
-            </h1>
+            <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
+              <h1 className="text-base sm:text-xl md:text-2xl font-bold flex items-center gap-1.5 sm:gap-2 text-foreground truncate tracking-tight">
+                <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-primary shrink-0" />
+                <span className="truncate">Keranjang Belanja</span>
+              </h1>
+              {items.length > 0 && (
+                <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold bg-primary/10 text-primary border border-primary/20 shrink-0">
+                  {summary.total_items} item
+                </span>
+              )}
+            </div>
           </div>
 
           {items.length > 0 && (
             <Button
               variant="outline"
+              size="sm"
               onClick={() => clearAll()}
               disabled={isClearing}
-              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+              className="text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20 hover:border-destructive/40 h-8 sm:h-9 px-2.5 sm:px-3 text-xs sm:text-sm font-medium shrink-0 cursor-pointer"
             >
-              {isClearing ? <Spinner /> : <Trash2 className="w-4 h-4 mr-1.5" />}
-              Kosongkan Keranjang
+              {isClearing ? (
+                <Spinner className="w-3.5 h-3.5" />
+              ) : (
+                <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-1.5" />
+              )}
+              <span className="hidden sm:inline">Kosongkan Keranjang</span>
+              <span className="inline sm:hidden">Kosongkan</span>
             </Button>
           )}
         </div>
@@ -191,99 +226,130 @@ export default function CartPage() {
                 const stock = p?.stock || 0;
                 const storeName =
                   p?.seller?.profile?.store_name || p?.seller?.name || "Kios Pedagang";
+                const isThisDeleting = isDeleting && deletingId === item.id;
+                const isThisUpdating = isUpdating && updatingId === item.id;
 
                 return (
                   <div
                     key={item.id}
-                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-xl bg-card gap-4"
+                    className="p-4 sm:p-5 border border-border rounded-2xl bg-card shadow-xs hover:border-primary/30 transition-all space-y-3.5"
                   >
-                    <div className="flex items-center gap-3 w-full sm:w-auto">
-                      <div className="relative w-20 h-20 rounded-lg overflow-hidden shrink-0 bg-muted">
-                        <Image
-                          src={p?.image_url || "/test.jpg"}
-                          alt={p?.name || "Produk"}
-                          fill
-                          sizes="80px"
-                          className="object-cover"
-                          unoptimized
-                        />
+                    {/* Header Toko & Tombol Hapus */}
+                    <div className="flex items-center justify-between pb-3 border-b border-border/50 text-xs">
+                      <div className="flex items-center gap-1.5 font-medium text-foreground truncate min-w-0 pr-2">
+                        <Store className="w-3.5 h-3.5 text-primary shrink-0" />
+                        <span className="truncate">{storeName}</span>
                       </div>
-                      <div className="space-y-1 min-w-0">
-                        <p className="text-xs text-muted-foreground flex items-center gap-1 truncate">
-                          <Store className="w-3 h-3 shrink-0" />
-                          <span className="truncate">{storeName}</span>
-                        </p>
-                        <Link href={`/products/${p?.slug}`}>
-                          <h3 className="font-semibold text-sm hover:text-primary transition-colors truncate">
-                            {p?.name}
-                          </h3>
-                        </Link>
-                        <p className="text-xs font-semibold text-primary">
-                          {p?.formatted_price}{" "}
-                          <span className="text-muted-foreground font-normal">
-                            / {p?.unit}
-                          </span>
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto border-t sm:border-t-0 pt-3 sm:pt-0">
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="icon-xs"
-                          onClick={() => {
-                            if (item.quantity > minOrder) {
-                              updateQuantity({
-                                id: item.id,
-                                quantity: item.quantity - 1,
-                              });
-                            }
-                          }}
-                          disabled={item.quantity <= minOrder || isUpdating}
-                        >
-                          <Minus className="w-3 h-3" />
-                        </Button>
-                        <span className="font-bold text-sm min-w-7 text-center">
-                          {item.quantity}
-                        </span>
-                        <Button
-                          variant="outline"
-                          size="icon-xs"
-                          onClick={() => {
-                            if (item.quantity < stock) {
-                              updateQuantity({
-                                id: item.id,
-                                quantity: item.quantity + 1,
-                              });
-                            }
-                          }}
-                          disabled={item.quantity >= stock || isUpdating}
-                        >
-                          <Plus className="w-3 h-3" />
-                        </Button>
-                        <span className="text-xs text-muted-foreground ml-1">
-                          {p?.unit}
-                        </span>
-                      </div>
-
-                      <div className="text-right min-w-24">
-                        <p className="font-bold text-sm text-primary">
-                          {item.formatted_subtotal ||
-                            `Rp ${(item.quantity * (p?.price || 0)).toLocaleString("id-ID")}`}
-                        </p>
-                      </div>
-
-                      <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        className="text-muted-foreground hover:text-destructive"
+                      <button
+                        type="button"
                         onClick={() => removeItem(item.id)}
                         disabled={isDeleting}
-                        title="Hapus item"
+                        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10 px-2.5 py-1 rounded-lg transition-colors cursor-pointer shrink-0 disabled:opacity-50"
+                        title="Hapus item dari keranjang"
                       >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                        {isThisDeleting ? (
+                          <Spinner className="w-3.5 h-3.5" />
+                        ) : (
+                          <Trash2 className="w-3.5 h-3.5" />
+                        )}
+                        <span className="hidden sm:inline">Hapus</span>
+                      </button>
+                    </div>
+
+                    {/* Informasi Produk & Kontrol Kuantitas */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      {/* Produk */}
+                      <div className="flex items-center gap-3.5 min-w-0 flex-1 w-full sm:w-auto">
+                        <Link
+                          href={`/products/${p?.slug}`}
+                          className="relative w-20 h-20 sm:w-22 sm:h-22 rounded-xl overflow-hidden shrink-0 bg-muted border border-border/40 block group"
+                        >
+                          <Image
+                            src={p?.image_url || "/test.jpg"}
+                            alt={p?.name || "Produk"}
+                            fill
+                            sizes="96px"
+                            className="object-cover group-hover:scale-105 transition-transform duration-200"
+                            unoptimized
+                          />
+                        </Link>
+                        <div className="space-y-1 min-w-0 flex-1">
+                          <Link href={`/products/${p?.slug}`}>
+                            <h3 className="font-semibold text-sm sm:text-base text-foreground hover:text-primary transition-colors line-clamp-2 leading-snug">
+                              {p?.name}
+                            </h3>
+                          </Link>
+                          <p className="text-xs sm:text-sm font-semibold text-primary">
+                            {p?.formatted_price}{" "}
+                            <span className="text-muted-foreground font-normal text-xs">
+                              / {p?.unit}
+                            </span>
+                          </p>
+                          {minOrder > 1 && (
+                            <p className="text-[11px] text-muted-foreground">
+                              Min. order {minOrder} {p?.unit}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Kontrol Stepper & Subtotal */}
+                      <div className="flex items-center justify-between sm:justify-end gap-5 w-full sm:w-auto pt-2.5 sm:pt-0 border-t sm:border-t-0 border-border/40">
+                        {/* Stepper Jumlah */}
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <div className="flex items-center border border-border rounded-lg bg-background p-0.5 shadow-2xs">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (item.quantity > minOrder) {
+                                  updateQuantity({
+                                    id: item.id,
+                                    quantity: item.quantity - 1,
+                                  });
+                                }
+                              }}
+                              disabled={item.quantity <= minOrder || isThisUpdating}
+                              className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-md hover:bg-muted text-foreground transition-colors disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+                              aria-label="Kurangi jumlah"
+                            >
+                              <Minus className="w-3.5 h-3.5" />
+                            </button>
+                            <span className="w-8 sm:w-10 text-center font-bold text-xs sm:text-sm select-none">
+                              {item.quantity}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (item.quantity < stock) {
+                                  updateQuantity({
+                                    id: item.id,
+                                    quantity: item.quantity + 1,
+                                  });
+                                }
+                              }}
+                              disabled={item.quantity >= stock || isThisUpdating}
+                              className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-md hover:bg-muted text-foreground transition-colors disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+                              aria-label="Tambah jumlah"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                          <span className="text-xs text-muted-foreground font-medium select-none">
+                            {p?.unit}
+                          </span>
+                        </div>
+
+                        {/* Subtotal Nominal */}
+                        <div className="text-right sm:min-w-28 shrink-0">
+                          <span className="text-[10px] text-muted-foreground block leading-none mb-1">
+                            Subtotal
+                          </span>
+                          <p className="font-bold text-sm sm:text-base text-primary leading-tight">
+                            {item.formatted_subtotal ||
+                              `Rp ${(item.quantity * (p?.price || 0)).toLocaleString("id-ID")}`}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 );

@@ -220,10 +220,19 @@ export default function DeliveryMapPicker({
 
     mapInstanceRef.current = map;
 
+    // ResizeObserver to ensure Leaflet recalculates dimensions within container bounds
+    const resizeObserver = new ResizeObserver(() => {
+      map.invalidateSize();
+    });
+    if (mapContainerRef.current) {
+      resizeObserver.observe(mapContainerRef.current);
+    }
+
     // Deteksi lokasi pengguna pertama kali saat peta siap
     detectUserLocation(false);
 
     return () => {
+      resizeObserver.disconnect();
       map.remove();
       mapInstanceRef.current = null;
     };
@@ -324,11 +333,11 @@ export default function DeliveryMapPicker({
   };
 
   return (
-    <div className="space-y-3">
+    <div className="w-full max-w-full min-w-0 space-y-3">
       {/* 1. Bar Pencarian Nama Jalan & Landmark di Karawang */}
-      <div className="space-y-2">
-        <div className="flex gap-2">
-          <div className="relative flex-1">
+      <div className="space-y-2 min-w-0">
+        <div className="flex gap-2 min-w-0">
+          <div className="relative flex-1 min-w-0">
             <Search className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
             <Input
               type="text"
@@ -340,7 +349,7 @@ export default function DeliveryMapPicker({
                   handleSearch();
                 }
               }}
-              placeholder="Cari mall, pasar, jalan, atau perumahan (misal: Mall KCP, Resinda, Galuh Mas)..."
+              placeholder="Cari mall, pasar, jalan, perumahan..."
               className="pl-9 pr-8 text-xs h-11 lg:h-10 bg-white"
             />
             {searchQuery && (
@@ -362,15 +371,16 @@ export default function DeliveryMapPicker({
             type="button"
             onClick={() => handleSearch()}
             disabled={isSearching}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-4 shrink-0 font-medium"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 sm:px-4 shrink-0 font-medium cursor-pointer"
           >
             {isSearching ? <Spinner className="w-3.5 h-3.5 mr-1" /> : <Search className="w-3.5 h-3.5 mr-1" />}
-            Cari Lokasi
+            <span className="hidden sm:inline">Cari Lokasi</span>
+            <span className="inline sm:hidden">Cari</span>
           </Button>
         </div>
 
         {/* Saran Cepat Landmark Karawang */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 no-scrollbar text-[11px]">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[11px] w-full max-w-full min-w-0">
           <span className="text-muted-foreground shrink-0 font-medium text-[10px] uppercase tracking-wider">
             Saran:
           </span>
@@ -434,13 +444,20 @@ export default function DeliveryMapPicker({
       </div>
 
       {/* 2. Container Peta Interaktif (Grab/Gojek Map Picker) */}
-      <div className="relative w-full h-80 sm:h-96 rounded-2xl overflow-hidden border border-border shadow-xs bg-muted/20">
+      <div
+        className="relative w-full max-w-full h-80 sm:h-96 rounded-2xl overflow-hidden border border-border shadow-xs bg-muted/20 isolate"
+        style={{ isolation: "isolate", contain: "paint" }}
+      >
         {/* Wadah Leaflet Map */}
-        <div ref={mapContainerRef} className="w-full h-full z-0" />
+        <div
+          ref={mapContainerRef}
+          className="w-full h-full z-0 overflow-hidden"
+          style={{ isolation: "isolate", contain: "paint" }}
+        />
 
         {/* Pin Tetap di Tengah Peta (Gojek / Grab Center Pin Dropper) */}
         <div
-          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-full pointer-events-none z-[1000] flex flex-col items-center transition-transform duration-150 ${
+          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-full pointer-events-none z-20 flex flex-col items-center transition-transform duration-150 ${
             isDragging ? "-translate-y-[120%] scale-105" : ""
           }`}
         >
@@ -469,7 +486,7 @@ export default function DeliveryMapPicker({
 
         {/* Kontrol Kustom Melayang di Atas Peta */}
         {/* Tombol Kompas / Recenter ke Lokasi Saya */}
-        <div className="absolute right-3 bottom-3 z-[1000] flex flex-col gap-2">
+        <div className="absolute right-3 bottom-3 z-20 flex flex-col gap-2">
           <Button
             type="button"
             size="icon"
@@ -511,7 +528,7 @@ export default function DeliveryMapPicker({
         </div>
 
         {/* Petunjuk Operasional Menggeser Peta */}
-        <div className="absolute left-3 top-3 z-[1000] bg-white/95 backdrop-blur-xs text-neutral-800 text-[11px] font-medium px-2.5 py-1.5 rounded-lg border border-neutral-200/80 shadow-xs pointer-events-none flex items-center gap-1.5">
+        <div className="absolute left-3 top-3 z-20 bg-white/95 backdrop-blur-xs text-neutral-800 text-[11px] font-medium px-2.5 py-1.5 rounded-lg border border-neutral-200/80 shadow-xs pointer-events-none flex items-center gap-1.5">
           <Crosshair className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
           <span>Geser peta untuk menentukan posisi kurir</span>
         </div>
@@ -558,7 +575,7 @@ export default function DeliveryMapPicker({
               placeholder="107.304500"
             />
           </div>
-          <div className="sm:col-span-1 pt-3.5">
+          <div className="sm:col-span-1 sm:pt-3.5 pt-0">
             <Button
               type="button"
               variant="outline"

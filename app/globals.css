@@ -189,3 +189,31 @@
   }
 }
 
+@utility scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Fix Leaflet map hardware-acceleration overflow blowout */
+.leaflet-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+  isolation: isolate;
+  contain: paint;
+}
+
+.leaflet-pane {
+  max-width: 100% !important;
+}
+
+.leaflet-container img {
+  max-width: none !important;
+}
+
+
+
