@@ -559,7 +559,7 @@ export default function ActiveDeliveriesSection() {
         open={!!viewingDeliveryNumber}
         onOpenChange={(open) => !open && setViewingDeliveryNumber(null)}
       >
-        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogContent className="min-w-full md:min-w-xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-base flex items-center gap-2">
               <Eye className="w-5 h-5 text-primary" />

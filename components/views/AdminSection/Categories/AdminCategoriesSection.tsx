@@ -266,7 +266,7 @@ export default function AdminCategoriesSection() {
 
       {/* MODAL FORM TAMBAH KATEGORI */}
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="min-w-full md:min-w-xl">
           <DialogHeader>
             <DialogTitle className="text-base flex items-center gap-2">
               <FolderPlus className="w-5 h-5 text-primary" />

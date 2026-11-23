@@ -469,7 +469,7 @@ function StockAdjustmentDialog({
 
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="min-w-full md:min-w-xl">
         <DialogHeader className="pr-8">
           <DialogTitle className="flex items-center gap-2 text-base leading-snug">
             <Edit2 className="w-5 h-5 text-primary" />

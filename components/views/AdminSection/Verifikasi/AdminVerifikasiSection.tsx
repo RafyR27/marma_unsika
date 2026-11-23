@@ -350,7 +350,7 @@ export default function AdminVerifikasiSection() {
         open={!!previewPayment}
         onOpenChange={(open) => !open && setPreviewPayment(null)}
       >
-        <DialogContent className="max-w-lg">
+        <DialogContent className="min-w-full md:min-w-xl">
           <DialogHeader>
             <DialogTitle className="text-base flex items-center gap-2">
               <Eye className="w-4 h-4 text-primary" />
@@ -414,7 +414,7 @@ export default function AdminVerifikasiSection() {
         open={!!rejectingPayment}
         onOpenChange={(open) => !open && setRejectingPayment(null)}
       >
-        <DialogContent className="max-w-md">
+        <DialogContent className="min-w-full md:min-w-xl">
           <DialogHeader>
             <DialogTitle className="text-base flex items-center gap-2 text-destructive">
               <XCircle className="w-4 h-4" />

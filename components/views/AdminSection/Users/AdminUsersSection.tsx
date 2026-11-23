@@ -415,7 +415,7 @@ export default function AdminUsersSection() {
 
       {/* MODAL FORM TAMBAH PENGGUNA */}
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="min-w-full md:min-w-xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-base flex items-center gap-2">
               <UserPlus className="w-5 h-5 text-primary" />
@@ -702,7 +702,7 @@ export default function AdminUsersSection() {
         open={!!togglingUser}
         onOpenChange={(open) => !open && setTogglingUser(null)}
       >
-        <DialogContent className="max-w-sm">
+        <DialogContent className="min-w-full md:min-w-xl">
           <DialogHeader>
             <DialogTitle className="text-base flex items-center gap-2">
               {togglingUser?.is_active ? (
@@ -763,7 +763,7 @@ export default function AdminUsersSection() {
         open={!!viewingUserId}
         onOpenChange={(open) => !open && setViewingUserId(null)}
       >
-        <DialogContent className="max-w-md">
+        <DialogContent className="min-w-full md:min-w-xl">
           <DialogHeader>
             <DialogTitle className="text-base flex items-center gap-2">
               <Eye className="w-5 h-5 text-primary" />

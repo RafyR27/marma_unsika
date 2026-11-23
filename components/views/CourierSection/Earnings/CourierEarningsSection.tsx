@@ -351,7 +351,7 @@ export default function CourierEarningsSection() {
 
       {/* MODAL 2: KONFIRMASI SETOR UANG FISIK COD */}
       <Dialog open={isRemitCODModalOpen} onOpenChange={setIsRemitCODModalOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="min-w-full md:min-w-xl">
           <DialogHeader>
             <DialogTitle className="text-base flex items-center gap-2 text-amber-600">
               <Banknote className="w-5 h-5" />
