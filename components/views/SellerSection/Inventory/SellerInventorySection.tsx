@@ -194,7 +194,7 @@ export default function SellerInventorySection() {
               placeholder="Cari nama cabai, bawang, sayuran..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 h-9 text-sm"
+              className="pl-9 h-11 lg:h-10 text-sm"
             />
           </div>
         </div>
@@ -208,7 +208,7 @@ export default function SellerInventorySection() {
                 e.target.value === "all" ? "all" : Number(e.target.value)
               )
             }
-            className="h-9 px-3 rounded-lg border border-input bg-background text-xs outline-none focus:border-ring cursor-pointer"
+            className="h-11 lg:h-10 px-3 rounded-lg border border-input bg-background text-xs outline-none focus:border-ring cursor-pointer"
           >
             <option value="all">Semua Kategori</option>
             {categories.map((cat) => (

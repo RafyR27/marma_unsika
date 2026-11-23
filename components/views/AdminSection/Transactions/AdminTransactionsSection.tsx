@@ -171,7 +171,7 @@ export default function AdminTransactionsSection() {
               placeholder="Cari nomor pesanan, nama pemesan..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="pl-9 h-9 text-xs"
+              className="pl-9 h-11 lg:h-10 text-xs"
             />
           </div>
           <Button type="submit" variant="secondary" className="text-xs">
@@ -184,7 +184,7 @@ export default function AdminTransactionsSection() {
           <select
             value={methodFilter}
             onChange={(e) => setMethodFilter(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-input bg-background outline-none focus:border-ring cursor-pointer"
+            className="h-11 lg:h-10 px-3 rounded-lg border border-input bg-background outline-none focus:border-ring cursor-pointer"
           >
             <option value="all">Semua Metode Pembayaran</option>
             <option value="cod">Cash on Delivery (COD)</option>
@@ -195,7 +195,7 @@ export default function AdminTransactionsSection() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-input bg-background outline-none focus:border-ring cursor-pointer"
+            className="h-11 lg:h-10 px-3 rounded-lg border border-input bg-background outline-none focus:border-ring cursor-pointer"
           >
             <option value="all">Semua Status Pelunasan</option>
             <option value="paid">Lunas (Paid)</option>

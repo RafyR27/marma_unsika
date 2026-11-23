@@ -132,7 +132,7 @@ export default function AdminOrdersSection() {
               placeholder="Cari no. pesanan, nama pemesan, no. telp..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="pl-9 h-9 text-xs"
+              className="pl-9 h-11 lg:h-10 text-xs"
             />
           </div>
           <Button type="submit" variant="secondary" className="text-xs">
@@ -142,7 +142,7 @@ export default function AdminOrdersSection() {
 
         <div className="flex items-center gap-2 flex-wrap">
           {/* Checkbox Belum Ada Kurir */}
-          <label className="flex items-center gap-1.5 px-3 py-1.5 border rounded-lg bg-background text-xs cursor-pointer hover:border-primary">
+          <label className="flex items-center gap-1.5 px-3 py-1.5 border rounded-lg bg-background text-xs cursor-pointer hover:border-primary h-11 lg:h-10">
             <input
               type="checkbox"
               checked={unassignedOnly}
@@ -156,7 +156,7 @@ export default function AdminOrdersSection() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-input bg-background text-xs outline-none focus:border-ring cursor-pointer"
+            className="h-11 lg:h-10 px-3 rounded-lg border border-input bg-background text-xs outline-none focus:border-ring cursor-pointer"
           >
             <option value="all">Semua Status</option>
             <option value="pending">Menunggu</option>

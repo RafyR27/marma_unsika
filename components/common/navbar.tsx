@@ -58,7 +58,7 @@ const MainNavbar = () => {
         </div>
 
         <form onSubmit={handleNavSearch} className="lg:max-w-2xl max-w-lg w-full">
-          <InputGroup className="w-full">
+          <InputGroup className="w-full h-11 lg:h-10">
             <InputGroupAddon align="inline-start">
               <Search className="w-4 h-4 text-muted-foreground" />
             </InputGroupAddon>
@@ -72,7 +72,7 @@ const MainNavbar = () => {
                 type="submit"
                 variant="ghost"
                 size="xs"
-                className="cursor-pointer px-2 text-xs font-medium text-primary hover:text-primary/80 h-7"
+                className="cursor-pointer px-3 text-xs font-medium text-primary hover:text-primary/80 h-8"
               >
                 Cari
               </Button>
@@ -81,7 +81,7 @@ const MainNavbar = () => {
         </form>
 
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="h-10 lg:h-8 relative" nativeButton={false} render={
+          <Button variant="outline" className="relative" nativeButton={false} render={
             <Link href={"/user/cart"} className="flex gap-2 px-2 items-center" />
           }>
             <ShoppingCart className="w-4 h-4" />

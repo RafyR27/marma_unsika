@@ -177,7 +177,7 @@ export default function AdminCategoriesSection() {
             placeholder="Cari nama kategori buah, sayur, bumbu..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 h-9 text-xs"
+            className="pl-9 h-11 lg:h-10 text-xs"
           />
         </div>
 

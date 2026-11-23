@@ -218,7 +218,7 @@ export default function SellerProductsSection() {
             placeholder="Cari nama komoditas di kios Anda..."
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className="h-9"
+            className="h-11 lg:h-10"
           />
           <Button type="submit" variant="secondary">
             <Search className="w-4 h-4 mr-1" />

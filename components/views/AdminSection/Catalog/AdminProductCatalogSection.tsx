@@ -176,7 +176,7 @@ function AdminProductCatalogContent() {
               placeholder="Cari komoditas cabai, bawang, sayuran..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="pl-9 h-9 text-xs"
+              className="pl-9 h-11 lg:h-10 text-xs"
             />
           </div>
           <Button type="submit" variant="secondary" className="text-xs">
@@ -189,7 +189,7 @@ function AdminProductCatalogContent() {
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-input bg-background outline-none focus:border-ring cursor-pointer"
+            className="h-11 lg:h-10 px-3 rounded-lg border border-input bg-background outline-none focus:border-ring cursor-pointer"
           >
             <option value="all">Semua Kategori</option>
             {categories.map((c) => (
@@ -203,7 +203,7 @@ function AdminProductCatalogContent() {
           <select
             value={availabilityFilter}
             onChange={(e) => setAvailabilityFilter(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-input bg-background outline-none focus:border-ring cursor-pointer"
+            className="h-11 lg:h-10 px-3 rounded-lg border border-input bg-background outline-none focus:border-ring cursor-pointer"
           >
             <option value="all">Semua Status Etalase</option>
             <option value="available">Hanya Tersedia (Ready)</option>

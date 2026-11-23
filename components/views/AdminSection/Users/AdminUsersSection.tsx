@@ -166,7 +166,7 @@ export default function AdminUsersSection() {
               placeholder="Cari nama pengguna, no. telepon, email, nama kios..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="pl-9 h-9 text-xs"
+              className="pl-9 h-11 lg:h-10 text-xs"
             />
           </div>
           <Button type="submit" variant="secondary" className="text-xs">
@@ -179,7 +179,7 @@ export default function AdminUsersSection() {
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-input bg-background outline-none focus:border-ring cursor-pointer"
+            className="h-11 lg:h-10 px-3 rounded-lg border border-input bg-background outline-none focus:border-ring cursor-pointer"
           >
             <option value="all">Semua Peran (Role)</option>
             <option value="seller">Seller (Pedagang Pasar Induk)</option>
@@ -192,7 +192,7 @@ export default function AdminUsersSection() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-9 px-3 rounded-lg border border-input bg-background outline-none focus:border-ring cursor-pointer"
+            className="h-11 lg:h-10 px-3 rounded-lg border border-input bg-background outline-none focus:border-ring cursor-pointer"
           >
             <option value="all">Semua Status Akun</option>
             <option value="active">Hanya Akun Aktif</option>

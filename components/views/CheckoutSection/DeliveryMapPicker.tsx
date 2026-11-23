@@ -341,7 +341,7 @@ export default function DeliveryMapPicker({
                 }
               }}
               placeholder="Cari mall, pasar, jalan, atau perumahan (misal: Mall KCP, Resinda, Galuh Mas)..."
-              className="pl-9 pr-8 text-xs h-9 bg-white"
+              className="pl-9 pr-8 text-xs h-11 lg:h-10 bg-white"
             />
             {searchQuery && (
               <Button
@@ -362,7 +362,7 @@ export default function DeliveryMapPicker({
             type="button"
             onClick={() => handleSearch()}
             disabled={isSearching}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-9 px-4 shrink-0 font-medium"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-4 shrink-0 font-medium"
           >
             {isSearching ? <Spinner className="w-3.5 h-3.5 mr-1" /> : <Search className="w-3.5 h-3.5 mr-1" />}
             Cari Lokasi
