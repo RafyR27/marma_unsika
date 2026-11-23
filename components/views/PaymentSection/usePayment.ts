@@ -33,7 +33,26 @@ export const usePayment = (orderNumber: string) => {
     enabled: !!orderNumber,
   });
 
+  const {
+    data: paymentStatusResponse,
+    isLoading: isPaymentStatusLoading,
+    refetch: refetchPaymentStatus,
+  } = useQuery({
+    queryKey: ["payment-status", orderNumber],
+    queryFn: async () => {
+      try {
+        const res = await payment.getPaymentStatus(orderNumber);
+        return res.data?.data;
+      } catch {
+        return null;
+      }
+    },
+    enabled: !!orderNumber,
+    refetchInterval: 10000,
+  });
+
   const currentOrder = orderResponse?.data;
+  const paymentStatus = paymentStatusResponse;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -111,5 +130,8 @@ export const usePayment = (orderNumber: string) => {
     setExternalReferenceId,
     isSubmitting,
     handleSubmit,
+    paymentStatus,
+    isPaymentStatusLoading,
+    refetchPaymentStatus,
   };
 };

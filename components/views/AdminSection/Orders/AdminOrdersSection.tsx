@@ -16,6 +16,7 @@ import {
   User,
   MapPin,
   Clock,
+  Eye,
 } from "lucide-react";
 
 import { useMe } from "@/hooks/useMe";
@@ -67,6 +68,10 @@ export default function AdminOrdersSection() {
     setCancelReason,
     executeCancelOrder,
     isCancelling,
+    selectedDetailOrderNumber,
+    setSelectedDetailOrderNumber,
+    orderDetail,
+    isLoadingOrderDetail,
   } = useAdminOrders();
 
   if (isCheckingAuth) {
@@ -308,6 +313,18 @@ export default function AdminOrdersSection() {
                       {/* Aksi Operasional */}
                       <td className="py-3.5 px-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
+                          {/* Tombol Lihat Detail Pesanan */}
+                          <Button
+                            variant="outline"
+                            size="xs"
+                            onClick={() => setSelectedDetailOrderNumber(o.order_number)}
+                            className="text-xs"
+                            title="Lihat Detail Pesanan"
+                          >
+                            <Eye className="w-3.5 h-3.5 mr-1" />
+                            Detail
+                          </Button>
+
                           {/* Tombol Assign Kurir jika belum selesai dan belum batal */}
                           {!isCompleted && !isCancelled && (
                             <Button
@@ -502,6 +519,101 @@ export default function AdminOrdersSection() {
               }}
             >
               {isCancelling ? <Spinner className="mr-1" /> : "Eksekusi Pembatalan"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* MODAL 3: DETAIL LENGKAP PESANAN */}
+      <Dialog
+        open={!!selectedDetailOrderNumber}
+        onOpenChange={(open) => !open && setSelectedDetailOrderNumber(null)}
+      >
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-base flex items-center gap-2">
+              <Eye className="w-5 h-5 text-primary" />
+              Detail Pesanan #{selectedDetailOrderNumber}
+            </DialogTitle>
+            <DialogDescription className="text-xs">
+              Informasi lengkap manifest komoditas, kurir lapangan, dan rincian transaksi pembeli.
+            </DialogDescription>
+          </DialogHeader>
+
+          {isLoadingOrderDetail ? (
+            <div className="py-8 text-center space-y-2">
+              <Spinner className="w-6 h-6 mx-auto text-primary" />
+              <p className="text-xs text-muted-foreground">Memuat detail pesanan dari server...</p>
+            </div>
+          ) : orderDetail ? (
+            <div className="space-y-4 py-2 text-xs">
+              <div className="grid grid-cols-2 gap-3 p-3 bg-muted/30 rounded-lg">
+                <div>
+                  <span className="text-muted-foreground block text-[11px]">Pembeli Warung:</span>
+                  <span className="font-semibold text-sm">{orderDetail.buyer?.name || "-"}</span>
+                  <span className="text-muted-foreground block text-[11px]">{orderDetail.buyer?.phone}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground block text-[11px]">Kurir Penjemput:</span>
+                  <span className="font-semibold text-sm">{orderDetail.courier?.name || "Belum Ditugaskan"}</span>
+                  {orderDetail.courier?.phone && (
+                    <span className="text-muted-foreground block text-[11px]">{orderDetail.courier.phone}</span>
+                  )}
+                </div>
+                <div className="col-span-2 border-t pt-2 mt-1">
+                  <span className="text-muted-foreground block text-[11px]">Alamat Pengantaran:</span>
+                  <span className="font-medium text-foreground">{orderDetail.delivery_address_snapshot?.full_address || "-"}</span>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-semibold text-xs mb-2">Daftar Komoditas Pasar:</h4>
+                <div className="space-y-1.5 border rounded-lg p-2 max-h-48 overflow-y-auto">
+                  {orderDetail.items?.map((item) => (
+                    <div key={item.id} className="flex justify-between items-center py-1.5 border-b last:border-b-0 text-xs">
+                      <div>
+                        <span className="font-medium block">{item.product_name_snapshot || item.product?.name}</span>
+                        <span className="text-[11px] text-muted-foreground">
+                          Kios: {item.seller?.profile?.store_name || item.seller?.name || "Pasar Induk"} • {item.quantity} {item.unit_snapshot}
+                        </span>
+                      </div>
+                      <span className="font-semibold">
+                        Rp {((item.price_at_purchase || 0) * item.quantity).toLocaleString("id-ID")}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-3 bg-muted/40 rounded-lg space-y-1 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Subtotal Komoditas:</span>
+                  <span>Rp {(orderDetail.total_amount || 0).toLocaleString("id-ID")}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Ongkir Kurir Lapangan:</span>
+                  <span>Rp {(orderDetail.delivery_fee || 0).toLocaleString("id-ID")}</span>
+                </div>
+                <div className="flex justify-between font-bold text-sm border-t pt-1 mt-1 text-primary">
+                  <span>Total Tagihan:</span>
+                  <span>
+                    Rp {((orderDetail.total_amount || 0) + (orderDetail.delivery_fee || 0)).toLocaleString("id-ID")}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className="text-xs text-destructive text-center py-4">Data pesanan tidak ditemukan.</p>
+          )}
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setSelectedDetailOrderNumber(null)}
+            >
+              Tutup
             </Button>
           </DialogFooter>
         </DialogContent>

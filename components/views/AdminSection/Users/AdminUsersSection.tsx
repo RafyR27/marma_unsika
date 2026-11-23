@@ -92,6 +92,10 @@ export default function AdminUsersSection() {
     formErrors,
     handleCreateUser,
     isCreatingUser,
+    viewingUserId,
+    setViewingUserId,
+    userDetail,
+    isLoadingUserDetail,
   } = useAdminUsers();
 
   if (isCheckingAuth) {
@@ -334,34 +338,46 @@ export default function AdminUsersSection() {
 
                       {/* Tombol Aksi */}
                       <td className="py-3.5 px-4 text-right">
-                        {isCurrentAdmin ? (
-                          <span className="text-[11px] text-muted-foreground italic">
-                            Akun Anda
-                          </span>
-                        ) : (
+                        <div className="flex items-center justify-end gap-1.5">
                           <Button
                             variant="outline"
                             size="xs"
-                            onClick={() => setTogglingUser(u)}
-                            className={`text-xs ${
-                              u.is_active
-                                ? "text-destructive hover:bg-destructive/10 hover:text-destructive"
-                                : "text-green-600 hover:bg-green-500/10 hover:text-green-700"
-                            }`}
+                            onClick={() => setViewingUserId(u.id)}
+                            className="text-xs"
+                            title="Lihat Detail Profil Pengguna"
                           >
-                            {u.is_active ? (
-                              <>
-                                <UserX className="w-3 h-3 mr-1" />
-                                Nonaktifkan
-                              </>
-                            ) : (
-                              <>
-                                <UserCheck className="w-3 h-3 mr-1" />
-                                Aktifkan
-                              </>
-                            )}
+                            <Eye className="w-3 h-3 mr-1" />
+                            Detail
                           </Button>
-                        )}
+                          {isCurrentAdmin ? (
+                            <span className="text-[11px] text-muted-foreground italic px-2">
+                              Akun Anda
+                            </span>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="xs"
+                              onClick={() => setTogglingUser(u)}
+                              className={`text-xs ${
+                                u.is_active
+                                  ? "text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                  : "text-green-600 hover:bg-green-500/10 hover:text-green-700"
+                              }`}
+                            >
+                              {u.is_active ? (
+                                <>
+                                  <UserX className="w-3 h-3 mr-1" />
+                                  Nonaktifkan
+                                </>
+                              ) : (
+                                <>
+                                  <UserCheck className="w-3 h-3 mr-1" />
+                                  Aktifkan
+                                </>
+                              )}
+                            </Button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );
@@ -739,6 +755,115 @@ export default function AdminUsersSection() {
               ) : (
                 "Ya, Aktifkan Akun"
               )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* MODAL 3: DETAIL PROFIL LENGKAP PENGGUNA */}
+      <Dialog
+        open={!!viewingUserId}
+        onOpenChange={(open) => !open && setViewingUserId(null)}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-base flex items-center gap-2">
+              <Eye className="w-5 h-5 text-primary" />
+              Detail Informasi Pengguna
+            </DialogTitle>
+            <DialogDescription className="text-xs">
+              Data lengkap akun, profil pedagang/kurir, dan alamat terdaftar di ekosistem pasar.
+            </DialogDescription>
+          </DialogHeader>
+
+          {isLoadingUserDetail ? (
+            <div className="py-8 text-center space-y-2">
+              <Spinner className="w-6 h-6 mx-auto text-primary" />
+              <p className="text-xs text-muted-foreground">Memuat data pengguna dari server...</p>
+            </div>
+          ) : userDetail ? (
+            <div className="space-y-4 py-2 text-xs">
+              <div className="p-3 bg-muted/30 rounded-lg space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Nama Lengkap:</span>
+                  <span className="font-semibold text-sm">{userDetail.name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Peran (Role):</span>
+                  <span className="font-semibold uppercase tracking-wider text-primary">
+                    {userDetail.role}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Nomor Telepon:</span>
+                  <span className="font-medium">{userDetail.phone}</span>
+                </div>
+                {userDetail.email && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Alamat Email:</span>
+                    <span className="font-medium">{userDetail.email}</span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Status Akun:</span>
+                  <span
+                    className={`font-semibold px-2 py-0.5 rounded-full text-[10px] ${
+                      userDetail.is_active
+                        ? "bg-green-500/10 text-green-700"
+                        : "bg-destructive/10 text-destructive"
+                    }`}
+                  >
+                    {userDetail.is_active ? "Aktif" : "Nonaktif"}
+                  </span>
+                </div>
+              </div>
+
+              {userDetail.profile && (
+                <div className="p-3 border rounded-lg space-y-2">
+                  <h4 className="font-semibold text-xs text-foreground">
+                    Profil Toko / Kios / Warung
+                  </h4>
+                  {userDetail.profile.store_name && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Nama Kios/Warung:</span>
+                      <span className="font-medium">{userDetail.profile.store_name}</span>
+                    </div>
+                  )}
+                  {userDetail.profile.market_name && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Lokasi Pasar Induk:</span>
+                      <span className="font-medium">{userDetail.profile.market_name}</span>
+                    </div>
+                  )}
+                  {userDetail.profile.block_number && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Nomor Blok/Los:</span>
+                      <span className="font-medium">{userDetail.profile.block_number}</span>
+                    </div>
+                  )}
+                  {userDetail.profile.full_address && (
+                    <div className="pt-1 border-t">
+                      <span className="text-muted-foreground block text-[11px] mb-0.5">
+                        Alamat Lengkap:
+                      </span>
+                      <p className="text-muted-foreground">{userDetail.profile.full_address}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="text-xs text-destructive text-center py-4">Data pengguna tidak ditemukan.</p>
+          )}
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setViewingUserId(null)}
+            >
+              Tutup
             </Button>
           </DialogFooter>
         </DialogContent>

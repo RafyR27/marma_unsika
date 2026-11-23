@@ -61,6 +61,20 @@ export const useMe = () => {
 
   return {
     ...query,
+    refreshSanctumUser: async () => {
+      try {
+        const response = await user.getSanctumUser();
+        const userData = response.data?.data;
+        if (typeof window !== "undefined" && userData) {
+          localStorage.setItem("user", JSON.stringify(userData));
+          queryClient.setQueryData(["auth", "me"], userData);
+        }
+        return userData ?? null;
+      } catch (err) {
+        console.error("Gagal sinkronisasi data pengguna Sanctum:", err);
+        throw err;
+      }
+    },
     isMounted: mounted,
     isLoading: !mounted || query.isLoading,
   };

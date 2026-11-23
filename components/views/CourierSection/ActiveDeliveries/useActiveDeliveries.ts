@@ -13,6 +13,19 @@ export const useActiveDeliveries = () => {
   const [updatingItemId, setUpdatingItemId] = useState<number | null>(null);
   const [updatingOrderNumber, setUpdatingOrderNumber] = useState<string | null>(null);
 
+  // Modal rute & detail pengiriman
+  const [viewingDeliveryNumber, setViewingDeliveryNumber] = useState<string | null>(null);
+
+  const { data: deliveryDetail, isLoading: isLoadingDeliveryDetail } = useQuery({
+    queryKey: ["courier", "delivery-detail", viewingDeliveryNumber],
+    queryFn: async () => {
+      if (!viewingDeliveryNumber) return null;
+      const res = await courier.getDeliveryDetail(viewingDeliveryNumber);
+      return res.data?.data;
+    },
+    enabled: !!viewingDeliveryNumber,
+  });
+
   const {
     data: deliveriesResponse,
     isLoading,
@@ -123,5 +136,9 @@ export const useActiveDeliveries = () => {
     updateDeliveryStatus,
     isUpdatingDelivery,
     updatingOrderNumber,
+    viewingDeliveryNumber,
+    setViewingDeliveryNumber,
+    deliveryDetail,
+    isLoadingDeliveryDetail,
   };
 };

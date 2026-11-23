@@ -33,6 +33,19 @@ export const useAdminUsers = () => {
   // Modal toggle status
   const [togglingUser, setTogglingUser] = useState<IAuthUser | null>(null);
 
+  // Modal detail user
+  const [viewingUserId, setViewingUserId] = useState<number | null>(null);
+
+  const { data: userDetail, isLoading: isLoadingUserDetail } = useQuery({
+    queryKey: ["admin", "user-detail", viewingUserId],
+    queryFn: async () => {
+      if (!viewingUserId) return null;
+      const res = await admin.getUserDetail(viewingUserId);
+      return res.data?.data;
+    },
+    enabled: !!viewingUserId,
+  });
+
   // Modal Create User States
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [createName, setCreateName] = useState("");
@@ -294,5 +307,9 @@ export const useAdminUsers = () => {
     handleCreateUser,
     isCreatingUser,
     resetCreateForm,
+    viewingUserId,
+    setViewingUserId,
+    userDetail,
+    isLoadingUserDetail,
   };
 };

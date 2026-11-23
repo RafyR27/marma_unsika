@@ -57,6 +57,8 @@ export default function ProfileSection() {
     setShowNewPassword,
     showConfirmPassword,
     setShowConfirmPassword,
+    isSyncingSanctum,
+    syncSanctumUser,
   } = useProfile();
 
   const [mounted, setMounted] = useState(false);
@@ -147,6 +149,21 @@ export default function ProfileSection() {
                       ? "Admin Pengelola"
                       : "Pembeli Warung"}
               </span>
+              <Button
+                variant="outline"
+                size="xs"
+                disabled={isSyncingSanctum}
+                onClick={syncSanctumUser}
+                className="text-[11px] h-6 px-2 ml-1"
+                title="Sinkronisasi profil & token via /api/user"
+              >
+                {isSyncingSanctum ? (
+                  <Spinner className="w-3 h-3 mr-1" />
+                ) : (
+                  <RefreshCw className="w-3 h-3 mr-1" />
+                )}
+                Sinkron Sesi
+              </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
               {currentUser.phone}{" "}

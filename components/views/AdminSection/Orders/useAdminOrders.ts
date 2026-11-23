@@ -24,6 +24,19 @@ export const useAdminOrders = () => {
   const [cancellingOrder, setCancellingOrder] = useState<IOrder | null>(null);
   const [cancelReason, setCancelReason] = useState<string>("");
 
+  // Modal detail pesanan
+  const [selectedDetailOrderNumber, setSelectedDetailOrderNumber] = useState<string | null>(null);
+
+  const { data: orderDetail, isLoading: isLoadingOrderDetail } = useQuery({
+    queryKey: ["admin", "order-detail", selectedDetailOrderNumber],
+    queryFn: async () => {
+      if (!selectedDetailOrderNumber) return null;
+      const res = await admin.getOrderDetail(selectedDetailOrderNumber);
+      return res.data?.data;
+    },
+    enabled: !!selectedDetailOrderNumber,
+  });
+
   // 1. Fetch seluruh pesanan
   const {
     data: ordersResponse,
@@ -175,6 +188,10 @@ export const useAdminOrders = () => {
     isAssigning,
     cancellingOrder,
     setCancellingOrder,
+    selectedDetailOrderNumber,
+    setSelectedDetailOrderNumber,
+    orderDetail,
+    isLoadingOrderDetail,
     cancelReason,
     setCancelReason,
     executeCancelOrder,

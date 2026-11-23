@@ -40,6 +40,7 @@ export default function PaymentSection({ orderNumber }: PaymentSectionProps) {
     setExternalReferenceId,
     isSubmitting,
     handleSubmit,
+    paymentStatus,
   } = usePayment(orderNumber);
 
   const copyToClipboard = (text: string, label: string) => {
@@ -148,6 +149,16 @@ export default function PaymentSection({ orderNumber }: PaymentSectionProps) {
           <p className="text-sm text-muted-foreground max-w-md mx-auto">
             Bukti transfer telah kami terima. Tim operasional pasar sedang memverifikasi dana Anda. Status akan otomatis diperbarui menjadi Terkonfirmasi.
           </p>
+          {paymentStatus && (
+            <p className="text-xs text-muted-foreground">
+              Status Sinkronisasi Pembayaran:{" "}
+              <strong className="text-foreground uppercase">
+                {paymentStatus.paid_at ? "LUNAS" : "MENUNGGU VERIFIKASI"}
+              </strong>
+              {paymentStatus.payment_method && ` • Metode: ${paymentStatus.payment_method}`}
+              {paymentStatus.formatted_amount_paid && ` • Jumlah: ${paymentStatus.formatted_amount_paid}`}
+            </p>
+          )}
           <div className="pt-2 flex justify-center gap-2">
             <Button
               variant="outline"

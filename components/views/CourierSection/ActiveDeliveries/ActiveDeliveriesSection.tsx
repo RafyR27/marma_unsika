@@ -19,6 +19,7 @@ import {
   Phone,
   ClipboardList,
   Package,
+  Eye,
 } from "lucide-react";
 
 import { useMe } from "@/hooks/useMe";
@@ -26,6 +27,14 @@ import { useActiveDeliveries } from "./useActiveDeliveries";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function ActiveDeliveriesSection() {
   const router = useRouter();
@@ -47,6 +56,10 @@ export default function ActiveDeliveriesSection() {
     updateDeliveryStatus,
     isUpdatingDelivery,
     updatingOrderNumber,
+    viewingDeliveryNumber,
+    setViewingDeliveryNumber,
+    deliveryDetail,
+    isLoadingDeliveryDetail,
   } = useActiveDeliveries();
 
   if (!mounted || isCheckingAuth) {
@@ -195,13 +208,25 @@ export default function ActiveDeliveriesSection() {
                     </p>
                   </div>
 
-                  <div className="text-right">
-                    <span className="text-xs text-muted-foreground block">
-                      Upah Ongkir Kurir:
-                    </span>
-                    <span className="text-base font-bold text-primary">
-                      {delivery.formatted_delivery_fee}
-                    </span>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      variant="outline"
+                      size="xs"
+                      onClick={() => setViewingDeliveryNumber(delivery.order_number)}
+                      className="text-xs"
+                      title="Lihat Manifest Rute"
+                    >
+                      <Eye className="w-3.5 h-3.5 mr-1" />
+                      Detail Rute
+                    </Button>
+                    <div className="text-right">
+                      <span className="text-xs text-muted-foreground block">
+                        Upah Ongkir Kurir:
+                      </span>
+                      <span className="text-base font-bold text-primary">
+                        {delivery.formatted_delivery_fee}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -529,6 +554,84 @@ export default function ActiveDeliveriesSection() {
           })}
         </div>
       )}
+
+      {/* MODAL: DETAIL MANIFEST & RUTE PENGIRIMAN KURIR */}
+      <Dialog
+        open={!!viewingDeliveryNumber}
+        onOpenChange={(open) => !open && setViewingDeliveryNumber(null)}
+      >
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-base flex items-center gap-2">
+              <Eye className="w-5 h-5 text-primary" />
+              Manifest Pengiriman #{viewingDeliveryNumber}
+            </DialogTitle>
+            <DialogDescription className="text-xs">
+              Rincian titik penjemputan komoditas pasar dan koordinat alamat penerima warung.
+            </DialogDescription>
+          </DialogHeader>
+
+          {isLoadingDeliveryDetail ? (
+            <div className="py-8 text-center space-y-2">
+              <Spinner className="w-6 h-6 mx-auto text-primary" />
+              <p className="text-xs text-muted-foreground">Memuat detail rute dari server...</p>
+            </div>
+          ) : deliveryDetail ? (
+            <div className="space-y-4 py-2 text-xs">
+              <div className="p-3 bg-muted/40 rounded-lg space-y-2">
+                <div>
+                  <span className="text-muted-foreground block text-[11px]">Tujuan Warung Pembeli:</span>
+                  <span className="font-bold text-sm">{deliveryDetail.buyer?.name || "-"}</span>
+                  <span className="text-muted-foreground block text-[11px]">{deliveryDetail.buyer?.phone}</span>
+                </div>
+                <div className="border-t pt-2 mt-1">
+                  <span className="text-muted-foreground block text-[11px]">Alamat Lengkap Pengantaran:</span>
+                  <p className="font-medium text-foreground">{deliveryDetail.delivery_address_snapshot?.full_address || "-"}</p>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-semibold text-xs mb-2">Checklist Komoditas Pasar:</h4>
+                <div className="space-y-2 border rounded-lg p-2.5 max-h-48 overflow-y-auto">
+                  {deliveryDetail.items?.map((item) => (
+                    <div key={item.id} className="flex justify-between items-center py-1.5 border-b last:border-b-0">
+                      <div>
+                        <span className="font-semibold block">{item.product_name_snapshot || item.product?.name}</span>
+                        <span className="text-[11px] text-muted-foreground">
+                          {item.seller?.profile?.store_name || item.seller?.name || "Kios Pasar"} • Blok {item.seller?.profile?.block_number || "-"}
+                        </span>
+                      </div>
+                      <span className="font-bold text-primary">
+                        {item.quantity} {item.unit_snapshot}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-3 bg-muted/30 rounded-lg flex justify-between items-center">
+                <span className="font-medium text-xs">Hak Ongkir Kurir:</span>
+                <span className="font-extrabold text-sm text-primary">
+                  Rp {(deliveryDetail.delivery_fee || 0).toLocaleString("id-ID")}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <p className="text-xs text-destructive text-center py-4">Data pengiriman tidak ditemukan.</p>
+          )}
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setViewingDeliveryNumber(null)}
+            >
+              Tutup
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

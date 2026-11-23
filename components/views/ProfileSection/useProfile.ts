@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { AxiosError } from "axios";
 
 import profile from "@/services/profile.service";
+import user from "@/services/user.service";
 import { IAuthUser } from "@/types/user";
 
 export const profileFormSchema = z.object({
@@ -48,6 +49,30 @@ export const useProfile = () => {
   const [activeTab, setActiveTab] = useState<"profile" | "password">("profile");
 
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [isSyncingSanctum, setIsSyncingSanctum] = useState(false);
+
+  const syncSanctumUser = async () => {
+    try {
+      setIsSyncingSanctum(true);
+      const res = await user.getSanctumUser();
+      const userData = res.data?.data;
+      if (typeof window !== "undefined" && userData) {
+        localStorage.setItem("user", JSON.stringify(userData));
+        queryClient.setQueryData(["auth", "me"], userData);
+        queryClient.invalidateQueries({ queryKey: ["profile"] });
+      }
+      toast.success("Sesi akun Sanctum (/api/user) berhasil disinkronkan langsung.", {
+        position: "top-right",
+      });
+      return userData;
+    } catch {
+      toast.error("Gagal menyinkronkan data akun dari server.", {
+        position: "top-right",
+      });
+    } finally {
+      setIsSyncingSanctum(false);
+    }
+  };
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -206,5 +231,7 @@ export const useProfile = () => {
     setShowNewPassword,
     showConfirmPassword,
     setShowConfirmPassword,
+    isSyncingSanctum,
+    syncSanctumUser,
   };
 };
