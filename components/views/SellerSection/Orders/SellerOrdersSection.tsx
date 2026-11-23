@@ -109,11 +109,12 @@ export default function SellerOrdersSection() {
 
       {/* Tabs Navigasi Utama */}
       <div className="flex gap-2 border-b">
-        <button
+        <Button
+          variant="ghost"
           onClick={() => setActiveTab("incoming")}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-t-lg transition-colors cursor-pointer border-b-2 -mb-px ${
+          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-t-lg rounded-b-none transition-colors cursor-pointer border-b-2 -mb-px h-auto ${
             activeTab === "incoming"
-              ? "border-primary text-primary bg-primary/5"
+              ? "border-primary text-primary bg-primary/5 hover:bg-primary/10"
               : "border-transparent text-muted-foreground hover:text-foreground"
           }`}
         >
@@ -124,19 +125,20 @@ export default function SellerOrdersSection() {
               {incomingItems.length}
             </span>
           )}
-        </button>
+        </Button>
 
-        <button
+        <Button
+          variant="ghost"
           onClick={() => setActiveTab("orders")}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-t-lg transition-colors cursor-pointer border-b-2 -mb-px ${
+          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-t-lg rounded-b-none transition-colors cursor-pointer border-b-2 -mb-px h-auto ${
             activeTab === "orders"
-              ? "border-primary text-primary bg-primary/5"
+              ? "border-primary text-primary bg-primary/5 hover:bg-primary/10"
               : "border-transparent text-muted-foreground hover:text-foreground"
           }`}
         >
           <ClipboardList className="w-4 h-4" />
           <span>Faktur Pesanan Masuk</span>
-        </button>
+        </Button>
       </div>
 
       {/* TAB 1: ANTREAN KEMAS BARANG */}
@@ -301,17 +303,19 @@ export default function SellerOrdersSection() {
               { key: "completed", label: "Selesai" },
               { key: "cancelled", label: "Dibatalkan" },
             ].map((st) => (
-              <button
+              <Button
                 key={st.key}
+                variant={orderStatusFilter === st.key ? "default" : "outline"}
+                size="sm"
                 onClick={() => setOrderStatusFilter(st.key)}
-                className={`px-3 py-1.5 rounded-lg border font-medium transition-colors cursor-pointer shrink-0 ${
+                className={`px-3 py-1.5 rounded-lg border font-medium transition-colors cursor-pointer shrink-0 h-auto text-xs ${
                   orderStatusFilter === st.key
                     ? "bg-primary text-primary-foreground border-primary"
                     : "bg-card text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {st.label}
-              </button>
+              </Button>
             ))}
           </div>
 

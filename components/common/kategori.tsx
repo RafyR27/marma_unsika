@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import category from "@/services/category.service";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { cn } from "cn";
 import Image from "next/image";
 import { Layers } from "lucide-react";
@@ -29,12 +30,14 @@ const Kategori = ({ selectedCategory, onSelectCategory }: KategoriProps) => {
           Kategori Komoditas
         </h2>
         {selectedCategory && onSelectCategory && (
-          <button
+          <Button
+            variant="ghost"
+            size="xs"
             onClick={() => onSelectCategory(null)}
-            className="text-xs text-primary hover:underline cursor-pointer"
+            className="text-xs text-primary hover:underline cursor-pointer h-auto p-0"
           >
             Tampilkan Semua
-          </button>
+          </Button>
         )}
       </div>
 
@@ -51,10 +54,11 @@ const Kategori = ({ selectedCategory, onSelectCategory }: KategoriProps) => {
         <p className="text-sm text-muted-foreground">Tidak ada kategori tersedia.</p>
       ) : (
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
-          <button
+          <Button
+            variant="outline"
             onClick={() => onSelectCategory?.(null)}
             className={cn(
-              "flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer min-w-28 shrink-0 hover:border-primary/60",
+              "flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer min-w-28 shrink-0 hover:border-primary/60 h-auto",
               !selectedCategory
                 ? "bg-primary/10 border-primary text-primary font-medium shadow-xs"
                 : "bg-card text-foreground"
@@ -62,18 +66,19 @@ const Kategori = ({ selectedCategory, onSelectCategory }: KategoriProps) => {
           >
             <span className="text-2xl mb-1">🛒</span>
             <span className="text-xs font-medium leading-tight">Semua</span>
-          </button>
+          </Button>
 
           {categories.map((cat) => {
             const isSelected = selectedCategory === cat.slug;
             return (
-              <button
+              <Button
                 key={cat.id}
+                variant="outline"
                 onClick={() =>
                   onSelectCategory?.(isSelected ? null : cat.slug)
                 }
                 className={cn(
-                  "flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer min-w-32 max-w-40 shrink-0 hover:border-primary/60",
+                  "flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer min-w-32 max-w-40 shrink-0 hover:border-primary/60 h-auto",
                   isSelected
                     ? "bg-primary/10 border-primary text-primary font-medium shadow-xs"
                     : "bg-card text-foreground"
@@ -101,7 +106,7 @@ const Kategori = ({ selectedCategory, onSelectCategory }: KategoriProps) => {
                     {cat.products_count} produk
                   </span>
                 )}
-              </button>
+              </Button>
             );
           })}
         </div>

@@ -229,17 +229,19 @@ export default function SellerInventorySection() {
                 { key: "out", label: "Habis" },
               ] as { key: StockFilterType; label: string }[]
             ).map((item) => (
-              <button
+              <Button
                 key={item.key}
+                variant="ghost"
+                size="xs"
                 onClick={() => setStockFilter(item.key)}
-                className={`px-2.5 py-1 rounded-md font-medium transition-colors cursor-pointer ${
+                className={`px-2.5 py-1 rounded-md font-medium transition-colors cursor-pointer h-auto ${
                   stockFilter === item.key
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {item.label}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -371,11 +373,13 @@ export default function SellerInventorySection() {
 
                       {/* Status Etalase */}
                       <td className="py-3.5 px-4">
-                        <button
+                        <Button
                           type="button"
+                          variant="outline"
+                          size="xs"
                           onClick={() => toggleAvailability(p)}
                           disabled={isUpdating}
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium cursor-pointer transition-colors border ${
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium cursor-pointer transition-colors border h-auto ${
                             p.is_available
                               ? "bg-green-500/10 border-green-500/30 text-green-700 dark:text-green-400 hover:bg-green-500/20"
                               : "bg-muted border-border text-muted-foreground hover:bg-muted/80"
@@ -388,7 +392,7 @@ export default function SellerInventorySection() {
                             }`}
                           />
                           {p.is_available ? "Tersedia" : "Disembunyikan"}
-                        </button>
+                        </Button>
                       </td>
 
                       {/* Aksi Cepat */}
@@ -499,10 +503,11 @@ function StockAdjustmentDialog({
               Metode Penyesuaian
             </label>
             <div className="grid grid-cols-2 gap-2">
-              <button
+              <Button
                 type="button"
+                variant={adjustmentMode === "add" ? "default" : "outline"}
                 onClick={() => setAdjustmentMode("add")}
-                className={`p-2.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                className={`p-2.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 h-auto ${
                   adjustmentMode === "add"
                     ? "bg-primary text-primary-foreground border-primary"
                     : "bg-background text-muted-foreground hover:bg-muted"
@@ -510,11 +515,12 @@ function StockAdjustmentDialog({
               >
                 <Plus className="w-3.5 h-3.5" />
                 Tambah Pasokan Baru
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant={adjustmentMode === "set" ? "default" : "outline"}
                 onClick={() => setAdjustmentMode("set")}
-                className={`p-2.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                className={`p-2.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 h-auto ${
                   adjustmentMode === "set"
                     ? "bg-primary text-primary-foreground border-primary"
                     : "bg-background text-muted-foreground hover:bg-muted"
@@ -522,7 +528,7 @@ function StockAdjustmentDialog({
               >
                 <SlidersHorizontal className="w-3.5 h-3.5" />
                 Input Stok Baru
-              </button>
+              </Button>
             </div>
           </div>
 

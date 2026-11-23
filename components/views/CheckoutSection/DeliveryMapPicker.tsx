@@ -344,16 +344,18 @@ export default function DeliveryMapPicker({
               className="pl-9 pr-8 text-xs h-9 bg-white"
             />
             {searchQuery && (
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon-xs"
                 onClick={() => {
                   setSearchQuery("");
                   setSearchResults([]);
                 }}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground size-7 p-0"
               >
                 <X className="w-3.5 h-3.5" />
-              </button>
+              </Button>
             )}
           </div>
           <Button
@@ -374,17 +376,19 @@ export default function DeliveryMapPicker({
             Saran:
           </span>
           {POPULAR_KARAWANG_LANDMARKS.map((landmark) => (
-            <button
+            <Button
               key={landmark}
               type="button"
+              variant="outline"
+              size="xs"
               onClick={() => {
                 setSearchQuery(landmark);
                 handleSearch(landmark);
               }}
-              className="px-2 py-0.5 rounded-md bg-muted/60 hover:bg-emerald-50 hover:text-emerald-800 text-muted-foreground border border-border/80 shrink-0 transition-colors"
+              className="px-2 py-0.5 rounded-md bg-muted/60 hover:bg-emerald-50 hover:text-emerald-800 text-muted-foreground border border-border/80 shrink-0 transition-colors h-auto text-[11px] font-normal"
             >
               {landmark}
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -395,25 +399,28 @@ export default function DeliveryMapPicker({
               <span className="text-[10px] font-semibold text-emerald-800 uppercase tracking-wider">
                 Ditemukan {searchResults.length} Lokasi:
               </span>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="xs"
                 onClick={() => setSearchResults([])}
-                className="text-[10px] text-muted-foreground hover:text-foreground"
+                className="text-[10px] text-muted-foreground hover:text-foreground h-auto p-1 font-normal"
               >
                 Tutup
-              </button>
+              </Button>
             </div>
             {searchResults.map((loc, idx) => (
-              <button
+              <Button
                 key={idx}
                 type="button"
+                variant="ghost"
                 onClick={() => handleSelectSearchResult(loc)}
-                className="w-full text-left p-2 rounded-lg hover:bg-emerald-50 transition-colors flex items-start gap-2.5 text-xs group"
+                className="w-full text-left justify-start p-2 rounded-lg hover:bg-emerald-50 transition-colors flex items-start gap-2.5 text-xs group h-auto font-normal whitespace-normal"
               >
                 <div className="w-6 h-6 rounded-md bg-emerald-100 group-hover:bg-emerald-200 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
                   <MapPin className="w-3.5 h-3.5" />
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 text-left">
                   <span className="font-semibold text-foreground block truncate group-hover:text-emerald-900">
                     {loc.name}
                   </span>
@@ -421,7 +428,7 @@ export default function DeliveryMapPicker({
                     {loc.display_name}
                   </span>
                 </div>
-              </button>
+              </Button>
             ))}
           </div>
         )}
@@ -481,22 +488,26 @@ export default function DeliveryMapPicker({
 
           {/* Tombol Zoom In / Out */}
           <div className="bg-white rounded-xl border border-neutral-300 shadow-md overflow-hidden flex flex-col">
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
               onClick={() => mapInstanceRef.current?.zoomIn()}
-              className="w-10 h-8 flex items-center justify-center text-neutral-700 hover:bg-neutral-100 transition-colors border-b border-neutral-200"
+              className="w-10 h-8 flex items-center justify-center text-neutral-700 hover:bg-neutral-100 transition-colors border-b border-neutral-200 rounded-none"
               title="Perbesar Peta"
             >
               <Plus className="w-4 h-4" />
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
               onClick={() => mapInstanceRef.current?.zoomOut()}
-              className="w-10 h-8 flex items-center justify-center text-neutral-700 hover:bg-neutral-100 transition-colors"
+              className="w-10 h-8 flex items-center justify-center text-neutral-700 hover:bg-neutral-100 transition-colors rounded-none"
               title="Perkecil Peta"
             >
               <Minus className="w-4 h-4" />
-            </button>
+            </Button>
           </div>
         </div>
 

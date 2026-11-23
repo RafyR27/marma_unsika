@@ -139,10 +139,12 @@ const RegisterPenjualSection = () => {
                     disabled={isSubmitting}
                   />
                   <InputGroupAddon align="inline-end">
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="icon-sm"
                       onClick={handleShowPassword}
-                      className="px-1 text-muted-foreground hover:text-foreground transition-colors"
+                      className="px-1 text-muted-foreground hover:text-foreground transition-colors size-7"
                       aria-label={showPassword ? "Sembunyikan kata sandi" : "Lihat kata sandi"}
                     >
                       {showPassword ? (
@@ -150,7 +152,7 @@ const RegisterPenjualSection = () => {
                       ) : (
                         <Eye className="size-4" />
                       )}
-                    </button>
+                    </Button>
                   </InputGroupAddon>
                 </InputGroup>
               </FieldContent>
@@ -179,10 +181,12 @@ const RegisterPenjualSection = () => {
                     disabled={isSubmitting}
                   />
                   <InputGroupAddon align="inline-end">
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="icon-sm"
                       onClick={handleShowConfirmPassword}
-                      className="px-1 text-muted-foreground hover:text-foreground transition-colors"
+                      className="px-1 text-muted-foreground hover:text-foreground transition-colors size-7"
                       aria-label={
                         showConfirmPassword
                           ? "Sembunyikan konfirmasi kata sandi"
@@ -194,7 +198,7 @@ const RegisterPenjualSection = () => {
                       ) : (
                         <Eye className="size-4" />
                       )}
-                    </button>
+                    </Button>
                   </InputGroupAddon>
                 </InputGroup>
               </FieldContent>

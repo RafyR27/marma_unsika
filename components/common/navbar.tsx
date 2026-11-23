@@ -68,12 +68,14 @@ const MainNavbar = () => {
               onChange={(e) => setNavSearch(e.target.value)}
             />
             <InputGroupAddon align="inline-end">
-              <button
+              <Button
                 type="submit"
-                className="cursor-pointer px-2 text-xs font-medium text-primary hover:text-primary/80"
+                variant="ghost"
+                size="xs"
+                className="cursor-pointer px-2 text-xs font-medium text-primary hover:text-primary/80 h-7"
               >
                 Cari
-              </button>
+              </Button>
             </InputGroupAddon>
           </InputGroup>
         </form>

@@ -551,13 +551,15 @@ export default function AdminUsersSection() {
                       }`}
                       required
                     />
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="icon-xs"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      className="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground size-7 p-0"
                     >
                       {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                    </button>
+                    </Button>
                   </div>
                   {formErrors.password && (
                     <p className="text-[11px] text-destructive">{formErrors.password}</p>
@@ -587,17 +589,19 @@ export default function AdminUsersSection() {
                       }`}
                       required
                     />
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="icon-xs"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      className="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground size-7 p-0"
                     >
                       {showConfirmPassword ? (
                         <EyeOff className="w-3.5 h-3.5" />
                       ) : (
                         <Eye className="w-3.5 h-3.5" />
                       )}
-                    </button>
+                    </Button>
                   </div>
                   {formErrors.password_confirmation && (
                     <p className="text-[11px] text-destructive">

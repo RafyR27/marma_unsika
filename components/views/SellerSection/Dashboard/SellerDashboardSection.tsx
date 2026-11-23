@@ -212,17 +212,19 @@ export default function SellerDashboardSection() {
           <h2 className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
             Ringkasan Persediaan &amp; Nilai Aset
           </h2>
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={() => refetch()}
             disabled={isLoading}
-            className="text-xs text-neutral-500 hover:text-neutral-800 inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="text-xs text-neutral-500 hover:text-neutral-800 inline-flex items-center gap-1.5 transition-colors cursor-pointer h-auto p-1 font-normal"
           >
             <RefreshCw
               className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-emerald-600" : ""}`}
             />
             <span>Segarkan Data</span>
-          </button>
+          </Button>
         </div>
 
         {isLoading ? (

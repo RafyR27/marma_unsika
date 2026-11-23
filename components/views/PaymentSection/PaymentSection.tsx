@@ -256,14 +256,16 @@ export default function PaymentSection({ orderNumber }: PaymentSectionProps) {
                     <div className="p-3.5 rounded-lg border bg-muted/40 space-y-1.5">
                       <div className="flex items-center justify-between font-semibold text-foreground">
                         <span>Bank BCA</span>
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
+                          size="xs"
                           onClick={() => copyToClipboard("8720192837", "Nomor Rekening BCA")}
-                          className="text-primary hover:text-primary/80 flex items-center gap-1 cursor-pointer"
+                          className="text-primary hover:text-primary/80 flex items-center gap-1 cursor-pointer h-auto p-0 font-normal"
                         >
                           <Copy className="w-3 h-3" />
                           <span>Salin</span>
-                        </button>
+                        </Button>
                       </div>
                       <p className="font-mono text-sm font-bold text-primary">8720-192-837</p>
                       <p className="text-muted-foreground">a.n. Pasar Induk Makar UNSIKA</p>
@@ -272,14 +274,16 @@ export default function PaymentSection({ orderNumber }: PaymentSectionProps) {
                     <div className="p-3.5 rounded-lg border bg-muted/40 space-y-1.5">
                       <div className="flex items-center justify-between font-semibold text-foreground">
                         <span>Bank Mandiri</span>
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
+                          size="xs"
                           onClick={() => copyToClipboard("1730009821234", "Nomor Rekening Mandiri")}
-                          className="text-primary hover:text-primary/80 flex items-center gap-1 cursor-pointer"
+                          className="text-primary hover:text-primary/80 flex items-center gap-1 cursor-pointer h-auto p-0 font-normal"
                         >
                           <Copy className="w-3 h-3" />
                           <span>Salin</span>
-                        </button>
+                        </Button>
                       </div>
                       <p className="font-mono text-sm font-bold text-primary">173-00-0982123-4</p>
                       <p className="text-muted-foreground">a.n. Pasar Induk Makar UNSIKA</p>

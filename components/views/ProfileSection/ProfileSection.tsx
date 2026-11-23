@@ -181,29 +181,31 @@ export default function ProfileSection() {
 
       {/* Tabs Menu Profil */}
       <div className="flex gap-2 border-b">
-        <button
+        <Button
+          variant="ghost"
           onClick={() => setActiveTab("profile")}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-t-lg transition-colors cursor-pointer border-b-2 -mb-px ${
+          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-t-lg rounded-b-none transition-colors cursor-pointer border-b-2 -mb-px h-auto ${
             activeTab === "profile"
-              ? "border-primary text-primary bg-primary/5"
+              ? "border-primary text-primary bg-primary/5 hover:bg-primary/10"
               : "border-transparent text-muted-foreground hover:text-foreground"
           }`}
         >
           <User className="w-4 h-4" />
           <span>Informasi Akun</span>
-        </button>
+        </Button>
 
-        <button
+        <Button
+          variant="ghost"
           onClick={() => setActiveTab("password")}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-t-lg transition-colors cursor-pointer border-b-2 -mb-px ${
+          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-t-lg rounded-b-none transition-colors cursor-pointer border-b-2 -mb-px h-auto ${
             activeTab === "password"
-              ? "border-primary text-primary bg-primary/5"
+              ? "border-primary text-primary bg-primary/5 hover:bg-primary/10"
               : "border-transparent text-muted-foreground hover:text-foreground"
           }`}
         >
           <Lock className="w-4 h-4" />
           <span>Keamanan & Kata Sandi</span>
-        </button>
+        </Button>
       </div>
 
       {/* TAB 1: FORM INFORMASI LAPAK & KONTAK */}
@@ -450,19 +452,21 @@ export default function ProfileSection() {
                         disabled={isUpdatingPassword}
                       />
                       <InputGroupAddon align="inline-end">
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
+                          size="icon-sm"
                           onClick={() =>
                             setShowCurrentPassword(!showCurrentPassword)
                           }
-                          className="px-2 text-muted-foreground hover:text-foreground cursor-pointer"
+                          className="px-2 text-muted-foreground hover:text-foreground cursor-pointer size-7"
                         >
                           {showCurrentPassword ? (
                             <EyeOff className="w-4 h-4" />
                           ) : (
                             <Eye className="w-4 h-4" />
                           )}
-                        </button>
+                        </Button>
                       </InputGroupAddon>
                     </InputGroup>
                   </FieldContent>
@@ -490,17 +494,19 @@ export default function ProfileSection() {
                         disabled={isUpdatingPassword}
                       />
                       <InputGroupAddon align="inline-end">
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
+                          size="icon-sm"
                           onClick={() => setShowNewPassword(!showNewPassword)}
-                          className="px-2 text-muted-foreground hover:text-foreground cursor-pointer"
+                          className="px-2 text-muted-foreground hover:text-foreground cursor-pointer size-7"
                         >
                           {showNewPassword ? (
                             <EyeOff className="w-4 h-4" />
                           ) : (
                             <Eye className="w-4 h-4" />
                           )}
-                        </button>
+                        </Button>
                       </InputGroupAddon>
                     </InputGroup>
                   </FieldContent>
@@ -530,19 +536,21 @@ export default function ProfileSection() {
                         disabled={isUpdatingPassword}
                       />
                       <InputGroupAddon align="inline-end">
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
+                          size="icon-sm"
                           onClick={() =>
                             setShowConfirmPassword(!showConfirmPassword)
                           }
-                          className="px-2 text-muted-foreground hover:text-foreground cursor-pointer"
+                          className="px-2 text-muted-foreground hover:text-foreground cursor-pointer size-7"
                         >
                           {showConfirmPassword ? (
                             <EyeOff className="w-4 h-4" />
                           ) : (
                             <Eye className="w-4 h-4" />
                           )}
-                        </button>
+                        </Button>
                       </InputGroupAddon>
                     </InputGroup>
                   </FieldContent>

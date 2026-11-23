@@ -92,17 +92,18 @@ export default function OrdersListSection() {
       {/* Tabs Filter */}
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none border-b">
         {tabs.map((tab) => (
-          <button
+          <Button
             key={tab.key}
+            variant="ghost"
             onClick={() => setActiveTab(tab.key)}
-            className={`px-3.5 py-2 text-xs font-semibold rounded-t-lg transition-colors cursor-pointer shrink-0 border-b-2 -mb-px ${
+            className={`px-3.5 py-2 text-xs font-semibold rounded-t-lg rounded-b-none transition-colors cursor-pointer shrink-0 border-b-2 -mb-px h-auto ${
               activeTab === tab.key
-                ? "border-primary text-primary bg-primary/5"
+                ? "border-primary text-primary bg-primary/5 hover:bg-primary/10"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
             {tab.label}
-          </button>
+          </Button>
         ))}
       </div>
 

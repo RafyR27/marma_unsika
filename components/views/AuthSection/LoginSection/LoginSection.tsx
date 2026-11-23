@@ -86,17 +86,19 @@ const LoginSection = () => {
                     disabled={isPendingLogin || isSuccessLogin}
                   />
                   <InputGroupAddon align="inline-end">
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="icon-sm"
                       onClick={handleShowPassword}
-                      className="px-1"
+                      className="px-1 text-muted-foreground hover:text-foreground size-7"
                     >
                       {showPassword ? (
                         <EyeOff className="size-5" />
                       ) : (
                         <Eye className="size-5" />
                       )}
-                    </button>
+                    </Button>
                   </InputGroupAddon>
                 </InputGroup>
               </FieldContent>

@@ -121,17 +121,18 @@ export default function AdminVerifikasiSection() {
           { key: "verified", label: "Sudah Diverifikasi" },
           { key: "all", label: "Semua Transaksi" },
         ].map((tab) => (
-          <button
+          <Button
             key={tab.key}
+            variant="ghost"
             onClick={() => setActiveTab(tab.key as VerificationFilterTab)}
-            className={`px-4 py-2.5 text-xs font-semibold rounded-t-lg transition-colors cursor-pointer border-b-2 -mb-px ${
+            className={`px-4 py-2.5 text-xs font-semibold rounded-t-lg rounded-b-none transition-colors cursor-pointer border-b-2 -mb-px h-auto ${
               activeTab === tab.key
-                ? "border-primary text-primary bg-primary/5"
+                ? "border-primary text-primary bg-primary/5 hover:bg-primary/10"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
             {tab.label}
-          </button>
+          </Button>
         ))}
       </div>
 
