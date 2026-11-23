@@ -131,16 +131,6 @@ export default function CourierEarningsSection() {
               Setor Kas COD ({codDeliveries.length})
             </Button>
           )}
-
-          <Button
-            size="sm"
-            onClick={() => setIsWithdrawModalOpen(true)}
-            disabled={totalEarnedDeliveryFee <= 0}
-            className="flex items-center gap-1.5 font-semibold text-xs"
-          >
-            <Wallet className="w-4 h-4" />
-            Tarik Upah Ongkir
-          </Button>
         </div>
       </div>
 
@@ -360,95 +350,6 @@ export default function CourierEarningsSection() {
           )}
         </div>
       </div>
-
-      {/* MODAL 1: PENARIKAN UPAH ONGKIR */}
-      <Dialog open={isWithdrawModalOpen} onOpenChange={setIsWithdrawModalOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-base flex items-center gap-2">
-              <Wallet className="w-5 h-5 text-primary" />
-              Tarik Upah Ongkos Kirim Kurir
-            </DialogTitle>
-            <DialogDescription className="text-xs">
-              Pencairan saldo upah resmi hasil pengantaran komoditas pasar ke rekening kurir.
-            </DialogDescription>
-          </DialogHeader>
-
-          <form onSubmit={handleRequestWithdrawal} className="space-y-4 py-2 text-xs">
-            <div className="p-3.5 rounded-lg border bg-muted/40 flex items-center justify-between">
-              <div>
-                <span className="text-muted-foreground block">Saldo Upah Siap Tarik:</span>
-                <span className="font-bold text-base text-primary">
-                  Rp {totalEarnedDeliveryFee.toLocaleString("id-ID")}
-                </span>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="xs"
-                onClick={() => setWithdrawalAmount(String(totalEarnedDeliveryFee))}
-                className="text-xs"
-              >
-                Tarik Semua
-              </Button>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="font-semibold text-foreground">
-                Nominal Penarikan (Rp):
-              </label>
-              <Input
-                type="number"
-                min="10000"
-                max={totalEarnedDeliveryFee}
-                value={withdrawalAmount}
-                onChange={(e) => setWithdrawalAmount(e.target.value)}
-                placeholder="Contoh: 100000"
-                className="h-10 text-sm font-bold"
-                required
-              />
-              <p className="text-[11px] text-muted-foreground">
-                Minimal penarikan Rp 10.000. Langsung diproses tanpa potongan admin.
-              </p>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="font-semibold text-foreground">
-                Rekening / E-Wallet Tujuan:
-              </label>
-              <select
-                value={bankDestination}
-                onChange={(e) => setBankDestination(e.target.value)}
-                className="w-full h-9 px-3 rounded-lg border border-input bg-background text-xs outline-none focus:border-ring cursor-pointer"
-              >
-                <option value="BCA - Rekening Kurir">
-                  BCA · Rekening Kurir ({user?.name})
-                </option>
-                <option value="DANA / GoPay">
-                  E-Wallet (Nomor HP: {user?.phone})
-                </option>
-                <option value="Tunai Kasir Pasar">
-                  Ambil Tunai di Pos Keuangan Armada Pasar
-                </option>
-              </select>
-            </div>
-
-            <DialogFooter className="gap-2 sm:gap-0 pt-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setIsWithdrawModalOpen(false)}
-              >
-                Batal
-              </Button>
-              <Button type="submit" size="sm" className="font-semibold">
-                Ajukan Pencairan Upah
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
 
       {/* MODAL 2: KONFIRMASI SETOR UANG FISIK COD */}
       <Dialog open={isRemitCODModalOpen} onOpenChange={setIsRemitCODModalOpen}>

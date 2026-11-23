@@ -40,27 +40,12 @@ const SIDEBAR_SELLER = {
       url: "/seller/shipments",
       icon: <TruckIcon />,
     },
-    {
-      title: "Ulasan Pembeli",
-      url: "/seller/reviews",
-      icon: <StarIcon />,
-    },
-    {
-      title: "Chat Pembeli",
-      url: "/seller/chats",
-      icon: <MessageSquareIcon />,
-    },
   ],
   documents: [
     {
       title: "Pendapatan",
       url: "/seller/earnings",
       icon: <WalletIcon />,
-    },
-    {
-      title: "Penarikan Dana",
-      url: "/seller/withdrawals",
-      icon: <BanknoteIcon />,
     },
     {
       title: "Laporan Penjualan",

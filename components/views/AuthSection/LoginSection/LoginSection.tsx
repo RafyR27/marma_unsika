@@ -72,16 +72,7 @@ const LoginSection = () => {
           control={control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <div className="flex items-center justify-between">
-                <FieldLabel htmlFor="password">Kata Sandi</FieldLabel>
-
-                <Link
-                  href={"/auth/forgot-password"}
-                  className="text-primary hover:underline text-[0.8rem]"
-                >
-                  Lupa Kata Sandi?
-                </Link>
-              </div>
+              <FieldLabel htmlFor="password">Kata Sandi</FieldLabel>
 
               <FieldContent>
                 <InputGroup className="rounded-lg bg-background h-11 lg:h-9">

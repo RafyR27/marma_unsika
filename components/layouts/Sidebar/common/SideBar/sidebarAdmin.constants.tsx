@@ -40,11 +40,6 @@ const SIDEBAR_ADMIN = {
       url: "/admin/product-catalog",
       icon: <PackageIcon />,
     },
-    {
-      title: "Promo & Voucher",
-      url: "/admin/promos",
-      icon: <TicketPercentIcon />,
-    },
   ],
   documents: [
     {
@@ -56,11 +51,6 @@ const SIDEBAR_ADMIN = {
       title: "Transaksi",
       url: "/admin/transactions",
       icon: <ReceiptTextIcon />,
-    },
-    {
-      title: "Pencairan Dana",
-      url: "/admin/reimbursement",
-      icon: <BanknoteIcon />,
     },
     {
       title: "Laporan",

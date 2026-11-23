@@ -44,11 +44,6 @@ const SIDEBAR_COURIER = {
       url: "/courier/earnings",
       icon: <WalletIcon />,
     },
-    {
-      title: "Penarikan Dana",
-      url: "/courier/withdrawals",
-      icon: <BanknoteIcon />,
-    },
   ],
   tools: [
     {
