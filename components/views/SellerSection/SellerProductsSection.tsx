@@ -409,7 +409,7 @@ export default function SellerProductsSection() {
 
       {/* MODAL 1: TAMBAH PRODUK */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className="min-w-full lg:min-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Plus className="w-5 h-5 text-primary" />
@@ -681,7 +681,7 @@ export default function SellerProductsSection() {
         open={!!editingProduct}
         onOpenChange={(open) => !open && setEditingProduct(null)}
       >
-        <DialogContent className="min-w-full lg:min-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Edit2 className="w-5 h-5 text-primary" />
@@ -937,7 +937,7 @@ export default function SellerProductsSection() {
         open={!!deletingProduct}
         onOpenChange={(open) => !open && setDeletingProduct(null)}
       >
-        <DialogContent className="min-w-full lg:min-w-lg">
+        <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-destructive">
               <Trash2 className="w-5 h-5" />

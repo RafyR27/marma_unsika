@@ -396,7 +396,7 @@ export default function AdminOrdersSection() {
         open={!!assigningOrder}
         onOpenChange={(open) => !open && setAssigningOrder(null)}
       >
-        <DialogContent className="min-w-full lg:min-w-lg">
+        <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="text-base flex items-center gap-2">
               <UserCheck className="w-5 h-5 text-primary" />
@@ -466,7 +466,7 @@ export default function AdminOrdersSection() {
         open={!!cancellingOrder}
         onOpenChange={(open) => !open && setCancellingOrder(null)}
       >
-        <DialogContent className="min-w-full lg:min-w-lg">
+        <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="text-base flex items-center gap-2 text-destructive">
               <Ban className="w-5 h-5" />
@@ -524,7 +524,7 @@ export default function AdminOrdersSection() {
         open={!!selectedDetailOrderNumber}
         onOpenChange={(open) => !open && setSelectedDetailOrderNumber(null)}
       >
-        <DialogContent className="min-w-full lg:min-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-base flex items-center gap-2">
               <Eye className="w-5 h-5 text-primary" />
