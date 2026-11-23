@@ -434,7 +434,7 @@ export default function OrderDetailSection({ orderNumber }: OrderDetailSectionPr
 
       {/* Modal Dialog Pembatalan Pesanan */}
       <Dialog open={isCancelModalOpen} onOpenChange={setIsCancelModalOpen}>
-        <DialogContent className="min-w-full md:min-w-xl">
+        <DialogContent className="min-w-full lg:min-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-destructive">
               <Ban className="w-5 h-5" />

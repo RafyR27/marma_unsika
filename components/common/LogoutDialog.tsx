@@ -81,7 +81,7 @@ export default function LogoutDialog({
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       {trigger && <DialogTrigger render={trigger as any} />}
-      <DialogContent className="min-w-full md:min-w-xl">
+      <DialogContent className="min-w-full lg:min-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-destructive">
             <LogOut className="h-4 w-4" />
