@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { TanStackProvider } from "@/providers/tanstack-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-const plusJakartaSans = Plus_Jakarta_Sans({
+const plusJakartaSans = localFont({
+  src: "../public/fonts/PlusJakartaSans-Variable.woff2",
   variable: "--font-plus-jakarta-sans",
-  weight: ["200", "300", "400", "500", "600", "700", "800"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
